@@ -32,20 +32,20 @@ dependencies:
   flutter:
     sdk: flutter
 
-  ##mobile_scanner: ^3.4.6   
+  ##mobile_scanner: ^3.4.6
   http: ^1.2.2
   url_launcher: ^6.3.1
   flutter_launcher_icons: ^0.14.3
   intl: ^0.20.2
   image_picker: ^1.1.2
   ##flutter_appauth: ^6.0.4
- # auth0_flutter: ^1.5.0
+  # auth0_flutter: ^1.5.0
   #dropdown_search: ^5.0.6
   #dropdown_search: ^6.0.2
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   path_provider: ^2.1.5
-  flutter_html: ^3.0.0  
+  flutter_html: ^3.0.0
   speech_to_text: ^7.0.0
   permission_handler: ^12.0.0
 
@@ -58,6 +58,16 @@ dependencies:
 
   global_configuration: ^2.0.0
   uuid: ^4.4.2
+  flutter_appauth: ^9.0.1
+  flutter_secure_storage: ^9.0.0
+  flutter_web_auth_2: ^5.0.0-alpha.3
+  crypto: ^3.0.3
+  app_links: ^6.4.1
+  restart_app: ^1.2.1
+  flutter_phoenix: ^1.1.1
+  webview_flutter: ^4.4.2
+  flutter_native_splash: ^2.4.6
+
 
 
 dev_dependencies:
@@ -68,7 +78,7 @@ dev_dependencies:
 
 
 flutter_launcher_icons:
-  android: "launcher_icon" 
+  android: "launcher_icon"
   ios: true
   image_path: "assets/ICON1024.png"
   remove_alpha_ios: true
@@ -79,6 +89,15 @@ flutter_launcher_icons:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^2.0.0
+
+
+# The following section is specific to Flutter splash screen.
+flutter_native_splash:
+  color: "#74c188"
+  image: "assets/ICON1024.png"
+  android_12:
+    color: "#74c188"
+    image: "assets/ICON1024.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -97,7 +116,8 @@ flutter:
   #   - images/a_dot_ham.jpeg
 
   assets:
-     - assets/cfg/
+    - assets/
+    # - assets/cfg/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
