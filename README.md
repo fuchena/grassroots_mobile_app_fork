@@ -1,6 +1,4 @@
-# mobile
-
-Grassroots Mobile App.
+# Grassroots Mobile App.
 
 ## Notes
 The mobile app displays and submits the observations in field trials. 
