@@ -7,5 +7,5 @@ The current version is a prototype and is only available for Android.
 
 The full documentation is available at:
 
-- [Doc:](https://grassroots.tools/documentation/mobile_app)
+- [Grassroots Mobile App](https://grassroots.tools/documentation/mobile_app)
 
