@@ -10,7 +10,7 @@ class GlobusConfig {
   static const clientId = '4ca0e2cf-5369-4396-b1ae-0a23015abe77';
   static const clientSecret = 'sUX89ts5kT4WPG8CNF7BrYIl2S/QKRVD9yf81xE3/10=';
   static const redirectUri =
-      'https://grassroots.tools/dev/service/orcid/login2';
+      'https://grassroots.tools/dev/service/orcid/login';
   static const authBase = 'auth.globus.org';
 }
 
@@ -70,11 +70,8 @@ class GlobusAuthService {
     );
   }
 
-  static Future<String> getUserName() async {
+  static Future<String?> getUserName() async {
     String? name = await _secureStorage.read(key: 'GLOBUS_EMAIL');
-    if (name == null) {
-      name = '...';
-    }
     return name;
   }
 

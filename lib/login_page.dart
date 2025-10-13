@@ -80,7 +80,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 ElevatedButton.icon(
                   icon: const Icon(Icons.login),
-                  label: const Text("Login with ORCID",
+                  label: const Text("Login with Globus",
                       style: TextStyle(fontSize: 16)),
                   onPressed: () => _openOrcidWebView(context),
                 ),

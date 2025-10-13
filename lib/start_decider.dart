@@ -21,7 +21,7 @@ class _StartDeciderState extends State<StartDecider> {
 
   Future<void> _checkLogin() async {
     bool credentialExist = await GlobusAuthService.isCredentialExist();
-    print('Credential exist: $credentialExist');
+    //print('Credential exist: $credentialExist');
     setState(() {
       _isLoading = false;
     });
@@ -34,6 +34,7 @@ class _StartDeciderState extends State<StartDecider> {
   Widget build(BuildContext context) {
     if (_isLoading)
       return const Scaffold(
+        backgroundColor: Color(0xFF74C188),
         body: Center(child: CircularProgressIndicator()),
       );
 
