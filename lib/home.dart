@@ -137,143 +137,133 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     bool isServerHealthy = _GetServerHealth(false);
-    //final String? app_url = GrassrootsConfig.GetPhotoReceiverURL ();
-
     return Scaffold(
+      backgroundColor: Colors.grey[50],
       appBar: AppBar(
         title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            //Text('Grassroots App'),
-            //SizedBox(width: 8),
-            //Text('Welcome'),
-            Row(
-              children: [
-                // LED Indicator
-                Container(
-                  width: 10,
-                  height: 10,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: isServerHealthy ? Colors.green : Colors.red,
-                  ),
-                ),
-                SizedBox(width: 8),
-                Text(
-                  isServerHealthy ? 'Server OK' : 'Server Issue',
-                  style: TextStyle(fontSize: 14),
-                ),
-              ],
+            Container(
+              width: 10,
+              height: 10,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: isServerHealthy ? Colors.green : Colors.red,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              isServerHealthy ? 'Server OK' : 'Server Issue',
+              style: const TextStyle(fontSize: 14),
             ),
           ],
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.refresh),
-            onPressed: checkHealthStatus, // Trigger health check
+            icon: const Icon(Icons.refresh),
             tooltip: 'Refresh Server Status',
+            onPressed: checkHealthStatus,
           ),
-          SizedBox(width: 8),
           IconButton(
-              icon: Icon(Icons.logout),
-              onPressed: () => GlobusAuthService.logout(context)),
+            icon: const Icon(Icons.logout),
+            tooltip: 'Logout',
+            onPressed: () => GlobusAuthService.logout(context),
+          ),
         ],
       ),
       body: RefreshIndicator(
-        onRefresh: checkHealthStatus, // Pull-to-refresh action
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return SingleChildScrollView(
-              physics:
-              AlwaysScrollableScrollPhysics(), // Enable pull-to-refresh
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                child: IntrinsicHeight(
-                  child: Column(
-                    children: [
-                      //login(),
-                      // Welcome message
-                      WelcomeMessageWidget(),
-
-                      Expanded(
-                        child: Align(
-                          alignment: Alignment.center, // centers horizontally
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: OverflowBar(
-                              alignment: MainAxisAlignment
-                                  .center, // center the buttons
-                              overflowAlignment: OverflowBarAlignment.center,
-                              spacing: 16,
-                              overflowSpacing: 10,
-                              children: <Widget>[
-                                ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              GrassrootsStudies()),
-                                    );
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 16, horizontal: 32),
-                                    minimumSize: const Size(
-                                        180, 60), // make button larger
-                                    textStyle: const TextStyle(fontSize: 18),
-                                  ),
-                                  child: const Text(
-                                    'Browse\nall studies',
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => NewStudyPage()),
-                                    );
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 16, horizontal: 32),
-                                    minimumSize: const Size(180, 60),
-                                    textStyle: const TextStyle(fontSize: 18),
-                                  ),
-                                  child: const Text(
-                                    'Create Study',
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    SystemNavigator.pop();
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 16, horizontal: 32),
-                                    minimumSize: const Size(180, 60),
-                                    textStyle: const TextStyle(fontSize: 18),
-                                  ),
-                                  child: const Text('Exit'),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+        onRefresh: checkHealthStatus,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: MediaQuery.of(context).size.height - 150,
+            ),
+            child: IntrinsicHeight(
+              child: Column(
+                children: [
+                  const SizedBox(height: 30),
+                  Text(
+                    "Welcome to the Grassroots App",
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
                   ),
-                ),
+                  const SizedBox(height: 20),
+                   Text(
+                    "Empowering agricultural research through technology",
+                    style: TextStyle(fontSize: 16),
+                    textAlign: TextAlign.center,
+                  ),
+                  const Spacer(),
+                  Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: OverflowBar(
+                      alignment: MainAxisAlignment.center,
+                      overflowAlignment: OverflowBarAlignment.center,
+                      spacing: 16,
+                      overflowSpacing: 12,
+                      children: [
+                        _buildButton(
+                          label: 'Browse\nAll Studies',
+                          icon: Icons.folder_open,
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => GrassrootsStudies()),
+                            );
+                          },
+                        ),
+                        _buildButton(
+                          label: 'Create Study',
+                          icon: Icons.add_circle_outline,
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => NewStudyPage()),
+                            );
+                          },
+                        ),
+                        _buildButton(
+                          label: 'Exit',
+                          icon: Icons.exit_to_app,
+                          onPressed: () => SystemNavigator.pop(),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+                  WelcomeMessageWidget(),
+                ],
               ),
-            );
-          },
+            ),
+          ),
         ),
       ),
     );
   }
+
+  Widget _buildButton({
+    required String label,
+    required IconData icon,
+    required VoidCallback onPressed,
+  }) {
+    return ElevatedButton.icon(
+      onPressed: onPressed,
+      icon: Icon(icon, size: 26),
+      label: Text(
+        label,
+        textAlign: TextAlign.center,
+      ),
+      style: ElevatedButton.styleFrom(
+        minimumSize: const Size(180, 70),
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 24),
+        textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
+
 
   void EmptyBox(final String name) async {
     await Hive.deleteBoxFromDisk(name);

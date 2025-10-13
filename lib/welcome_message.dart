@@ -10,11 +10,11 @@ class WelcomeMessageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<String?>(
+/*    return FutureBuilder<String?>(
         future: GlobusAuthService.getUserName(),
         builder: (context, snapshot) {
           String userName = GlobusAuthService.capitalize(snapshot.data ?? '')
-              .split('.')[0];
+              .split('.')[0];*/
 
           return RichText(
             textAlign: TextAlign.center,
@@ -22,10 +22,6 @@ class WelcomeMessageWidget extends StatelessWidget {
               style: TextStyle(
                   fontSize: 16, color: Theme.of(context).primaryColor),
               children: [
-                TextSpan(
-                  text: "Welcome ${userName}!\n\n",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
                 //TextSpan(
                 //   text: "Open the camera to start capturing QR codes.\n\n",
                 //   style: TextStyle(fontSize: 18),
@@ -55,6 +51,5 @@ class WelcomeMessageWidget extends StatelessWidget {
               ],
             ),
           );
-        });
-  }
+        }
 }
