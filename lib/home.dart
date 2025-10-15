@@ -21,10 +21,12 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   String hps_djangoStatus = 'unknown';
   String hps_mongoStatus = 'unknown';
+  String? userFirstName = "";
 
   @override
   void initState() {
     super.initState();
+    getUserName();
     GrassrootsPageState.CheckAndUpdateAllowedStudyIDs();
     checkHealthStatus();
     _printLocalObservations(); // Fetch and print local observations
@@ -34,9 +36,9 @@ class _HomePageState extends State<HomePage> {
   Future<void> _printLocalPhotoSubmissions() async {
     try {
       var box =
-      Hive.box<PhotoSubmission>('photo_submissions'); // Open the Hive box
+          Hive.box<PhotoSubmission>('photo_submissions'); // Open the Hive box
       List<PhotoSubmission> photoSubmissions =
-      box.values.toList(); // Get all photo submissions
+          box.values.toList(); // Get all photo submissions
       print('Local Photo Submissions:');
       for (var photo in photoSubmissions) {
         print(photo.toJson()); // Print each photo submission as JSON
@@ -51,7 +53,7 @@ class _HomePageState extends State<HomePage> {
     try {
       var box = Hive.box<Observation>('observations'); // Open the Hive box
       List<Observation> observations =
-      box.values.toList(); // Get all observations
+          box.values.toList(); // Get all observations
       print('Local Observations:');
       for (var observation in observations) {
         print(observation.toJson()); // Print each observation as JSON
@@ -67,6 +69,7 @@ class _HomePageState extends State<HomePage> {
       final bool old_health_status = _GetServerHealth(false);
 
       final healthStatus = await ApiRequests.fetchHealthStatus();
+      print("Health status fetched: $healthStatus");
       setState(() {
         hps_djangoStatus = healthStatus['django'] ?? 'unknown';
         hps_mongoStatus = healthStatus['mongo'] ?? 'unknown';
@@ -98,7 +101,7 @@ class _HomePageState extends State<HomePage> {
 
         if (app_url != null) {
           error_message =
-          "Warning: There is a problem with the server connection to ${app_url}. Error ${ApiRequests.latest_error}";
+              "Warning: There is a problem with the server connection to ${app_url}. Error ${ApiRequests.latest_error}";
         } else {}
 
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -132,6 +135,13 @@ class _HomePageState extends State<HomePage> {
   bool _GetServerHealth(bool refresh_flag) {
     return ((hps_djangoStatus == 'running') &&
         (hps_mongoStatus == 'available'));
+  }
+
+  Future<void> getUserName() async {
+    final firstName = (await GlobusAuthService.getFirstName())?.split('.')[0];
+    setState(() {
+      userFirstName = firstName;
+    });
   }
 
   @override
@@ -183,12 +193,12 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   const SizedBox(height: 30),
                   Text(
-                    "Welcome to the Grassroots App",
+                    "Welcome to the Grassroots App, ${userFirstName}!",
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 20),
-                   Text(
+                  Text(
                     "Empowering agricultural research through technology",
                     style: TextStyle(fontSize: 16),
                     textAlign: TextAlign.center,
@@ -219,8 +229,7 @@ class _HomePageState extends State<HomePage> {
                           onPressed: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(
-                                  builder: (_) => NewStudyPage()),
+                              MaterialPageRoute(builder: (_) => NewStudyPage()),
                             );
                           },
                         ),
@@ -263,7 +272,6 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-
 
   void EmptyBox(final String name) async {
     await Hive.deleteBoxFromDisk(name);

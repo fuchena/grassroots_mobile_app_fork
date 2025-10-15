@@ -38,7 +38,7 @@ class GlobusAuthService {
     );
 
     if (response.statusCode == 200) {
-      print('TokenResponse ${response.body}');
+      //print('TokenResponse ${response.body}');
       return jsonDecode(response.body) as Map<String, dynamic>;
     }
     return null;
@@ -52,15 +52,14 @@ class GlobusAuthService {
     );
     if (response.statusCode == 200) {
       final userInfo = jsonDecode(response.body);
-      print('UserInfo: $userInfo');
+      //print('UserInfo: $userInfo');
       return userInfo['email'] as String?;
     }
     return null;
   }
 
   static void logout(BuildContext context) async {
-    await _secureStorage.delete(key: 'GLOBUS_EMAIL');
-    await _secureStorage.delete(key: 'ID_TOKEN');
+    await _secureStorage.deleteAll();
     await WebViewCookieManager().clearCookies();
     // Navigate back to login screen
     Navigator.pushAndRemoveUntil(
@@ -70,10 +69,12 @@ class GlobusAuthService {
     );
   }
 
-  static Future<String?> getUserName() async {
-    String? name = await _secureStorage.read(key: 'GLOBUS_EMAIL');
-    return name;
+
+  static Future<String?> getFirstName() async {
+    final email = await _secureStorage.read(key: 'GLOBUS_EMAIL');
+    return email != null ? capitalize(email) : null;
   }
+
 
   static String capitalize(String s) =>
       s.isNotEmpty ? '${s[0].toUpperCase()}${s.substring(1)}' : s;

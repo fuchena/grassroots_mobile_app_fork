@@ -72,7 +72,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 Image.asset("assets/ICON1024.png", width: 150, height: 150),
                 const SizedBox(height: 30),
                 const Text(
-                  "Welcome to the Grassroots Field Trials App",
+                  "The Grassroots Field Trials App",
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                 ),
@@ -146,8 +146,13 @@ class _OrcidWebViewLoginState extends State<OrcidWebViewLogin> {
             setState(() => _afterLogin = false);
             return NavigationDecision.navigate;
           },
+   /*       onHttpError: (HttpResponseError error) {
+            // Only triggers when the main page fails, not subresources
+            widget.onLoginFailed('Page failed: ${error.response?.statusCode}');
+          },*/
           onWebResourceError: (error) {
-            widget.onLoginFailed('WebView: ${error.description}');
+            // Optional logging only
+            debugPrint('Subresource failed: ${error.description}');
           },
         ),
       )
@@ -196,7 +201,7 @@ class _OrcidWebViewLoginState extends State<OrcidWebViewLogin> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Grassroots"),
+        title: const Text("Grassroots Login"),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
