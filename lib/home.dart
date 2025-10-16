@@ -140,7 +140,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> getUserName() async {
     final firstName = (await GlobusAuthService.getFirstName())?.split('.')[0];
     setState(() {
-      userFirstName = firstName;
+      userFirstName = '$firstName!'; //concat firstname with !
     });
   }
 
@@ -193,8 +193,8 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   const SizedBox(height: 30),
                   Text(
-                    "Welcome to the Grassroots App, ${userFirstName}!",
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    "Welcome to the Grassroots App \n $userFirstName",
+                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 20),

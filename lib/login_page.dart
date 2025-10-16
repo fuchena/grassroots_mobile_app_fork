@@ -215,7 +215,9 @@ class _OrcidWebViewLoginState extends State<OrcidWebViewLogin> {
 
           // Show loading spinner before and after login
           if (_isLoading || _afterLogin)
-            const Center(child: CircularProgressIndicator()),
+            Container(
+              child: const Center(child: CircularProgressIndicator()),
+            ),
         ],
       ),
     );
