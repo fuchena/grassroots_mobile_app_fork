@@ -1,330 +1,179 @@
-
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:grassroots_field_trials/api_requests.dart';
 import 'package:http/http.dart' as http;
-
 import 'global_variable.dart';
+import 'api_requests.dart';
 import 'models/observation.dart';
 
+/// Represents a simple label with an ID
 class StringLabel {
-  String name;
-  String id;
+  final String name;
+  final String id;
 
-  StringLabel (this.name, this.id);
+  StringLabel(this.name, this.id);
 }
 
-typedef StringEntry = DropdownMenuEntry <StringLabel>;
+typedef StringEntry = DropdownMenuEntry<StringLabel>;
 
+/// Enumeration of server status states
+enum ServerStatus { online, offline, unknown }
 
-enum ServerStatus {
-  SS_ONLINE,
-  SS_OFFLINE,
-  SS_UNKNOWN
-}
-
-
+/// Centralized model to track server connectivity
 class ServerModel extends ChangeNotifier {
-  ServerStatus _django_online = ServerStatus.SS_UNKNOWN;
-  ServerStatus _mongo_online = ServerStatus.SS_UNKNOWN;
+  ServerStatus _djangoStatus = ServerStatus.unknown;
+  ServerStatus _mongoStatus = ServerStatus.unknown;
+  String latestError = "";
 
-  bool _combined_state = false;
+  bool get isOnline =>
+      _djangoStatus == ServerStatus.online &&
+      _mongoStatus == ServerStatus.online;
 
-  String latest_error = "";
-
-  ServerModel () {
-    CheckStatus ();
-  }
-
-
-
-  Future <void> CheckStatus() async {
-    final ServerStatus old_django_online = _django_online;
-    final ServerStatus old_mongo_online = _mongo_online;
-
-    await _FetchHealthStatus();
+  Future<void> checkStatus() async {
+    final previousStatus = isOnline;
+    await _fetchHealthStatus();
 
     if (GrassrootsConfig.log_level >= LOG_INFO) {
-      print ("_django_online to ${_django_online}");
-      print ("_mongo_online to ${_mongo_online}");
+      debugPrint("Django: $_djangoStatus | Mongo: $_mongoStatus");
     }
 
-    if ((old_mongo_online != _mongo_online) ||
-        (old_django_online != _django_online)) {
-      // This call tells the widgets that are listening to this model to rebuild.
+    if (previousStatus != isOnline) {
       notifyListeners();
     }
   }
 
+  Future<void> _fetchHealthStatus() async {
+    final uri = ApiRequests.GetPhotoReceiverEndpoint("online_check/");
+    if (uri == null) return;
 
-  bool GetCombinedState () {
-    return ((_django_online == ServerStatus.SS_ONLINE) &&
-        (_mongo_online == ServerStatus.SS_ONLINE));
+    try {
+      final response = await http.get(uri);
+      if (response.statusCode != 200) {
+        _setOffline("Non-200 response: ${response.statusCode}");
+        return;
+      }
+
+      final Map<String, dynamic> data = json.decode(response.body);
+      _djangoStatus = _parseStatus(data["django"], "running");
+      _mongoStatus = _parseStatus(data["mongo"], "available");
+    } catch (e) {
+      _setUnknown("Error: $e");
+    }
   }
 
+  ServerStatus _parseStatus(String? value, String expected) {
+    if (value == null) return ServerStatus.unknown;
+    return value == expected ? ServerStatus.online : ServerStatus.offline;
+  }
 
+  void _setOffline(String message) {
+    _djangoStatus = ServerStatus.offline;
+    _mongoStatus = ServerStatus.offline;
+    latestError = message;
+    if (GrassrootsConfig.log_level >= LOG_INFO) debugPrint(message);
+  }
 
-  Future <void> _FetchHealthStatus() async {
-      Uri? uri = ApiRequests.GetPhotoReceiverEndpoint ("online_check/");
-
-      if (uri != null) {
-        try {
-          final response = await http.get (uri);
-
-          if (GrassrootsConfig.log_level >= LOG_FINER) {
-            print("called ${uri} got ${response.statusCode}");
-          }
-
-          if (response.statusCode == 200) {
-            // Parse the JSON response and return it
-            final jsonResponse = json.decode(response.body);
-
-            if (GrassrootsConfig.log_level >= LOG_FINER) {
-              print("response: $jsonResponse");
-            }
-
-            String? s = jsonResponse ["django"];
-
-            if (GrassrootsConfig.log_level >= LOG_FINER) {
-              if (s != null) {
-                print("django: ${s}");
-              } else {
-                print("django NULL");
-              }
-            }
-
-            if (s != null) {
-              if (s == "running") {
-                _django_online = ServerStatus.SS_ONLINE;
-
-                if (GrassrootsConfig.log_level >= LOG_FINER) {
-                  print("setting _django_online to SS_ONLINE");
-                }
-              } else {
-                _django_online = ServerStatus.SS_OFFLINE;
-
-                if (GrassrootsConfig.log_level >= LOG_FINER) {
-                  print("setting _django_online to SS_OFFLINE");
-                }
-              }
-            }
-
-            s = jsonResponse ["mongo"];
-
-            if (GrassrootsConfig.log_level >= LOG_FINER) {
-              if (s != null) {
-                print("mongo: ${s}");
-              } else {
-                print("mongo NULL");
-              }
-            }
-
-            if (s != null) {
-              if (s == "available") {
-                _mongo_online = ServerStatus.SS_ONLINE;
-
-                if (GrassrootsConfig.log_level >= LOG_FINER) {
-                  print("setting _django_online to SS_ONLINE");
-                }
-
-              } else {
-                _mongo_online = ServerStatus.SS_OFFLINE;
-
-                if (GrassrootsConfig.log_level >= LOG_FINER) {
-                  print("setting _django_online to SS_OFFLINE");
-                }
-
-              }
-            }
-          } else {
-            // Handle non-200 responses
-
-            _django_online = ServerStatus.SS_OFFLINE;
-            _mongo_online = ServerStatus.SS_OFFLINE;
-
-            if (GrassrootsConfig.log_level >= LOG_FINER) {
-              print("setting _mongo_online to SS_OFFLINE");
-              print("setting _django_online to SS_OFFLINE");
-            }
-
-          }
-        } catch (e) {
-          latest_error = e.toString();
-          // Handle errors like network issues
-          _django_online = ServerStatus.SS_UNKNOWN;
-          _mongo_online = ServerStatus.SS_UNKNOWN;
-
-          if (GrassrootsConfig.log_level >= LOG_FINER) {
-            print("setting _mongo_online to SS_UNKNOWN");
-            print("setting _django_online to SS_UNKNOWN");
-          }
-
-        }
-
-    }
+  void _setUnknown(String message) {
+    _djangoStatus = ServerStatus.unknown;
+    _mongoStatus = ServerStatus.unknown;
+    latestError = message;
+    if (GrassrootsConfig.log_level >= LOG_INFO) debugPrint(message);
   }
 }
 
-class ServerConnectionWidget extends StatefulWidget implements PreferredSizeWidget {
+/// Displays an AppBar with live server connection status
+class ServerConnectionWidget extends StatefulWidget
+    implements PreferredSizeWidget {
+  final String title;
+  const ServerConnectionWidget({super.key, required this.title});
 
   @override
-  final Size preferredSize;
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 
   @override
-  ServerConnectionWidgetState createState() => ServerConnectionWidgetState ();
-
-  ServerConnectionWidget(String title) :
-    preferredSize = Size.fromHeight (kToolbarHeight) {
-
-    //_scw_state.SetText (title);
-  }
-
-  Future <void> CheckHealthStatus () async {
-
-  }
-
-
+  State<ServerConnectionWidget> createState() => _ServerConnectionWidgetState();
 }
 
+class _ServerConnectionWidgetState extends State<ServerConnectionWidget> {
+  final ServerModel _model = ServerModel();
 
-class ServerConnectionWidgetState extends State <ServerConnectionWidget> {
-
-
-  static String latest_error = "";
-
-  String _title = "";
-  ServerModel _model = ServerModel();
-
-  bool _combined_state = false;
-
-
-  ServerConnectionWidgetState () {
-    IsOnline (true);
+  @override
+  void initState() {
+    super.initState();
+    _model.addListener(() => setState(() {}));
+    _checkHealthStatus(); // initial check
   }
 
-  Future <bool> IsOnline(bool refresh_flag) async {
-    if (refresh_flag) {
-      await _model.CheckStatus ();
-      _combined_state = _model.GetCombinedState ();
-    }
+  Future<void> _checkHealthStatus() async {
+    try {
+      await _model.checkStatus();
 
-    if (GrassrootsConfig.log_level >= LOG_INFO) {
-      print ("IsOnline () returning _combined_state ${_combined_state}");
-    }
-    return _combined_state;
-  }
-
-
-
-  void SetText(String text) {
-    _title = text;
-  }
-
-  Widget build(BuildContext context) {
-
-    if (GrassrootsConfig.log_level >= LOG_INFO) {
-      print ("building with _combined_state ${_combined_state}");
-    }
-
-    return AppBar(
-      title: Text(_title),
-      actions: [
-        // LED Indicator
-        Container(
-          width: 10,
-          height: 10,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: _combined_state ? Colors.green : Colors.red,
+      if (_model.isOnline) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Server is online. Syncing local data...'),
+            backgroundColor: Colors.green,
           ),
-        ),
-        SizedBox(width: 8),
-        Text(
-          _combined_state ? 'Server OK' : 'Server Issue',
-          style: TextStyle(fontSize: 14),
-        ),
+        );
+        await Observation.SyncLocalObservations();
+      } else {
+        _showErrorSnackBar(
+          "Server issue: ${ApiRequests.latest_error}",
+        );
+      }
+    } catch (e) {
+      _showErrorSnackBar("Error checking server: $e");
+    }
+  }
 
-
-        IconButton(
-          icon: Icon(Icons.refresh),
-          onPressed: () async {
-            // Trigger health check
-
-            print("pressed");
-            _combined_state = await checkHealthStatus();
-            print("pressed 2");
-          },
-          tooltip: 'Refresh Server Status',
-        ),
-
-      ],
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message, style: const TextStyle(color: Colors.white)),
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 4),
+      ),
     );
   }
 
+  @override
+  Widget build(BuildContext context) {
+    final online = _model.isOnline;
 
-  Future<bool> checkHealthStatus() async {
-    if (mounted) {
-      print("checkHealthStatus called");
-      try {
-        final bool old_health_status = await IsOnline (false);
+    return AppBar(
+      title: Text(widget.title),
+      actions: [
+        _StatusIndicator(isOnline: online),
+        const SizedBox(width: 8),
+        Text(
+          online ? 'Server OK' : 'Server Issue',
+          style: const TextStyle(fontSize: 14),
+        ),
+        IconButton(
+          icon: const Icon(Icons.refresh),
+          onPressed: _checkHealthStatus,
+          tooltip: 'Refresh Server Status',
+        ),
+      ],
+    );
+  }
+}
 
-        await IsOnline (true);
+/// Small circular LED indicator widget
+class _StatusIndicator extends StatelessWidget {
+  final bool isOnline;
 
-        /* Are we back online? */
-        if ((!old_health_status) && _combined_state) {
-          /* Sync any locally-saved observations */
-          SnackBar snack_bar = SnackBar(
-            content: Text(
-              'Syncing local data',
-              style: TextStyle(color: Colors.white),
-            ),
-            backgroundColor: Colors.green,
-          );
+  const _StatusIndicator({required this.isOnline});
 
-          ScaffoldMessenger.of(context).showSnackBar(snack_bar);
-          await Observation.SyncLocalObservations();
-          ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        }
-
-        print('_combined_state: $_combined_state');
-        // Show snackbar if server is unhealthy
-        if (!_combined_state) {
-          final String? app_url = GrassrootsConfig.GetPhotoReceiverURL ();
-          String error_message;
-
-          if (app_url != null) {
-            error_message = "Warning: There is a problem with the server connection to ${app_url}. Error ${ApiRequests.latest_error}";
-          } else {
-            error_message = "Error cannot connect to server ${ApiRequests.latest_error}";
-          }
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                error_message,
-                style: TextStyle(color: Colors.white),
-              ),
-              backgroundColor: Colors.red,
-              duration: Duration(seconds: 5),
-            ),
-          );
-        }
-      } catch (e) {
-        print('>>>>> e: $e');
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Error checking server status. Please try again.',
-              style: TextStyle(color: Colors.white),
-            ),
-            backgroundColor: Colors.orange,
-            duration: Duration(seconds: 5),
-          ),
-        );
-      }
-    }
-    return IsOnline(false);
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 12,
+      height: 12,
+      margin: const EdgeInsets.symmetric(vertical: 18),
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: isOnline ? Colors.green : Colors.red,
+      ),
+    );
   }
 }

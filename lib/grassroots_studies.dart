@@ -120,7 +120,7 @@ class GrassrootsPageState extends State<GrassrootsStudies> {
 
 
   static Future <int> GetandAddLocallyAllowedStudies (final String box_name, List <String> ids) async {
-    List <String> local_ids = await IdCache.GetAllEntries (box_name);
+    List <String> local_ids = await IdCache.getAllEntries (box_name);
 
     for (String local_id in local_ids) {
       ids.add (local_id);

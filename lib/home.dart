@@ -96,6 +96,8 @@ class _HomePageState extends State<HomePage> {
       print('Django: $hps_djangoStatus, Mongo: $hps_mongoStatus');
       // Show snackbar if server is unhealthy
       if (hps_djangoStatus != 'running' || hps_mongoStatus != 'available') {
+        print('hps_djangoStatus: $hps_djangoStatus');
+        print('hps_mongoStatus: $hps_mongoStatus');
         final String? app_url = GrassrootsConfig.GetPhotoReceiverURL();
         String error_message = "Error: No Grassroots Server has been specified";
 

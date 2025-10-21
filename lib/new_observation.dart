@@ -728,7 +728,7 @@ Future<void> _submitObservation() async {
 
 Future<void> _saveObservationLocally(Observation observation) async {
   try {
-    // Open the Hive box
+    // Open the Hive box_SaveObservationLocally
     var box = await Hive.openBox<Observation>('observations');
 
     // Save the observation to the box

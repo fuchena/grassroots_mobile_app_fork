@@ -27,7 +27,6 @@ class ApiRequests {
       uri = Uri.parse (s);
 
     }
-
     return uri;
   }
 
@@ -226,12 +225,10 @@ class ApiRequests {
     };
 
     Uri? uri = GetPhotoReceiverEndpoint ("online_check/");
-
+    print("IsOnline $uri");
     if (uri != null) {
       try {
-
         final response = await http.get (uri);
-
         if (GrassrootsConfig.log_level >= LOG_INFO) {
           print ("called ${uri} got ${response.statusCode}");
         }

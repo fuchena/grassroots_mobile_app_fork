@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:grassroots_field_trials/globus_auth_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/gestures.dart';
 
@@ -14,7 +13,7 @@ class WelcomeMessageWidget extends StatelessWidget {
         future: GlobusAuthService.getUserName(),
         builder: (context, snapshot) {
           String userName = GlobusAuthService.capitalize(snapshot.data ?? '')
-              .split('.')[0];*/
+              .split('.')[0]; });*/
 
           return RichText(
             textAlign: TextAlign.center,
@@ -22,6 +21,10 @@ class WelcomeMessageWidget extends StatelessWidget {
               style: TextStyle(
                   fontSize: 16, color: Theme.of(context).primaryColor),
               children: [
+/*                TextSpan(
+                  text: "Welcome to the Grassroots Field Trials App\n\n",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),*/
                 //TextSpan(
                 //   text: "Open the camera to start capturing QR codes.\n\n",
                 //   style: TextStyle(fontSize: 18),

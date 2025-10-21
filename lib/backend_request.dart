@@ -37,7 +37,7 @@ class backendRequests {
     try {
       var response = await GrassrootsRequest.sendRequest(requestString, 'public');
       List<Map<String, String>> studies = response['results'][0]['results'].map<Map<String, String>>((study) {
-        //String name = study['title'] as String? ?? 'Unknown Study';
+        //String name = study['title'] as String? ?? 'Unknown Study';It is
         String name = study['data']['so:name'] as String? ?? 'Unknown Study';
         String id = study['data']['_id']['\$oid'] as String? ?? 'Unknown ID';
         return {'name': name, 'id': id};

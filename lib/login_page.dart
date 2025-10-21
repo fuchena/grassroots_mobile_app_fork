@@ -49,7 +49,7 @@ class _LoginScreenState extends State<LoginScreen> {
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (_) => HomePage()),
-          (_) => false,
+      (_) => false,
     );
   }
 
@@ -77,7 +77,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 40),
-
                 ElevatedButton.icon(
                   icon: const Icon(Icons.login),
                   label: const Text("Login with Globus",
@@ -139,14 +138,12 @@ class _OrcidWebViewLoginState extends State<OrcidWebViewLogin> {
           onPageFinished: (_) => setState(() => _isLoading = false),
           onNavigationRequest: (request) {
             if (request.url.startsWith(GlobusConfig.redirectUri)) {
-              setState(() => _afterLogin = true);
               handleRedirect(request.url);
               return NavigationDecision.prevent;
             }
-            setState(() => _afterLogin = false);
             return NavigationDecision.navigate;
           },
-   /*       onHttpError: (HttpResponseError error) {
+          /*       onHttpError: (HttpResponseError error) {
             // Only triggers when the main page fails, not subresources
             widget.onLoginFailed('Page failed: ${error.response?.statusCode}');
           },*/
@@ -157,10 +154,12 @@ class _OrcidWebViewLoginState extends State<OrcidWebViewLogin> {
         ),
       )
       ..loadRequest(authUrl).then((_) => _isWebViewReady =
-      true); //callback runs after the Future returned by loadRequest()
+          true); //callback runs after the Future returned by loadRequest()
   }
 
   Future<void> handleRedirect(String url) async {
+    setState(() => _afterLogin = true);
+
     try {
       final uri = Uri.parse(url);
       final code = uri.queryParameters['code'];
@@ -194,7 +193,9 @@ class _OrcidWebViewLoginState extends State<OrcidWebViewLogin> {
       await widget.onLoginSuccess(idToken, email);
     } catch (e) {
       widget.onLoginFailed('Login failed: $e');
-    } finally {}
+    } finally {
+      setState(() => _afterLogin = false);
+    }
   }
 
   @override

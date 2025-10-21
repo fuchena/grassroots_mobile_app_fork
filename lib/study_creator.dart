@@ -97,7 +97,7 @@ class _NewStudyPageState extends State <NewStudyPage> {
       List <MeasuredVariable> mvs = result.values;
 
       for (int i = 0; i < mvs.length; ++ i) {
-        print (">>> _navigateAndDisplaySelection () returned ${i}: ${mvs [i].variable_name}");
+        print (">>> _navigateAndDisplaySelection () returned ${i}: ${mvs [i].variableName}");
       }
     }
     return result;
@@ -343,7 +343,7 @@ class _NewStudyPageState extends State <NewStudyPage> {
 
                             if (selected_mvs != null) {
                               for (int i = 0; i < selected_mvs.length; ++ i) {
-                                print ("${i}: ${selected_mvs [i].variable_name}");
+                                print ("${i}: ${selected_mvs [i].variableName}");
                               }
 
 
@@ -623,7 +623,7 @@ class _NewStudyPageState extends State <NewStudyPage> {
 
     if (phenotypes.length > 0) {
       for (int i = 0; i < phenotypes.length; ++ i) {
-        measured_variables.add (phenotypes [i].variable_name);
+        measured_variables.add (phenotypes [i].variableName);
       }
     }
 
@@ -740,7 +740,7 @@ class _NewStudyPageState extends State <NewStudyPage> {
 
             if (study_id != null) {
               /* Add the study id to the list of allowed studies */
-              IdCache.AddId (LOCAL_ALLOWED_STUDIES, study_id);
+              IdCache.addId (LOCAL_ALLOWED_STUDIES, study_id);
             }
           }          
         }

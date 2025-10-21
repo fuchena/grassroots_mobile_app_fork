@@ -30,601 +30,189 @@ import 'package:grassroots_field_trials/global_variable.dart';
     "so:description": "Stubble <b>height</b>, measured from ground to top of stubble, if stubble lodged, then the true length of the stubble, measured at the angle of the stubble."
   },
 */
+
 class MeasuredVariable {
-  String id;
-  String unit_name;
-  String trait_name;
-  String? trait_descrption;
-  String measurement_name;
-  String? measurement_description;
-  String variable_name;
-  bool selected; 
+  final String id;
+  final String unitName;
+  final String traitName;
+  final String? traitDescription;
+  final String measurementName;
+  final String? measurementDescription;
+  final String variableName;
+  bool selected;
 
-  MeasuredVariable (this.id, this.unit_name, this.trait_name, this.trait_descrption, this.measurement_name, this.measurement_description, this.variable_name, this.selected);
+  MeasuredVariable(
+      this.id,
+      this.unitName,
+      this.traitName,
+      this.traitDescription,
+      this.measurementName,
+      this.measurementDescription,
+      this.variableName,
+      this.selected,
+      );
 
-  factory MeasuredVariable.fromJson (Map <String, dynamic> json) {
-
+  factory MeasuredVariable.fromJson(Map<String, dynamic> json) {
     if (GrassrootsConfig.log_level >= LOG_FINEST) {
-      print (">>> json ${json}");
+      print(">>> json $json");
     }
 
-    String mv_id = json ["id"];
+    final id = json["id"] ?? "";
+    if (id.isEmpty) throw Exception("Missing id");
 
-    if (GrassrootsConfig.log_level >= LOG_FINEST) {
-      print ("id ${mv_id}");
-    }
+    final unit = _getChild(json, "unit", "so:name");
+    final trait = _getChild(json, "trait", "so:name");
+    final traitDescription = _getChild(json, "trait", "so:description", optional: true);
+    final measurement = _getChild(json, "measurement", "so:name");
+    final measurementDescription = _getChild(json, "measurement", "so:description", optional: true);
+    final variable = _getChild(json, "variable", "so:name");
 
-    if (mv_id != "") {
-      var child = json ["unit"];
-
-      if (GrassrootsConfig.log_level >= LOG_FINEST) {
-        print ("unit ${child}");
-      }
-
-      if (child != null) {
-        String mv_unit_name = child ["so:name"];
-      
-        if (GrassrootsConfig.log_level >= LOG_FINEST) {
-          print ("mv_unit_name ${mv_unit_name}");
-        }
-
-        if (mv_unit_name != "") {
-          child = json ["trait"];
-
-          if (GrassrootsConfig.log_level >= LOG_FINEST) {
-             print ("trait ${child}"); 
-          }
-
-          if (child != null) {
-            String mv_trait_name = child ["so:name"];
-
-            if (GrassrootsConfig.log_level >= LOG_FINEST) {
-              print ("mv_trait_name ${mv_trait_name}");
-            }
-
-            if (mv_trait_name != "") {
-              String? mv_trait_descrption = child ["so:description"];
-
-              if (mv_trait_descrption == "") {
-                mv_trait_descrption = null;
-              }
-
-              if (GrassrootsConfig.log_level >= LOG_FINEST) {
-                print ("mv_trait_descrption ${mv_trait_descrption}");
-              }
-
-              child = json ["measurement"];
-
-              if (GrassrootsConfig.log_level >= LOG_FINEST) {
-                print ("measurement ${child}"); 
-              }
-
-              if (child != null) {
-                String mv_measurement_name = child ["so:name"];
-                
-                if (GrassrootsConfig.log_level >= LOG_FINEST) {
-                  print ("mv_measurement_name ${mv_measurement_name}");
-                }
-
-                if (mv_measurement_name != "") {
-                  String? mv_measurement_description = child ["so:description"];
-
-                  if (mv_measurement_description == "") {
-                    mv_measurement_description = null;
-                  }
-
-                  if (GrassrootsConfig.log_level >= LOG_FINEST) {
-                    print ("mv_measurement_description ${mv_measurement_description}");
-                  }
-
-                  child = json ["variable"];
-
-                  if (GrassrootsConfig.log_level >= LOG_FINEST) {
-                    print ("variable ${child}"); 
-                  }
-
-                  if (child != null) {
-                    String mv_variable_name = child ["so:name"];
-
-                    if (GrassrootsConfig.log_level >= LOG_FINEST) {
-                      print ("mv_variable_name ${mv_variable_name}");
-                    }
-
-                    if (mv_variable_name != "") {
-                      return MeasuredVariable (mv_id, mv_unit_name, mv_trait_name, mv_trait_descrption, mv_measurement_name, mv_measurement_description, mv_variable_name, false);
-                    }
-                  }
-                }
-
-              }
-            }
-          }
-        }
-      }
-    }
-
-    throw Exception ();
+    return MeasuredVariable(
+      id,
+      unit,
+      trait,
+      _nullIfEmpty(traitDescription),
+      measurement,
+      _nullIfEmpty(measurementDescription),
+      variable,
+      false,
+    );
   }
-}
 
+  static String _getChild(Map<String, dynamic> json, String key, String field, {bool optional = false}) {
+    final child = json[key];
+    if (child == null) {
+      if (optional) return "";
+      throw Exception("Missing child: $key");
+    }
+    final value = child[field] ?? "";
+    if (value.isEmpty && !optional) throw Exception("Missing field: $field in $key");
+    return value;
+  }
+
+  static String? _nullIfEmpty(String? value) => (value == null || value.isEmpty) ? null : value;
+}
 
 class MeasuredVariablesModel with ChangeNotifier {
-  final List <MeasuredVariable> _values = <MeasuredVariable> [];
-  late String _name;
+  final List<MeasuredVariable> _values = [];
+  final String name;
 
-  MeasuredVariablesModel (String name) {
-    _name = name;    
-  }
+  MeasuredVariablesModel(this.name);
 
-
-
-  /* Make a copy each time */
-  List <MeasuredVariable> get values => _values.toList ();
-
+  List<MeasuredVariable> get values => List.unmodifiable(_values);
   int get length => _values.length;
 
-  void add (MeasuredVariable mv) {
-    _values.add (mv);
-    notifyListeners ();
+  void add(MeasuredVariable mv) {
+    _values.add(mv);
+    notifyListeners();
   }
 
-  List <MeasuredVariable> getSelectedVariables () {
-    List <MeasuredVariable> selected_vars = <MeasuredVariable> [];
+  List<MeasuredVariable> getSelectedVariables() =>
+      _values.where((mv) => mv.selected).toList();
 
-    for (int i = 0; i < _values.length; ++ i) {
-      if (_values [i].selected) {
-        selected_vars.add (_values [i]);
-      }    
+  MeasuredVariable at(int index) => _values[index];
+
+  void setValues(List<MeasuredVariable> newValues) {
+    _values
+      ..clear()
+      ..addAll(newValues);
+    notifyListeners();
+  }
+
+  void addValues(List<MeasuredVariable> newValues) {
+    final added = newValues.where((mv) => !_values.contains(mv)).toList();
+    if (added.isNotEmpty) {
+      _values.addAll(added);
+      notifyListeners();
     }
-
-    return selected_vars;
   }
-
-  MeasuredVariable at (int index) {
-    return _values [index];
-  }
-
-
-  void setValues (List <MeasuredVariable> new_values) {
-    bool force_notify_flag = false;
-
-    if (_values.length > 0) {
-      force_notify_flag = true;
-      _values.clear ();
-    }
-
-    _addValues (new_values, force_notify_flag);
-  }
-
-  void addValues (List <MeasuredVariable> new_values) {
-    _addValues (new_values, false);
-  }
-
-
-  void _addValues (List <MeasuredVariable> new_values, bool force_notify_flag) {
-    bool added_flag = false;
-
-    for (MeasuredVariable mv in new_values) {
-
-      if (GrassrootsConfig.log_level >= LOG_FINE) {
-        print ("${_name} :: _addValues (): checking ${mv.variable_name}");
-      }
-
-      if (! (_values.contains (mv))) {
-        _values.add (mv);
- 
-        if (GrassrootsConfig.log_level >= LOG_FINE) {
-          print ("${_name} :: _addValues (): adding ${mv.variable_name}");
-        }
-
-        if (!added_flag) {
-          added_flag = true;
-        }
-      }
-    } 
-
-    if (added_flag) {
-      if (GrassrootsConfig.log_level >= LOG_FINE) {
-        print ("${_name} :: _addValues (): about to call notifyListeners ()");
-      }
-
-      notifyListeners ();
-    }
-    
-  }
-
-
 }
-
-
-class MeasuredVariableSearchDelegate extends SearchDelegate <List <MeasuredVariable>> {
-
-
-  MeasuredVariableSearchDelegate (String name) {
-    _list_widget = MeasuredVariablesListWidget (name, null);
-  }
-
-  late MeasuredVariablesListWidget _list_widget;
-
-  void OnTap () {
-
-  }
-
-
-  @override
-  ThemeData appBarTheme(BuildContext context) {
-    return Theme.of(context); 
-  }
-
-
-  @override
-  List <Widget>? buildActions (BuildContext context) {
-    return <Widget>[];
-  }
-
-  /*A widget to display before the current query in the AppBar. */
-  @override
-  Widget? buildLeading (BuildContext context) {
-    return IconButton(
-      icon: const Icon (
-        Icons.arrow_back,
-//        color: Theme.of(context).primaryColor,
-      ),
-      onPressed: () {
-        List <MeasuredVariable> mvs = [];
-        
-        MeasuredVariablesListWidget w = _list_widget;
-
-        mvs = w.getSelectedVariables ();
-          
-        close (context, mvs);
-      },
-    );
-  }
-
-  /* The results shown after the user submits a search from the search page. */
-  @override
-  Widget buildResults (BuildContext context) {
-
-    return FutureBuilder <List <MeasuredVariable>> (
-      future: _search (),
-      builder: (BuildContext context, AsyncSnapshot <List <MeasuredVariable>> snapshot) {
-        
-        if (snapshot.connectionState == ConnectionState.done) {
-          List <MeasuredVariable>? results = snapshot.data;
-
-          if ((results != null) && (results.length > 0)) {
-            _list_widget.setValues (results);
-          }
-
-          return _list_widget;
-
-        } else if ((snapshot.connectionState == ConnectionState.active) || (snapshot.connectionState == ConnectionState.waiting)) {
-          return Center(
-            child: CircularProgressIndicator (),
-          );
-        } else {
-          return Text ("Idle");
-        }
-      }
-    );
-    
-  }
-
-  /* 
-   * Suggestions shown in the body of the search page while 
-   * the user types a query into the search field.
-   */
-  @override
-  Widget buildSuggestions (BuildContext context) {
-    return Container ();
-  }
-
-
-
- Future <List <MeasuredVariable>> _search() async {
-    Future <List <MeasuredVariable>> results = backendRequests.searchMeasuredVariables (query);
-    
-    return results;
-  }
-
-  List <MeasuredVariable>? getSelectedVariables () {
-/*
-    List <MeasuredVariable> results =
-    _selected_entries.entries.map ((entry) => entry.value).toList();
-*/
-    final MeasuredVariablesListWidget? m = _list_widget;
-
-    List <MeasuredVariable>? results;
-
-    if (m != null) {
-      results = m.getSelectedVariables ();
-    }
-
-    if (GrassrootsConfig.log_level >= LOG_INFO) {
-      if (results != null) {
-        print ("getSelectedVariables () has ${results.length} entries");
-      } else {
-        print ("getSelectedVariables () has no entries");
-      }
-   
-    }
-
-    return results;
-  }
-
-
-
-
-}
-
-
-
 
 
 class MeasuredVariablesListWidget extends StatefulWidget {
+  final MeasuredVariablesModel model;
+  final String name;
 
-  MeasuredVariablesListWidget (String name, MeasuredVariablesModel? model) {
-    _name = name;
-
-    if (model != null) {
-      
-      if (GrassrootsConfig.log_level >= LOG_INFO) {
-        print ("USING EXISTING MODEL OF ${model.length} VALUES");
-      }
-
-      _model = model;
-    } else {
-      _model = MeasuredVariablesModel (_name);
-    }
-
-  }
-  
-  late MeasuredVariablesModel _model;
-
-  late _MeasuredVariablesListWidgetState _state;
-
-  late String _name;
+  MeasuredVariablesListWidget(String name, [MeasuredVariablesModel? model])
+      : name = name,
+        model = model ?? MeasuredVariablesModel(name);
 
   @override
-  _MeasuredVariablesListWidgetState createState () {
-    _state = _MeasuredVariablesListWidgetState ();
-    return _state;
-  } 
+  State<MeasuredVariablesListWidget> createState() =>
+      _MeasuredVariablesListWidgetState();
 
-  void setValues (List <MeasuredVariable> new_values) {
-    _model.setValues (new_values);
-  }
-
-  void addValues (List <MeasuredVariable> new_values) {
-    _model.addValues (new_values);
-  }
-
-
-  List <MeasuredVariable> getSelectedVariables () {
-    return _model.getSelectedVariables ();
-  }
-
-  MeasuredVariablesModel getModel () {
-    return _model;
-  }
-
+  void setValues(List<MeasuredVariable> values) => model.setValues(values);
+  void addValues(List<MeasuredVariable> values) => model.addValues(values);
+  List<MeasuredVariable> getSelectedVariables() => model.getSelectedVariables();
 }
 
-
-class _MeasuredVariablesListWidgetState extends State <MeasuredVariablesListWidget>  {
-
-
-  @override
-  void initState () {
-    super.initState ();
-  }
-
-  void _toggle (int index) {
-    setState(() {
-      final MeasuredVariable? mv = widget._model.at (index);
-
-      if (mv != null) {
-        mv.selected  = !mv.selected;
-      }
-    });
-  }
-
-/*
-  void setValues (List <MeasuredVariable> mvs) {
-    setState(() {
-      _selected_vars.clear ();
-
-      for (int i = 0; i < mvs.length; ++ i) {
-        MeasuredVariable mv = mvs [i];
-
-        _selected_vars [i] = mv;
-      }
-    });
-  }
- */
-
-  @override
-  Widget build(BuildContext context) {
-    final List  <MeasuredVariable> values = widget._model._values;
-
-    if (GrassrootsConfig.log_level >= LOG_FINER) {
-      print ("building list of ${values.length} items for ${widget._name}");
-    }
-
-    if (values.length > 0) {
-      final int count = values.length;
-
-      if (GrassrootsConfig.log_level >= LOG_FINER) {
-        print ("LIST MODE ${count}");
-
-        for (int i = 0; i < count; ++ i) {
-          print ("About to add ${i} = ${values [i].variable_name}");
-        }
-      
-      }
-
-      return ListView.builder(
-        shrinkWrap: true,
-        itemCount: count,
-        itemBuilder: (BuildContext context, int index) {
-          MeasuredVariable mv = values [index];
-          String item_subtitle = mv.trait_name + " - " + mv.measurement_name + " - " + mv.unit_name;
-
-          if (GrassrootsConfig.log_level >= LOG_FINEST) {
-            print ("ADDING ${index}: ${mv.variable_name}");
-          }
-         
-          Widget trailing_widget = Checkbox(
-              value: mv.selected,
-              onChanged: (bool? x) => _toggle(index),
-              
-            );
-        
-
-          return ListTile (
-            onTap: () => _toggle(index),
-            trailing: trailing_widget,
-            title: Text (mv.variable_name),
-            subtitle: Html (data: item_subtitle),
-            iconColor: Theme.of (context).primaryColor,
-          );
-        },
-      );
-    } else {
-      return Text ("");
-    }
-/*
-    return ListView.builder (
-      itemCount: widget.measured_variables.length,
-      itemBuilder: (BuildContext context, int index) {
-        final MeasuredVariable mv = widget.measured_variables [index];
-        String item_subtitle = mv.trait_name + " - " + mv.measurement_name + " - " + mv.unit_name;
-
-        return ListTile (
-          onTap: () => _toggle(index),
-          onLongPress: () {
-            if (!widget.isSelectionMode) {
-              setState(() {
-                widget.selectedList[index] = true;
-              });
-              widget.onSelectionChange!(true);
-            }
-          },
-          trailing:
-              widget.isSelectionMode
-                  ? Checkbox(
-                    value: widget.selectedList[index],
-                    onChanged: (bool? x) => _toggle(index),
-                  )
-                  : const SizedBox.shrink(),
-          title: Text('item $index'),
-        );
-
-          title: Text (mv.variable_name),
-          subtitle: Html (data: item_subtitle),
-          secondary: Icon (Icons.list),
-          value:  _selected_vars.containsKey (index),
-          controlAffinity: ListTileControlAffinity.platform,
-          onChanged: (bool? value) {
-            setState () {
-              if (value != null) {
-                mv.selected = value;
-              }
-            }
-          },                
-        );
-  
-      },
-
-    );
-    */
-  }
-
-}
-
-
-/*
-class ListBuilder extends StatefulWidget {
-  const ListBuilder({
-    super.key,
-    required this.selectedList,
-    required this.isSelectionMode,
-    required this.onSelectionChange,
-  });
-
-  final bool isSelectionMode;
-  final List <MeasuredVariable> selectedList;
-  final ValueChanged <MeasuredVariable>? onSelectionChange;
-
-  @override
-  State <ListBuilder> createState() => _ListBuilderState();
-}
-
-class _ListBuilderState extends State <ListBuilder> {
+class _MeasuredVariablesListWidgetState extends State<MeasuredVariablesListWidget> {
   void _toggle(int index) {
-    if (widget.isSelectionMode) {
-      setState(() {
-        widget.selectedList [index] = !widget.selectedList[index];
-      });
-    }
+    setState(() {
+      widget.model.at(index).selected = !widget.model.at(index).selected;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
- 
-    return ListView.builder (
-      itemCount: widget.measured_variables.length,
-      itemBuilder: (BuildContext context, int index) {
-        final MeasuredVariable mv = widget.measured_variables [index];
-        String item_subtitle = mv.trait_name + " - " + mv.measurement_name + " - " + mv.unit_name;
+    final values = widget.model.values;
 
-        return CheckboxListTile (                 
-          title: Text (mv.variable_name),
-          subtitle: Html (data: item_subtitle),
-          secondary: Icon (Icons.list),
-          value:  _selected_vars.containsKey (mv.variable_name),
-          controlAffinity: ListTileControlAffinity.platform,
-          onChanged: (bool? value) {
-            setState () {
-              if (value != null) {
-                mv.selected = value;
-              }
-            }
-          },                
-        );
-  
-      },
+    if (values.isEmpty) return const SizedBox();
 
-    );
-
-
- /*
     return ListView.builder(
-      itemCount: widget.selectedList.length,
-      itemBuilder: (_, int index) {
+      shrinkWrap: true,
+      itemCount: values.length,
+      itemBuilder: (context, index) {
+        final mv = values[index];
+        final subtitle = "${mv.traitName} - ${mv.measurementName} - ${mv.unitName}";
+
         return ListTile(
           onTap: () => _toggle(index),
-          onLongPress: () {
-            if (!widget.isSelectionMode) {
-              setState(() {
-                widget.selectedList[index] = true;
-              });
-              widget.onSelectionChange!(true);
-            }
-          },
-          trailing:
-              widget.isSelectionMode
-                  ? Checkbox(
-                    value: widget.selectedList[index],
-                    onChanged: (bool? x) => _toggle(index),
-                  )
-                  : const SizedBox.shrink(),
-          title: Text('item $index'),
+          trailing: Checkbox(
+            value: mv.selected,
+            onChanged: (_) => _toggle(index),
+          ),
+          title: Text(mv.variableName),
+          subtitle: Html(data: subtitle),
         );
       },
     );
-  */
   }
 }
-*/
+
+class MeasuredVariableSearchDelegate extends SearchDelegate<List<MeasuredVariable>> {
+  final MeasuredVariablesListWidget _listWidget;
+
+  MeasuredVariableSearchDelegate(String name)
+      : _listWidget = MeasuredVariablesListWidget(name);
+
+  @override
+  List<Widget>? buildActions(BuildContext context) => [];
+
+  @override
+  Widget? buildLeading(BuildContext context) => IconButton(
+    icon: const Icon(Icons.arrow_back),
+    onPressed: () => close(context, _listWidget.getSelectedVariables()),
+  );
+
+  @override
+  Widget buildResults(BuildContext context) => FutureBuilder<List<MeasuredVariable>>(
+    future: backendRequests.searchMeasuredVariables(query),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return const Center(child: CircularProgressIndicator());
+      }
+      if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+        _listWidget.setValues(snapshot.data!);
+      }
+      return _listWidget;
+    },
+  );
+
+  @override
+  Widget buildSuggestions(BuildContext context) => const SizedBox();
+}
+
+
+
+

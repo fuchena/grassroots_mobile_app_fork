@@ -1,190 +1,163 @@
 import 'package:grassroots_field_trials/global_variable.dart';
 import 'package:hive/hive.dart';
 
+/// Represents a simple model with an ID, name, and timestamp.
+class IdName {
+  final String name;
+  final String id;
+  final DateTime date;
 
-class IdName
-{
-  IdName ({required this.name, required this.id, required this.date});
+  IdName({
+    required this.name,
+    required this.id,
+    required this.date,
+  });
 
-  factory IdName.fromJson (Map <String, dynamic> json) {
-    IdName entry;
-    DateTime? d;
-
-    if (json ["date"] != null) {
-      try { 
-        d = DateTime.parse (json ["date"]);
-      } on FormatException  {
-
-      }
+  /// Factory constructor to build from JSON.
+  factory IdName.fromJson(Map<String, dynamic> json) {
+    DateTime date;
+    try {
+      date = DateTime.parse(json["date"] ?? '');
+    } on FormatException {
+      date = DateTime.now();
     }
 
-    if (d == null) {
-      d = DateTime.now ();
-    }
-
-    entry = IdName (name: json ["name"], id: json['id'], date: d);
-
-    return entry;
-  }
-
-  // The name of this object e.g. Study, Progamme, Trial, etc.  
-  String name;
-  
-  // The MongoDB Id
-  String id;
-
-  // The datestamp for when this IdName was retrieved from the server
-  DateTime date;
-}
-
-class IdNameAdapter extends TypeAdapter <IdName> {
-  @override
-  int get typeId => 2;
-
-  @override
-  IdName read (BinaryReader reader) {
-    final obj_name = reader.readString ();
-    final obj_id = reader.readString ();
-    String date_str = reader.readString ();
-
-    DateTime d = DateTime.parse (date_str);
-
-    return IdName (name: obj_name, id: obj_id, date: d);
-  }
-
-  @override
-  void write (BinaryWriter writer, IdName obj) {
-    writer.writeString (obj.name);
-    writer.writeString (obj.id);
-    
-    String date_str = obj.date.toString ();
-    writer.writeString (date_str); 
+    return IdName(
+      name: json["name"] ?? '',
+      id: json["id"] ?? '',
+      date: date,
+    );
   }
 }
 
+/// Hive adapter for IdName class.
+class IdNameAdapter extends TypeAdapter<IdName> {
+  @override
+  final int typeId = 2;
 
- class IdNamesCache {
+  @override
+  IdName read(BinaryReader reader) {
+    final name = reader.readString();
+    final id = reader.readString();
+    final date = DateTime.parse(reader.readString());
+    return IdName(name: name, id: id, date: date);
+  }
 
-  static Future <void> cache (List<Map<String, String>> studies, String cache_name) async {
-    DateTime d = DateTime.now ();
-    
+  @override
+  void write(BinaryWriter writer, IdName obj) {
+    writer
+      ..writeString(obj.name)
+      ..writeString(obj.id)
+      ..writeString(obj.date.toIso8601String());
+  }
+}
+
+/// Handles caching of multiple IdName entries.
+class IdNamesCache {
+  /// Caches a list of studies or entities.
+  static Future<void> cache(
+      List<Map<String, String>> studies,
+      String cacheName,
+      ) async {
+    final box = await Hive.openBox<IdName>(cacheName);
+    final timestamp = DateTime.now();
+
     for (final entry in studies) {
-      String? entry_name = entry ['name'];
+      final name = entry['name'];
+      final id = entry['id'];
 
-      if (entry_name != null) {
-        String? entry_id = entry ['id'];
+      if (name != null && id != null) {
+        final record = IdName(name: name, id: id, date: timestamp);
+        await box.put(name, record);
 
-        if (entry_id != null) {     
-          final entry = IdName (name: entry_name, id: entry_id, date: d);
-          var box = await Hive.openBox <IdName> (cache_name);
-
-          //print ("caching ${entry.name} ${entry.id}");
-          box.put (entry.name, entry);
+        if (GrassrootsConfig.log_level >= LOG_FINER) {
+          print('Cached IdName: $name -> $id');
         }
-
       }
-
     }
 
+    await box.close();
   }
-
 }
 
-
-
+/// Represents a cached list of string IDs with a timestamp.
 class IdsList {
-  IdsList ({required this.ids, required this.date});
+  final List<String> ids;
+  final DateTime date;
 
-  List <String> ids;
-  DateTime date;
+  IdsList({required this.ids, required this.date});
 }
 
-
-class IdsAdapter extends TypeAdapter <IdsList> {
+/// Hive adapter for IdsList class.
+class IdsAdapter extends TypeAdapter<IdsList> {
   @override
-  int get typeId => HI_ALLOWED_IDS;
+  final int typeId = HI_ALLOWED_IDS;
 
   @override
-  IdsList read (BinaryReader reader) {
-    List <String> ids = reader.readStringList ();
-    String date_str = reader.readString ();
-
-    DateTime d = DateTime.parse (date_str);
-    return IdsList (ids: ids, date: d);
-
+  IdsList read(BinaryReader reader) {
+    final ids = reader.readStringList();
+    final date = DateTime.parse(reader.readString());
+    return IdsList(ids: ids, date: date);
   }
 
   @override
-  void write (BinaryWriter writer, IdsList ids) {
-    writer.writeStringList (ids.ids);
-
-    String date_str = ids.date.toString ();
-    writer.writeString (date_str); 
+  void write(BinaryWriter writer, IdsList obj) {
+    writer
+      ..writeStringList(obj.ids)
+      ..writeString(obj.date.toIso8601String());
   }
 }
 
-
-
-
+/// Handles caching of ID lists.
 class IdsCache {
+  static const String cacheBox = "ids_cache";
 
-  static final String ic_name = "ids_cache";
+  static Future<void> cacheIds(List<String> ids) async {
+    final box = await Hive.openBox<IdsList>(cacheBox);
+    final entry = IdsList(ids: ids, date: DateTime.now());
 
-  static Future <void> cacheIds (List <String> ids) async {
-    DateTime d = DateTime.now ();
-    
-    IdsList ids_list = IdsList (ids: ids, date: d);
+    await box.add(entry);
 
-    final box = await Hive.openBox <IdsList> (ic_name);
-
-
-    int num_ids = ids.length; 
-
-    print ("caching ids list of ${num_ids} ids");
-    for (int i = 0; i < num_ids; ++ i) {
-      print ("id $i = ${ids [i]}");
+    if (GrassrootsConfig.log_level >= LOG_INFO) {
+      print('Cached ${ids.length} IDs at ${entry.date}');
     }
-    print ("caching ids done");
 
-    box.add (ids_list);
+    await box.close();
   }
-
 }
 
-
-
+/// Handles generic caching of individual string IDs.
 class IdCache {
-
-  static Future <int> GetNumberOfEntries (final String box_name) async {
-    final box = await Hive.openBox <String> (box_name);
-    return box.length;
+  /// Returns the number of cached entries.
+  static Future<int> getNumberOfEntries(String boxName) async {
+    final box = await Hive.openBox<String>(boxName);
+    final count = box.length;
+    await box.close();
+    return count;
   }
 
-  static Future <void> AddId (final String box_name, final String id) async {
-    final box = await Hive.openBox <String> (box_name);
- 
+  /// Adds a single ID to a box.
+  static Future<void> addId(String boxName, String id) async {
+    final box = await Hive.openBox<String>(boxName);
+    await box.add(id);
+
     if (GrassrootsConfig.log_level >= LOG_FINE) {
-      print ("adding id ${id} to box ${box_name}");
+      print('Added ID $id to box $boxName');
     }
 
-    box.add (id);
+    await box.close();
   }
 
-  static Future <List <String>> GetAllEntries (final String box_name) async {
-    List <String> entries = [];
-    final box = await Hive.openBox <String> (box_name);
-
-    Iterable <String> ids = box.values;
-
-    for (String id in ids) {
-      entries.add (id);
-    }
+  /// Retrieves all cached IDs.
+  static Future<List<String>> getAllEntries(String boxName) async {
+    final box = await Hive.openBox<String>(boxName);
+    final entries = List<String>.from(box.values);
+    await box.close();
 
     if (GrassrootsConfig.log_level >= LOG_FINE) {
-      print ("box ${box_name} has ${entries}");
+      print('Box $boxName has ${entries.length} IDs.');
     }
 
     return entries;
   }
-
 }

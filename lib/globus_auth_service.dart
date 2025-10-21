@@ -9,8 +9,7 @@ import 'login_page.dart';
 class GlobusConfig {
   static const clientId = '4ca0e2cf-5369-4396-b1ae-0a23015abe77';
   static const clientSecret = 'sUX89ts5kT4WPG8CNF7BrYIl2S/QKRVD9yf81xE3/10=';
-  static const redirectUri =
-      'https://grassroots.tools/dev/service/orcid/login';
+  static const redirectUri = 'https://grassroots.tools/dev/service/orcid/login';
   static const authBase = 'auth.globus.org';
 }
 
@@ -65,16 +64,14 @@ class GlobusAuthService {
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => LoginScreen()),
-          (route) => false,
+      (route) => false,
     );
   }
-
 
   static Future<String?> getFirstName() async {
     final email = await _secureStorage.read(key: 'GLOBUS_EMAIL');
     return email != null ? capitalize(email) : null;
   }
-
 
   static String capitalize(String s) =>
       s.isNotEmpty ? '${s[0].toUpperCase()}${s.substring(1)}' : s;
