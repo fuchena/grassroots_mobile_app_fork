@@ -225,7 +225,6 @@ class ApiRequests {
     };
 
     Uri? uri = GetPhotoReceiverEndpoint ("online_check/");
-    print("IsOnline $uri");
     if (uri != null) {
       try {
         final response = await http.get (uri);

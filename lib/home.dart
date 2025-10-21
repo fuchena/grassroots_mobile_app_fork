@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:grassroots_field_trials/global_variable.dart';
 import 'package:grassroots_field_trials/globus_auth_service.dart';
+import 'package:grassroots_field_trials/server.dart';
 import 'welcome_message.dart';
 import 'grassroots_studies.dart';
 import 'api_requests.dart';
@@ -19,13 +20,15 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  String hps_djangoStatus = 'unknown';
-  String hps_mongoStatus = 'unknown';
+/*  String hps_djangoStatus = 'unknown';
+  String hps_mongoStatus = 'unknown';*/
   String? userFirstName = "";
+  final ServerModel _model = ServerModel();
 
   @override
   void initState() {
     super.initState();
+    _model.addListener(() => setState(() {}));
     getUserName();
     GrassrootsPageState.CheckAndUpdateAllowedStudyIDs();
     checkHealthStatus();
@@ -66,7 +69,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> checkHealthStatus() async {
     print("checkHealthStatus called");
     try {
-      final bool old_health_status = _GetServerHealth(false);
+/*      final bool old_health_status = _GetServerHealth(false);
 
       final healthStatus = await ApiRequests.fetchHealthStatus();
       print("Health status fetched: $healthStatus");
@@ -75,10 +78,13 @@ class _HomePageState extends State<HomePage> {
         hps_mongoStatus = healthStatus['mongo'] ?? 'unknown';
       });
 
-      bool new_health_status = _GetServerHealth(false);
+      bool new_health_status = _GetServerHealth(false);*/
+
+      await _model.checkStatus();
 
       /* Are we back online? */
-      if ((!old_health_status) && new_health_status) {
+      // if ((!old_health_status) && new_health_status) {
+      if (_model.isOnline) {
         /* Sync any locally-saved observations */
         SnackBar snack_bar = SnackBar(
           content: Text(
@@ -93,11 +99,12 @@ class _HomePageState extends State<HomePage> {
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
       }
 
-      print('Django: $hps_djangoStatus, Mongo: $hps_mongoStatus');
+      //print('Django: $hps_djangoStatus, Mongo: $hps_mongoStatus');
       // Show snackbar if server is unhealthy
-      if (hps_djangoStatus != 'running' || hps_mongoStatus != 'available') {
-        print('hps_djangoStatus: $hps_djangoStatus');
-        print('hps_mongoStatus: $hps_mongoStatus');
+      if (!_model.isOnline) {
+        //if (hps_djangoStatus != 'running' || hps_mongoStatus != 'available') {
+        //print('hps_djangoStatus: $hps_djangoStatus');
+        //print('hps_mongoStatus: $hps_mongoStatus');
         final String? app_url = GrassrootsConfig.GetPhotoReceiverURL();
         String error_message = "Error: No Grassroots Server has been specified";
 
@@ -117,10 +124,10 @@ class _HomePageState extends State<HomePage> {
       }
     } catch (e) {
       print('>>>>> e: $e');
-      setState(() {
+/*      setState(() {
         hps_djangoStatus = 'error';
         hps_mongoStatus = 'error';
-      });
+      });*/
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -134,10 +141,10 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  bool _GetServerHealth(bool refresh_flag) {
+/*  bool _GetServerHealth(bool refresh_flag) {
     return ((hps_djangoStatus == 'running') &&
         (hps_mongoStatus == 'available'));
-  }
+  }*/
 
   Future<void> getUserName() async {
     final firstName = (await GlobusAuthService.getFirstName())?.split('.')[0];
@@ -148,7 +155,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    bool isServerHealthy = _GetServerHealth(false);
+    bool isServerHealthy = _model.isOnline;
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
@@ -196,7 +203,8 @@ class _HomePageState extends State<HomePage> {
                   const SizedBox(height: 30),
                   Text(
                     "Welcome to the Grassroots App \n $userFirstName",
-                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        fontSize: 20, fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 20),

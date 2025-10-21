@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:grassroots_field_trials/backend_request.dart';
 
@@ -42,15 +41,15 @@ class MeasuredVariable {
   bool selected;
 
   MeasuredVariable(
-      this.id,
-      this.unitName,
-      this.traitName,
-      this.traitDescription,
-      this.measurementName,
-      this.measurementDescription,
-      this.variableName,
-      this.selected,
-      );
+    this.id,
+    this.unitName,
+    this.traitName,
+    this.traitDescription,
+    this.measurementName,
+    this.measurementDescription,
+    this.variableName,
+    this.selected,
+  );
 
   factory MeasuredVariable.fromJson(Map<String, dynamic> json) {
     if (GrassrootsConfig.log_level >= LOG_FINEST) {
@@ -62,9 +61,11 @@ class MeasuredVariable {
 
     final unit = _getChild(json, "unit", "so:name");
     final trait = _getChild(json, "trait", "so:name");
-    final traitDescription = _getChild(json, "trait", "so:description", optional: true);
+    final traitDescription =
+        _getChild(json, "trait", "so:description", optional: true);
     final measurement = _getChild(json, "measurement", "so:name");
-    final measurementDescription = _getChild(json, "measurement", "so:description", optional: true);
+    final measurementDescription =
+        _getChild(json, "measurement", "so:description", optional: true);
     final variable = _getChild(json, "variable", "so:name");
 
     return MeasuredVariable(
@@ -79,18 +80,21 @@ class MeasuredVariable {
     );
   }
 
-  static String _getChild(Map<String, dynamic> json, String key, String field, {bool optional = false}) {
+  static String _getChild(Map<String, dynamic> json, String key, String field,
+      {bool optional = false}) {
     final child = json[key];
     if (child == null) {
       if (optional) return "";
       throw Exception("Missing child: $key");
     }
     final value = child[field] ?? "";
-    if (value.isEmpty && !optional) throw Exception("Missing field: $field in $key");
+    if (value.isEmpty && !optional)
+      throw Exception("Missing field: $field in $key");
     return value;
   }
 
-  static String? _nullIfEmpty(String? value) => (value == null || value.isEmpty) ? null : value;
+  static String? _nullIfEmpty(String? value) =>
+      (value == null || value.isEmpty) ? null : value;
 }
 
 class MeasuredVariablesModel with ChangeNotifier {
@@ -128,7 +132,6 @@ class MeasuredVariablesModel with ChangeNotifier {
   }
 }
 
-
 class MeasuredVariablesListWidget extends StatefulWidget {
   final MeasuredVariablesModel model;
   final String name;
@@ -146,7 +149,8 @@ class MeasuredVariablesListWidget extends StatefulWidget {
   List<MeasuredVariable> getSelectedVariables() => model.getSelectedVariables();
 }
 
-class _MeasuredVariablesListWidgetState extends State<MeasuredVariablesListWidget> {
+class _MeasuredVariablesListWidgetState
+    extends State<MeasuredVariablesListWidget> {
   void _toggle(int index) {
     setState(() {
       widget.model.at(index).selected = !widget.model.at(index).selected;
@@ -164,7 +168,8 @@ class _MeasuredVariablesListWidgetState extends State<MeasuredVariablesListWidge
       itemCount: values.length,
       itemBuilder: (context, index) {
         final mv = values[index];
-        final subtitle = "${mv.traitName} - ${mv.measurementName} - ${mv.unitName}";
+        final subtitle =
+            "${mv.traitName} - ${mv.measurementName} - ${mv.unitName}";
 
         return ListTile(
           onTap: () => _toggle(index),
@@ -180,7 +185,8 @@ class _MeasuredVariablesListWidgetState extends State<MeasuredVariablesListWidge
   }
 }
 
-class MeasuredVariableSearchDelegate extends SearchDelegate<List<MeasuredVariable>> {
+class MeasuredVariableSearchDelegate
+    extends SearchDelegate<List<MeasuredVariable>> {
   final MeasuredVariablesListWidget _listWidget;
 
   MeasuredVariableSearchDelegate(String name)
@@ -191,28 +197,25 @@ class MeasuredVariableSearchDelegate extends SearchDelegate<List<MeasuredVariabl
 
   @override
   Widget? buildLeading(BuildContext context) => IconButton(
-    icon: const Icon(Icons.arrow_back),
-    onPressed: () => close(context, _listWidget.getSelectedVariables()),
-  );
+        icon: const Icon(Icons.arrow_back),
+        onPressed: () => close(context, _listWidget.getSelectedVariables()),
+      );
 
   @override
-  Widget buildResults(BuildContext context) => FutureBuilder<List<MeasuredVariable>>(
-    future: backendRequests.searchMeasuredVariables(query),
-    builder: (context, snapshot) {
-      if (snapshot.connectionState == ConnectionState.waiting) {
-        return const Center(child: CircularProgressIndicator());
-      }
-      if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-        _listWidget.setValues(snapshot.data!);
-      }
-      return _listWidget;
-    },
-  );
+  Widget buildResults(BuildContext context) =>
+      FutureBuilder<List<MeasuredVariable>>(
+        future: backendRequests.searchMeasuredVariables(query),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+            _listWidget.setValues(snapshot.data!);
+          }
+          return _listWidget;
+        },
+      );
 
   @override
   Widget buildSuggestions(BuildContext context) => const SizedBox();
 }
-
-
-
-
