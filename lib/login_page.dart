@@ -32,9 +32,10 @@ class _LoginScreenState extends State<LoginScreen> {
       context,
       MaterialPageRoute(
         builder: (_) => OrcidWebViewLogin(
-          onLoginSuccess: (idToken, email) async {
+          onLoginSuccess: (accessToken, email,sub) async {
             await _secureStorage.write(key: 'GLOBUS_EMAIL', value: email);
-            await _secureStorage.write(key: 'ID_TOKEN', value: idToken);
+            await _secureStorage.write(key: 'ACCESS_TOKEN', value: accessToken);
+            await _secureStorage.write(key: 'SUB', value: sub);
 
             if (!mounted) return;
             navigateToHome();
@@ -94,7 +95,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
 //WebView Login
 class OrcidWebViewLogin extends StatefulWidget {
-  final Future<void> Function(String idToken, String email) onLoginSuccess;
+  final Future<void> Function(String accessToken, String email,String sub) onLoginSuccess;
   final void Function(String error) onLoginFailed;
 
   const OrcidWebViewLogin({
@@ -170,6 +171,7 @@ class _OrcidWebViewLoginState extends State<OrcidWebViewLogin> {
       }
 
       final tokenData = await GlobusAuthService.exchangeCodeForToken(code);
+      //print('TokenData $tokenData');
       if (tokenData == null) {
         widget.onLoginFailed('Failed to exchange authorization code');
         return;
@@ -183,14 +185,15 @@ class _OrcidWebViewLoginState extends State<OrcidWebViewLogin> {
         return;
       }
 
-      final email = await GlobusAuthService.fetchUserEmail(accessToken);
-
-      if (email == null) {
-        widget.onLoginFailed('Could not retrieve email address');
+      final userInfo = await GlobusAuthService.fetchUserInfo(accessToken);
+      String email = userInfo?["email"];
+      String sub = userInfo?["sub"];
+      if (userInfo == null) {
+        widget.onLoginFailed('Could not retrieve userinfo');
         return;
       }
 
-      await widget.onLoginSuccess(idToken, email);
+      await widget.onLoginSuccess(accessToken, email,sub);
     } catch (e) {
       widget.onLoginFailed('Login failed: $e');
     } finally {

@@ -47,7 +47,7 @@ class backendRequests {
       //studies.sort((a, b) => a['name']!.compareTo(b['name']!));
 
       IdNamesCache.cache (studies, CACHE_STUDIES);
-
+      //print("ResponseStudies $studies");
       return studies;
     } catch (e) {
       print('Error fetching studies: $e');

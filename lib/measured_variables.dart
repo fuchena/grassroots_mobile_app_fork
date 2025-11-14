@@ -41,15 +41,15 @@ class MeasuredVariable {
   bool selected;
 
   MeasuredVariable(
-    this.id,
-    this.unitName,
-    this.traitName,
-    this.traitDescription,
-    this.measurementName,
-    this.measurementDescription,
-    this.variableName,
-    this.selected,
-  );
+      this.id,
+      this.unitName,
+      this.traitName,
+      this.traitDescription,
+      this.measurementName,
+      this.measurementDescription,
+      this.variableName,
+      this.selected,
+      );
 
   factory MeasuredVariable.fromJson(Map<String, dynamic> json) {
     if (GrassrootsConfig.log_level >= LOG_FINEST) {
@@ -62,10 +62,10 @@ class MeasuredVariable {
     final unit = _getChild(json, "unit", "so:name");
     final trait = _getChild(json, "trait", "so:name");
     final traitDescription =
-        _getChild(json, "trait", "so:description", optional: true);
+    _getChild(json, "trait", "so:description", optional: true);
     final measurement = _getChild(json, "measurement", "so:name");
     final measurementDescription =
-        _getChild(json, "measurement", "so:description", optional: true);
+    _getChild(json, "measurement", "so:description", optional: true);
     final variable = _getChild(json, "variable", "so:name");
 
     return MeasuredVariable(
@@ -114,7 +114,7 @@ class MeasuredVariablesModel with ChangeNotifier {
   List<MeasuredVariable> getSelectedVariables() =>
       _values.where((mv) => mv.selected).toList();
 
-  MeasuredVariable at(int index) => _values[index];
+  MeasuredVariable at(int index) => _values[index]; // get method shorthand
 
   void setValues(List<MeasuredVariable> newValues) {
     _values
@@ -136,9 +136,8 @@ class MeasuredVariablesListWidget extends StatefulWidget {
   final MeasuredVariablesModel model;
   final String name;
 
-  MeasuredVariablesListWidget(String name, [MeasuredVariablesModel? model])
-      : name = name,
-        model = model ?? MeasuredVariablesModel(name);
+  MeasuredVariablesListWidget(this.name, [MeasuredVariablesModel? model])
+      : model = model ?? MeasuredVariablesModel(name);
 
   @override
   State<MeasuredVariablesListWidget> createState() =>
@@ -189,7 +188,7 @@ class MeasuredVariableSearchDelegate
     extends SearchDelegate<List<MeasuredVariable>> {
   final MeasuredVariablesListWidget _listWidget;
 
-  MeasuredVariableSearchDelegate(String name)
+  MeasuredVariableSearchDelegate(String name) //constructor
       : _listWidget = MeasuredVariablesListWidget(name);
 
   @override
@@ -197,9 +196,9 @@ class MeasuredVariableSearchDelegate
 
   @override
   Widget? buildLeading(BuildContext context) => IconButton(
-        icon: const Icon(Icons.arrow_back),
-        onPressed: () => close(context, _listWidget.getSelectedVariables()),
-      );
+    icon: const Icon(Icons.arrow_back),
+    onPressed: () => close(context, _listWidget.getSelectedVariables()),
+  );
 
   @override
   Widget buildResults(BuildContext context) =>

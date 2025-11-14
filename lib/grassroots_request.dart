@@ -1,9 +1,12 @@
 import 'dart:convert';
 
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:grassroots_field_trials/global_variable.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:global_configuration/global_configuration.dart';
+
+import 'globus_auth_service.dart';
 
 
 class GrassrootsRequest {
@@ -19,6 +22,7 @@ class GrassrootsRequest {
   // User name and password for requests to queen services.
   static const String _username = 'doc';
   static const String _password = '123_REPLACE_';
+  static final _secureStorage = const FlutterSecureStorage();
 
 
   static Future<Map<String, dynamic>> sendRequest(String requestString, String serverKey,) async {
@@ -39,11 +43,20 @@ class GrassrootsRequest {
     if (GrassrootsConfig.log_level >= LOG_FINE) {
       print (">>> Calling Grassroots Server at ${url}");
     }
-    
+
+    String? userEmail = await GlobusAuthService.getEmail();
+    final accessToken = await _secureStorage.read(key: 'ACCESS_TOKEN');
+    final sub = await _secureStorage.read(key: 'SUB');
+
+
     // Creating a Map for headers
     Map<String, String> headers = {
       'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $accessToken',
+      'Oidc-Claim-Email': userEmail!,
+      'Oidc-Claim-Sub': sub!,
     };
+
 
     // If the server key is for the queen_bee_backend, add the Authorization header
     if (serverKey == 'queen_bee_backend') {

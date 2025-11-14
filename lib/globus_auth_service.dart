@@ -17,6 +17,7 @@ class GlobusConfig {
 class GlobusAuthService {
   static final _http = http.Client();
   static final _secureStorage = const FlutterSecureStorage();
+
   //gets token (IdToken, Access token, refresh token etc) based on authorization code
   static Future<Map<String, dynamic>?> exchangeCodeForToken(String code) async {
     final basicAuth = 'Basic ${base64Encode(
@@ -37,22 +38,22 @@ class GlobusAuthService {
     );
 
     if (response.statusCode == 200) {
-      //print('TokenResponse ${response.body}');
+      print('TokenResponse ${response.body}');
       return jsonDecode(response.body) as Map<String, dynamic>;
     }
     return null;
   }
 
   //userinfo endpoint
-  static Future<String?> fetchUserEmail(String accessToken) async {
+  static Future<Map<String,dynamic>?> fetchUserInfo(String accessToken) async {
     final response = await _http.get(
       Uri.https(GlobusConfig.authBase, '/v2/oauth2/userinfo'),
       headers: {'Authorization': 'Bearer $accessToken'},
     );
     if (response.statusCode == 200) {
       final userInfo = jsonDecode(response.body);
-      //print('UserInfo: $userInfo');
-      return userInfo['email'] as String?;
+      print('UserInfo: $userInfo');
+      return userInfo;
     }
     return null;
   }
@@ -69,8 +70,13 @@ class GlobusAuthService {
   }
 
   static Future<String?> getFirstName() async {
-    final email = await _secureStorage.read(key: 'GLOBUS_EMAIL');
+    final email = await getEmail();
     return email != null ? capitalize(email) : null;
+  }
+
+  static Future<String?> getEmail() async {
+    final email = await _secureStorage.read(key: 'GLOBUS_EMAIL');
+    return email != null ? email : null;
   }
 
   static String capitalize(String s) =>
@@ -78,7 +84,7 @@ class GlobusAuthService {
 
   static Future<bool> isCredentialExist() async {
     final email = await _secureStorage.read(key: 'GLOBUS_EMAIL');
-    final idToken = await _secureStorage.read(key: 'ID_TOKEN');
-    return email != null && idToken != null;
+    final accessToken = await _secureStorage.read(key: 'ACCESS_TOKEN');
+    return email != null && accessToken != null;
   }
 }
