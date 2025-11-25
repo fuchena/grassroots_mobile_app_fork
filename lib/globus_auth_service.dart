@@ -7,9 +7,9 @@ import 'login_page.dart';
 
 /// Config (move to env/secure store in real app)
 class GlobusConfig {
-  static const clientId = '4ca0e2cf-5369-4396-b1ae-0a23015abe77';
-  static const clientSecret = 'sUX89ts5kT4WPG8CNF7BrYIl2S/QKRVD9yf81xE3/10=';
-  static const redirectUri = 'https://grassroots.tools/dev/service/orcid/login';
+  static const clientId = 'f3cb960a-601c-43e0-b045-81a266fd2193';
+  static const clientSecret = 'kZJxjQF4eedyiizsVMJHquo4R1BbecP8jHIs5v2EKK4=';
+  static const redirectUri = 'https://grassroots.tools/dev/private_redirect';
   static const authBase = 'auth.globus.org';
 }
 
@@ -38,7 +38,7 @@ class GlobusAuthService {
     );
 
     if (response.statusCode == 200) {
-      print('TokenResponse ${response.body}');
+      //print('TokenResponse ${response.body}');
       return jsonDecode(response.body) as Map<String, dynamic>;
     }
     return null;
@@ -52,7 +52,7 @@ class GlobusAuthService {
     );
     if (response.statusCode == 200) {
       final userInfo = jsonDecode(response.body);
-      print('UserInfo: $userInfo');
+      //print('UserInfo: $userInfo');
       return userInfo;
     }
     return null;
@@ -83,8 +83,9 @@ class GlobusAuthService {
       s.isNotEmpty ? '${s[0].toUpperCase()}${s.substring(1)}' : s;
 
   static Future<bool> isCredentialExist() async {
-    final email = await _secureStorage.read(key: 'GLOBUS_EMAIL');
+    //final email = await _secureStorage.read(key: 'GLOBUS_EMAIL');
     final accessToken = await _secureStorage.read(key: 'ACCESS_TOKEN');
-    return email != null && accessToken != null;
+    //return email != null && accessToken != null;
+    return accessToken != null;
   }
 }

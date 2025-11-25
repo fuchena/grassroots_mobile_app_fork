@@ -25,6 +25,7 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+
   Future<void> _openOrcidWebView(BuildContext context) async {
     await WebViewCookieManager().clearCookies(); // clear cookies/cache
 
@@ -32,7 +33,7 @@ class _LoginScreenState extends State<LoginScreen> {
       context,
       MaterialPageRoute(
         builder: (_) => OrcidWebViewLogin(
-          onLoginSuccess: (accessToken, email,sub) async {
+          onLoginSuccess: (accessToken, email, sub) async {
             await _secureStorage.write(key: 'GLOBUS_EMAIL', value: email);
             await _secureStorage.write(key: 'ACCESS_TOKEN', value: accessToken);
             await _secureStorage.write(key: 'SUB', value: sub);
@@ -50,7 +51,7 @@ class _LoginScreenState extends State<LoginScreen> {
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (_) => HomePage()),
-      (_) => false,
+          (_) => false,
     );
   }
 
@@ -79,10 +80,14 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 40),
                 ElevatedButton.icon(
-                  icon: const Icon(Icons.login),
-                  label: const Text("Login with Globus",
-                      style: TextStyle(fontSize: 16)),
-                  onPressed: () => _openOrcidWebView(context),
+                    icon: const Icon(Icons.login),
+                    label: const Text("Login with Globus",
+                        style: TextStyle(fontSize: 16)),
+                    onPressed: () async {
+                      //AuthorizationTokenResponse result = await authorisation(context);
+                      //print ('AuthorizationTokenResponse $result');
+                      _openOrcidWebView(context);
+                    }//_openOrcidWebView(context),
                 ),
               ],
             ),
@@ -95,7 +100,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
 //WebView Login
 class OrcidWebViewLogin extends StatefulWidget {
-  final Future<void> Function(String accessToken, String email,String sub) onLoginSuccess;
+  final Future<void> Function(String acessToken, String email, String sub)
+  onLoginSuccess;
   final void Function(String error) onLoginFailed;
 
   const OrcidWebViewLogin({
@@ -155,7 +161,7 @@ class _OrcidWebViewLoginState extends State<OrcidWebViewLogin> {
         ),
       )
       ..loadRequest(authUrl).then((_) => _isWebViewReady =
-          true); //callback runs after the Future returned by loadRequest()
+      true); //callback runs after the Future returned by loadRequest()
   }
 
   Future<void> handleRedirect(String url) async {
@@ -171,16 +177,20 @@ class _OrcidWebViewLoginState extends State<OrcidWebViewLogin> {
       }
 
       final tokenData = await GlobusAuthService.exchangeCodeForToken(code);
-      //print('TokenData $tokenData');
+      print('TokenData $tokenData');
+
       if (tokenData == null) {
         widget.onLoginFailed('Failed to exchange authorization code');
         return;
       }
 
       final accessToken = tokenData['access_token'] as String?;
-      final idToken = tokenData['id_token'] as String?;
+      //final idToken = tokenData['id_token'] as String?;
 
-      if (accessToken == null || idToken == null) {
+      //print('idToken $idToken');
+
+
+      if (accessToken == null) {
         widget.onLoginFailed('Invalid token response');
         return;
       }
@@ -193,7 +203,7 @@ class _OrcidWebViewLoginState extends State<OrcidWebViewLogin> {
         return;
       }
 
-      await widget.onLoginSuccess(accessToken, email,sub);
+      await widget.onLoginSuccess(accessToken, email, sub);
     } catch (e) {
       widget.onLoginFailed('Login failed: $e');
     } finally {

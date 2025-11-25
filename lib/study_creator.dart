@@ -44,6 +44,8 @@ class _NewStudyPageState extends State<NewStudyPage> {
   final GlobalKey<FormState> _form_key = GlobalKey<FormState>();
 
   String? _name;
+  String? _description;
+
   int _num_rows = 1;
   int _num_columns = 1;
 
@@ -149,8 +151,23 @@ class _NewStudyPageState extends State<NewStudyPage> {
 
                       // validator: _ValidateStringField,
                     ),
+                        SizedBox(height: 10),
+                        TextFormField(
+                          style: TextStyle(color: Theme.of(context).primaryColor),
+                          decoration: InputDecoration(
+                              border: OutlineInputBorder(),
+                              labelText: 'Study Description'),
 
-                    SizedBox(height: 10),
+                          onChanged: (String? new_value) {
+                            setState(() {
+                              _description = new_value;
+                            });
+                          },
+
+                          // validator: _ValidateStringField,
+                        ),
+
+                        SizedBox(height: 10),
 
                     // Trials menu
                     DropdownMenu<StringLabel>(
@@ -389,6 +406,7 @@ class _NewStudyPageState extends State<NewStudyPage> {
                                 print("submitting");
                                 bool success_flag = await submitStudy(
                                     name,
+                                    _description ?? '',
                                     trial_id,
                                     location_id,
                                     user_email!,
@@ -609,6 +627,7 @@ class _NewStudyPageState extends State<NewStudyPage> {
 
   Future<bool> submitStudy(
       final String study_name,
+      final String study_description,
       final String trial_id,
       final String location_id,
       final String user_email,
@@ -676,7 +695,7 @@ class _NewStudyPageState extends State<NewStudyPage> {
               },
               {
                 "param": "ST Description",
-                "current_value": null,
+                "current_value": study_description,
                 "group": "Study"
               },
               {"param": "ST Design", "current_value": null, "group": "Study"},
