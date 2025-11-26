@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 import 'package:grassroots_field_trials/caching.dart';
+import 'package:grassroots_field_trials/update_study.dart';
 import 'package:grassroots_field_trials/widget_util.dart';
 import 'backend_request.dart';
 import 'grassroots_request.dart';
@@ -697,6 +698,18 @@ class GrassrootsPageState extends State<GrassrootsStudies> {
                   ),
                   child: Text(
                     'View Study Details',
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                SizedBox(width: 20),
+                ElevatedButton(
+                  onPressed: () => UpdateStudy(selectedStudyLabel!.name,selectedStudyLabel!.name).showLoginPopup(context),
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(
+                        vertical: 3, horizontal: 20),
+                  ),
+                  child: Text(
+                    'Update Study',
                     textAlign: TextAlign.center,
                   ),
                 ),
