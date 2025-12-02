@@ -1,17 +1,21 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 
+import 'grassroots_request.dart';
+
 class UpdateStudy {
-   String studyName;
-   String studyDescription;
+  String id;
+  String name;
+  String description;
 
+  UpdateStudy(this.id, this.name, this.description);
 
-  UpdateStudy(this.studyName, this.studyDescription);
-
-    void showLoginPopup(BuildContext context) {
+  void showLoginPopup(BuildContext context) {
     final TextEditingController nameController =
-    TextEditingController(text: this.studyName); // <-- Default study
+        TextEditingController(text: this.name); // <-- Default study
     final TextEditingController descriptionController = TextEditingController(
-        text: this.studyDescription); // <-- Default description
+        text: this.description); // <-- Default description
 
     final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
@@ -71,6 +75,7 @@ class UpdateStudy {
 
                   print("StudyName: $studyName");
                   print("StudyDescription: $studyDescription");
+                  print("StudyID: ${this.id}");
 
                   Navigator.of(context).pop();
                 }
@@ -81,5 +86,53 @@ class UpdateStudy {
         );
       },
     );
+  }
+
+  Future<bool> updateStudy(
+    final String study_name,
+    final String study_description,
+    final String id,
+  ) async {
+    bool success_flag = false;
+    String request_string = jsonEncode({
+      "services": [
+        {
+          "so:name": "Submit Field Trial Study",
+          "start_service": true,
+          "parameter_set": {
+            "parameters": [
+              {
+                "param": "ST Id",
+                "current_value": "${this.id}",
+                "group": "Study"
+              },
+              {
+                "param": "ST Description",
+                "current_value": "$study_description",
+                "group": "Study"
+              },
+              {
+                "param": "ST Name",
+                "current_value": "$study_name",
+                "group": "Study"
+              }
+            ]
+          }
+        }
+      ]
+    });
+
+    Map<String, dynamic> response =
+        await GrassrootsRequest.sendRequest(request_string, 'private');
+
+    Map<String, dynamic>? service_result = response['results']?[0];
+
+    if (service_result != null) {
+      String? status = service_result['status_text'];
+      if ((status != null) && (status == 'Succeeded')) {
+        success_flag = true;
+      }
+    }
+    return success_flag;
   }
 }

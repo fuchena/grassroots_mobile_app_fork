@@ -267,6 +267,5 @@ class ApiRequests {
     
     return ((djangoStatus == 'running') && (mongoStatus == 'available'));
   }
-
-
+  
 }

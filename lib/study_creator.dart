@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:grassroots_field_trials/caching.dart';
 import 'package:grassroots_field_trials/globus_auth_service.dart';
 import 'package:grassroots_field_trials/grassroots_request.dart';
@@ -28,6 +29,7 @@ class NewStudyPage extends StatefulWidget {
 }
 
 class _NewStudyPageState extends State<NewStudyPage> {
+  static final _secureStorage = const FlutterSecureStorage();
   final TextEditingController _trials_controller = TextEditingController();
   final TextEditingController _locations_controller = TextEditingController();
   bool _is_loading = true;
@@ -643,6 +645,8 @@ class _NewStudyPageState extends State<NewStudyPage> {
         measured_variables.add(phenotypes[i].variableName);
       }
     }
+
+    final accessToken = await _secureStorage.read(key: 'ACCESS_TOKEN');
 
     print("measured_variables: ${measured_variables}");
     String request_string = jsonEncode({

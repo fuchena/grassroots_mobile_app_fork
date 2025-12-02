@@ -138,7 +138,7 @@ class MeasuredVariablesListWidget extends StatefulWidget {
 
   MeasuredVariablesListWidget(this.name,
       [MeasuredVariablesModel?
-          model]) //[] mean the parameter is optional positional.
+          model]) //[] means the parameter is optional positional.
       : model = model ?? MeasuredVariablesModel(name);
 
   @override

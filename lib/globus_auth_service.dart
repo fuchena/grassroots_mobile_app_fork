@@ -7,9 +7,9 @@ import 'login_page.dart';
 
 /// Config (move to env/secure store in real app)
 class GlobusConfig {
-  static const clientId = 'f3cb960a-601c-43e0-b045-81a266fd2193';
-  static const clientSecret = 'kZJxjQF4eedyiizsVMJHquo4R1BbecP8jHIs5v2EKK4=';
-  static const redirectUri = 'https://grassroots.tools/dev/private_redirect';
+  static const clientId = '4ca0e2cf-5369-4396-b1ae-0a23015abe77';
+  static const clientSecret = '35FKLFStlbPFOpqH4riQ7nYbfRfJVbncQEp5Lz5Mcos=';
+  static const redirectUri = 'https://grassroots.tools/dev/service/orcid/login';
   static const authBase = 'auth.globus.org';
 }
 

@@ -690,28 +690,35 @@ class GrassrootsPageState extends State<GrassrootsStudies> {
               if (selectedStudyLabel != null) ...[
                 // Button to open the details dialog
 
-                ElevatedButton(
-                  onPressed: () => _showStudyDetailsDialog(context),
-                  style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(
-                        vertical: 3, horizontal: 20),
-                  ),
-                  child: Text(
-                    'View Study Details',
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                SizedBox(width: 20),
-                ElevatedButton(
-                  onPressed: () => UpdateStudy(selectedStudyLabel!.name,selectedStudyLabel!.name).showLoginPopup(context),
-                  style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(
-                        vertical: 3, horizontal: 20),
-                  ),
-                  child: Text(
-                    'Update Study',
-                    textAlign: TextAlign.center,
-                  ),
+                Row(
+                  children: [
+                    ElevatedButton(
+                      onPressed: () => _showStudyDetailsDialog(context),
+                      style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets.symmetric(
+                            vertical: 3, horizontal: 20),
+                      ),
+                      child: Text(
+                        'View Study Details',
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    SizedBox(width: 40),
+                    ElevatedButton(
+                      onPressed: () async {
+                      UpdateStudy(selectedStudyLabel!.id,studyTitle!,
+                          studyDescription?? 'Not Available').showLoginPopup(context);
+                        },
+                      style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets.symmetric(
+                            vertical: 3, horizontal: 20),
+                      ),
+                      child: Text(
+                        'Update Study',
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
                 ),
 
                 // TextButton(
