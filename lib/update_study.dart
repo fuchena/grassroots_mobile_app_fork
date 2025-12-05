@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:grassroots_field_trials/grassroots_studies.dart';
 
 import 'grassroots_request.dart';
 
@@ -68,7 +69,7 @@ class UpdateStudy {
           ),
           actions: [
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async{
                 if (_formKey.currentState!.validate()) {
                   String studyName = nameController.text.trim();
                   String studyDescription = descriptionController.text.trim();
@@ -76,8 +77,19 @@ class UpdateStudy {
                   print("StudyName: $studyName");
                   print("StudyDescription: $studyDescription");
                   print("StudyID: ${this.id}");
+                  bool successFlag = await updateStudy(studyName, studyDescription, this.id);
+                  print('Success $successFlag');
 
-                  Navigator.of(context).pop();
+                  if (successFlag) {
+                    Navigator.of(context).pop();
+
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (_) => GrassrootsStudies()),
+                          (_) => false,
+                    );
+                  }
+
                 }
               },
               child: const Text("Submit"),
@@ -103,7 +115,7 @@ class UpdateStudy {
             "parameters": [
               {
                 "param": "ST Id",
-                "current_value": "${this.id}",
+                "current_value": "$id",
                 "group": "Study"
               },
               {
@@ -123,7 +135,7 @@ class UpdateStudy {
     });
 
     Map<String, dynamic> response =
-        await GrassrootsRequest.sendRequest(request_string, 'private');
+        await GrassrootsRequest.sendRequest(request_string, 'public');
 
     Map<String, dynamic>? service_result = response['results']?[0];
 

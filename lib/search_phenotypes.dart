@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:grassroots_field_trials/measured_variables.dart';
 
@@ -15,7 +13,7 @@ class SearchPhenotypesPage extends StatelessWidget {
         child: ElevatedButton(
           onPressed: () {
             MeasuredVariablesModel model = MeasuredVariablesModel ("SearchPhenotypesPage");
-            
+
             MeasuredVariable mv_0 = MeasuredVariable("id 0", "unit_name 0", "trait_name 0", "trait_descrption 0", "measurement_name 0", "measurement_description 0", "variable_name 0", true);
             MeasuredVariable mv_1 = MeasuredVariable("id 1", "unit_name 1", "trait_name 1", "trait_descrption 1", "measurement_name 1", "measurement_description 1", "variable_name 1", true);
 
@@ -28,7 +26,7 @@ class SearchPhenotypesPage extends StatelessWidget {
         ),
       ),
     );
-  }  
+  }
 }
 
 
@@ -81,7 +79,7 @@ class SelectionScreen extends StatelessWidget {
                   // Pop here with "Yep"...
 
                   MeasuredVariablesModel model = MeasuredVariablesModel ("SelectionScreen");
-                  
+
                   MeasuredVariable mv_0 = MeasuredVariable("id 0", "unit_name 0", "trait_name 0", "trait_descrption 0", "measurement_name 0", "measurement_description 0", "variable_name 0", true);
                   MeasuredVariable mv_1 = MeasuredVariable("id 1", "unit_name 1", "trait_name 1", "trait_descrption 1", "measurement_name 1", "measurement_description 1", "variable_name 1", true);
 
@@ -98,7 +96,7 @@ class SelectionScreen extends StatelessWidget {
               padding: const EdgeInsets.all(8),
               child: ElevatedButton(
                 onPressed: () {
-                   Navigator.pop (context, null);
+                  Navigator.pop (context, null);
                 },
                 child: const Text('Cancel'),
               ),

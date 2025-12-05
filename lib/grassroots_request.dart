@@ -55,11 +55,20 @@ class GrassrootsRequest {
     //final mod_auth_openidc_session  = "eyJhbGciOiAiZGlyIiwgImVuYyI6ICJBMjU2R0NNIn0..ouANzbHD_dauKf8Z.aBGlsm2emPhfsB6jeRnptYEgoLN-S8IX6gZv9D_tpRGhf_H5qTm1JHI-W0cbwQ3N5G7v36-h3_OHEWNyJNThBN1nBT3wAfLgnrzlhYlknk4XoaZahKE3lbYIZkxderiWCrpHvflBLCsLvHyp9jXDDKvz3kS3QyZq-4iRZroudw3MFnSTySPLNwwcvyWGZkCwle5bm4mNqE4iwU0BJcrELk9ixNcQWi0gpXWm_cZOsiC7_WN6ULZ-ETt_YQejmZegBxdr5SGq2gFyG720bfwMQD0q0ub5SBiurWecbPF7Yi0LIgLqhLuvy28mnu9Igz-E15UqgzYR_cRl3dZBFyCVF5-DLatkOjMs02qoCNi7I2TCpxELm9yjz78ulYFnHMCvQUMGxKQLuGD_GPA-d2ARK4SeWYRddqPmX1NpPQ5Ehk-5o_WZ36O5iERdUR6loqwkO_SDZt5QuWdVrnGBM3WP9TJJPIiXeDllnAoAKjS7780zRQ-tMnAF6CfLQgmA42A3Q8X-WKZU8MTkNxhjnoW2O45PHTd95aq8rm9E6c2lZDsAlVlipardwRmHcLM5lK5TPELkgFUA08LpAK8DjNNLOZ0pnQkEhO-kw4ys4-i6OKiP42cDoQsqJ2jrsw-Ph6J6iuAR_GA2CmjPlw8X60hN5MhwI744P3U503kry2vAqBMoHhWfkQk4rp9LcOMsAatxhRuVN0BO9X9ZKWeLeKdbOzDlbnTFRaK4NgyksJpO3SCbrYGRap3sYTY-8iA.WkqORYQvB8lE6LZ7XruHHA; _ga_9RQFH7EWX4=GS2.1.s1763479661\$o68\$g0\$t1763479661\$j60\$l0\$h0; TS01e5ba45=01485ef4df465af4f9ed85de129551010cbfbf7a86e99107bf888781a14878299b3f91e46a691cba3236f2c9421f41389a666ef1a9a3186f37c0d4d0143920ee4e72f46865e7c3d68cc362aeec054ee8944f74cfd49ca04a7bed629ef4bf51dadec5098d0d0ddbec9f8b5b8e24b371a591cd154cd4a33caf45325bf6d9252f060e454a8bbf5c27f87cdd1981d62ed7097a1bf4d067e59c6c642189f56de2242b7112e53333fce72ce5596cb5a53e2c5e807768402bf2ac09ae6902f5539ac9087626cc8f80";
 
     String basicAuth = 'Basic ' + base64Encode(utf8.encode("username:$accessToken"));
+
+
     // Creating a Map for headers
-    final headers = {
+    /*final headers = {
       "Authorization": "Bearer $accessToken",
       "Content-Type": "application/json",
     };
+*/
+
+    // Creating a Map for headers
+    Map<String, String> headers = {
+      'Content-Type': 'application/json; charset=UTF-8',
+    };
+
 
     // If the server key is for the queen_bee_backend, add the Authorization header
     if (serverKey == 'queen_bee_backend') {
@@ -73,11 +82,12 @@ class GrassrootsRequest {
       body: requestString,
     );
 
+    print('Request String: $requestString');
     // The rest of your method remains unchanged
     if (response.statusCode == 200) {
 
       if (GrassrootsConfig.log_level >= LOG_FINER) {
-        print ("REQUEST: ${response.body}");
+        //print ("REQUEST: ${response.body}");
         print ("RESPONSE BODY: ${response.body}");
       }
 

@@ -84,10 +84,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     label: const Text("Login with Globus",
                         style: TextStyle(fontSize: 16)),
                     onPressed: () async {
-                      //AuthorizationTokenResponse result = await authorisation(context);
-                      //print ('AuthorizationTokenResponse $result');
                       _openOrcidWebView(context);
-                    }//_openOrcidWebView(context),
+                    }
                 ),
               ],
             ),

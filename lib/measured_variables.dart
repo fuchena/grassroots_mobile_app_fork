@@ -41,15 +41,15 @@ class MeasuredVariable {
   bool selected;
 
   MeasuredVariable(
-    this.id,
-    this.unitName,
-    this.traitName,
-    this.traitDescription,
-    this.measurementName,
-    this.measurementDescription,
-    this.variableName,
-    this.selected,
-  );
+      this.id,
+      this.unitName,
+      this.traitName,
+      this.traitDescription,
+      this.measurementName,
+      this.measurementDescription,
+      this.variableName,
+      this.selected,
+      );
 
   factory MeasuredVariable.fromJson(Map<String, dynamic> json) {
     if (GrassrootsConfig.log_level >= LOG_FINEST) {
@@ -62,10 +62,10 @@ class MeasuredVariable {
     final unit = _getChild(json, "unit", "so:name");
     final trait = _getChild(json, "trait", "so:name");
     final traitDescription =
-        _getChild(json, "trait", "so:description", optional: true);
+    _getChild(json, "trait", "so:description", optional: true);
     final measurement = _getChild(json, "measurement", "so:name");
     final measurementDescription =
-        _getChild(json, "measurement", "so:description", optional: true);
+    _getChild(json, "measurement", "so:description", optional: true);
     final variable = _getChild(json, "variable", "so:name");
 
     return MeasuredVariable(
@@ -138,7 +138,7 @@ class MeasuredVariablesListWidget extends StatefulWidget {
 
   MeasuredVariablesListWidget(this.name,
       [MeasuredVariablesModel?
-          model]) //[] means the parameter is optional positional.
+      model]) //[] means the parameter is optional positional.
       : model = model ?? MeasuredVariablesModel(name);
 
   @override
@@ -198,9 +198,9 @@ class MeasuredVariableSearchDelegate
 
   @override
   Widget? buildLeading(BuildContext context) => IconButton(
-        icon: const Icon(Icons.arrow_back),
-        onPressed: () => close(context, _listWidget.getSelectedVariables()),
-      );
+    icon: const Icon(Icons.arrow_back),
+    onPressed: () => close(context, _listWidget.getSelectedVariables()),
+  );
 
   @override
   Widget buildResults(BuildContext context) =>

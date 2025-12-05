@@ -646,7 +646,6 @@ class _NewStudyPageState extends State<NewStudyPage> {
       }
     }
 
-    final accessToken = await _secureStorage.read(key: 'ACCESS_TOKEN');
 
     print("measured_variables: ${measured_variables}");
     String request_string = jsonEncode({
@@ -745,7 +744,7 @@ class _NewStudyPageState extends State<NewStudyPage> {
     }
 
     Map<String, dynamic> response =
-        await GrassrootsRequest.sendRequest(request_string, 'private');
+        await GrassrootsRequest.sendRequest(request_string, 'public');
 
     Map<String, dynamic>? service_result = response['results']?[0];
 
