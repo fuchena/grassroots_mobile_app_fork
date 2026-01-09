@@ -24,6 +24,8 @@ class UpdateStudy {
       context: context,
       builder: (context) {
         return AlertDialog(
+          surfaceTintColor: Colors.transparent,
+          backgroundColor: Theme.of(context).colorScheme.surface,
           titlePadding: EdgeInsets.zero,
           contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 10),
           title: Row(
@@ -74,10 +76,11 @@ class UpdateStudy {
                   String studyName = nameController.text.trim();
                   String studyDescription = descriptionController.text.trim();
 
-                  print("StudyName: $studyName");
-                  print("StudyDescription: $studyDescription");
-                  print("StudyID: ${this.id}");
-                  bool successFlag = await updateStudy(studyName, studyDescription, this.id);
+                  //print("StudyName: $studyName");
+                  //print("StudyDescription: $studyDescription");
+                  //print("StudyID: ${this.id}");
+
+                  bool successFlag = await updateStudy(studyName,studyDescription);  //review parameters
                   print('Success $successFlag');
 
                   if (successFlag) {
@@ -89,7 +92,6 @@ class UpdateStudy {
                           (_) => false,
                     );
                   }
-
                 }
               },
               child: const Text("Submit"),
@@ -100,11 +102,7 @@ class UpdateStudy {
     );
   }
 
-  Future<bool> updateStudy(
-    final String study_name,
-    final String study_description,
-    final String id,
-  ) async {
+  Future<bool> updateStudy(String name, String description) async {
     bool success_flag = false;
     String request_string = jsonEncode({
       "services": [
@@ -120,12 +118,12 @@ class UpdateStudy {
               },
               {
                 "param": "ST Description",
-                "current_value": "$study_description",
+                "current_value": "$description",
                 "group": "Study"
               },
               {
                 "param": "ST Name",
-                "current_value": "$study_name",
+                "current_value": "$name",
                 "group": "Study"
               }
             ]
@@ -135,7 +133,7 @@ class UpdateStudy {
     });
 
     Map<String, dynamic> response =
-        await GrassrootsRequest.sendRequest(request_string, 'public');
+        await GrassrootsRequest.sendRequest(request_string, 'private');
 
     Map<String, dynamic>? service_result = response['results']?[0];
 

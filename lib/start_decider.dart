@@ -11,7 +11,7 @@ class StartDecider extends StatefulWidget {
 }
 
 class _StartDeciderState extends State<StartDecider> {
-  late bool _credentialExist = true;
+  bool _credentialExist = false;
   bool _isLoading = true;
   @override
   void initState() {
@@ -20,11 +20,12 @@ class _StartDeciderState extends State<StartDecider> {
   }
 
   Future<void> _checkLogin() async {
-    bool credentialExist = await GlobusAuthService.isCredentialExist();
-    //print('Credential exist: $credentialExist');
     setState(() {
       _isLoading = false;
     });
+
+    bool credentialExist = await GlobusAuthService.isCredentialExist();
+    //print('Credential exist: $credentialExist');
     setState(() {
       _credentialExist = credentialExist;
     });

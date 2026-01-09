@@ -7,13 +7,13 @@ import 'login_page.dart';
 
 /// Config (move to env/secure store in real app)
 class GlobusConfig {
-  static const clientId = '4ca0e2cf-5369-4396-b1ae-0a23015abe77';
-  static const clientSecret = '35FKLFStlbPFOpqH4riQ7nYbfRfJVbncQEp5Lz5Mcos=';
-  static const redirectUri = 'https://grassroots.tools/dev/service/orcid/login';
-  static const authBase = 'auth.globus.org';
+  static const clientId = '?????';
+  static const clientSecret = '?????';
+  static const redirectUri = '';
+  static const authBase = '???????';
 }
 
-/// Simple Globus Auth Service
+/// Globus Auth Service
 class GlobusAuthService {
   static final _http = http.Client();
   static final _secureStorage = const FlutterSecureStorage();
@@ -45,7 +45,7 @@ class GlobusAuthService {
   }
 
   //userinfo endpoint
-  static Future<Map<String,dynamic>?> fetchUserInfo(String accessToken) async {
+  static Future<Map<String, dynamic>?> fetchUserInfo(String accessToken) async {
     final response = await _http.get(
       Uri.https(GlobusConfig.authBase, '/v2/oauth2/userinfo'),
       headers: {'Authorization': 'Bearer $accessToken'},
@@ -83,7 +83,7 @@ class GlobusAuthService {
       s.isNotEmpty ? '${s[0].toUpperCase()}${s.substring(1)}' : s;
 
   static Future<bool> isCredentialExist() async {
-    //final email = await _secureStorage.read(key: 'GLOBUS_EMAIL');
+    final email = await _secureStorage.read(key: 'GLOBUS_EMAIL');
     final accessToken = await _secureStorage.read(key: 'ACCESS_TOKEN');
     //return email != null && accessToken != null;
     return accessToken != null;

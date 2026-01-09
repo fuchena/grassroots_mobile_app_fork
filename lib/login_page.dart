@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -25,7 +27,6 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-
   Future<void> _openOrcidWebView(BuildContext context) async {
     await WebViewCookieManager().clearCookies(); // clear cookies/cache
 
@@ -51,7 +52,7 @@ class _LoginScreenState extends State<LoginScreen> {
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (_) => HomePage()),
-          (_) => false,
+      (_) => false,
     );
   }
 
@@ -85,8 +86,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         style: TextStyle(fontSize: 16)),
                     onPressed: () async {
                       _openOrcidWebView(context);
-                    }
-                ),
+                    }),
               ],
             ),
           ),
@@ -99,7 +99,7 @@ class _LoginScreenState extends State<LoginScreen> {
 //WebView Login
 class OrcidWebViewLogin extends StatefulWidget {
   final Future<void> Function(String acessToken, String email, String sub)
-  onLoginSuccess;
+      onLoginSuccess;
   final void Function(String error) onLoginFailed;
 
   const OrcidWebViewLogin({
@@ -124,6 +124,11 @@ class _OrcidWebViewLoginState extends State<OrcidWebViewLogin> {
     _initializeWebView();
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   void _initializeWebView() {
     //authorization endpoint
     final authUrl = Uri.https(GlobusConfig.authBase, '/v2/oauth2/authorize', {
@@ -139,8 +144,14 @@ class _OrcidWebViewLoginState extends State<OrcidWebViewLogin> {
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setNavigationDelegate(
         NavigationDelegate(
-          onPageStarted: (_) => setState(() => _isLoading = true),
-          onPageFinished: (_) => setState(() => _isLoading = false),
+          onPageStarted: (_) =>
+            setState(() => _isLoading = true),
+          onPageFinished: (_) async {
+            await Future.delayed(const Duration(seconds: 3), ()
+            {
+              setState(() => _isLoading = false);
+            });
+          },
           onNavigationRequest: (request) {
             if (request.url.startsWith(GlobusConfig.redirectUri)) {
               handleRedirect(request.url);
@@ -159,7 +170,7 @@ class _OrcidWebViewLoginState extends State<OrcidWebViewLogin> {
         ),
       )
       ..loadRequest(authUrl).then((_) => _isWebViewReady =
-      true); //callback runs after the Future returned by loadRequest()
+          true); //callback runs after the Future returned by loadRequest()
   }
 
   Future<void> handleRedirect(String url) async {
@@ -186,7 +197,6 @@ class _OrcidWebViewLoginState extends State<OrcidWebViewLogin> {
       //final idToken = tokenData['id_token'] as String?;
 
       //print('idToken $idToken');
-
 
       if (accessToken == null) {
         widget.onLoginFailed('Invalid token response');

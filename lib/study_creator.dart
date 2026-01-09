@@ -744,7 +744,7 @@ class _NewStudyPageState extends State<NewStudyPage> {
     }
 
     Map<String, dynamic> response =
-        await GrassrootsRequest.sendRequest(request_string, 'public');
+        await GrassrootsRequest.sendRequest(request_string, 'private');
 
     Map<String, dynamic>? service_result = response['results']?[0];
 
