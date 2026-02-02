@@ -7,10 +7,10 @@ import 'login_page.dart';
 
 /// Config (move to env/secure store in real app)
 class GlobusConfig {
-  static const clientId = '?????';
-  static const clientSecret = '?????';
-  static const redirectUri = '';
-  static const authBase = '???????';
+  static const clientId = 'f3cb960a-601c-43e0-b045-81a266fd2193';
+  static const clientSecret = '+Zvcm80kmI6jvMw7NCt9rtQDG7SCxZ8LNs7sUA4G42Q=';
+  static const redirectUri = 'https://grassroots.tools/private/redirect_uri';
+  static const authBase = 'auth.globus.org';
 }
 
 /// Globus Auth Service
@@ -38,10 +38,54 @@ class GlobusAuthService {
     );
 
     if (response.statusCode == 200) {
-      //print('TokenResponse ${response.body}');
+      print('TokenResponse ${response.body}');
       return jsonDecode(response.body) as Map<String, dynamic>;
     }
     return null;
+  }
+
+  // Refresh access token using a stored refresh token.
+  static Future<Map<String, dynamic>?> refreshAccessToken(
+      String refreshToken) async {
+    final basicAuth = 'Basic ${base64Encode(
+      utf8.encode('${GlobusConfig.clientId}:${GlobusConfig.clientSecret}'),
+    )}';
+
+    final response = await _http.post(
+      Uri.https(GlobusConfig.authBase, '/v2/oauth2/token'),
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': basicAuth,
+      },
+      body: {
+        'grant_type': 'refresh_token',
+        'refresh_token': refreshToken,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body) as Map<String, dynamic>;
+    }
+    return null;
+  }
+
+  // Refresh token and persist any rotated tokens.
+  static Future<String?> refreshAndStoreAccessToken() async {
+    final refreshToken = await _secureStorage.read(key: 'REFRESH_TOKEN');
+    if (refreshToken == null) return null;
+
+    final tokenData = await refreshAccessToken(refreshToken);
+    if (tokenData == null) return null;
+
+    final accessToken = tokenData['access_token'] as String?;
+    final newRefreshToken = tokenData['refresh_token'] as String?;
+    if (accessToken != null) {
+      await _secureStorage.write(key: 'ACCESS_TOKEN', value: accessToken);
+    }
+    if (newRefreshToken != null) {
+      await _secureStorage.write(key: 'REFRESH_TOKEN', value: newRefreshToken);
+    }
+    return accessToken;
   }
 
   //userinfo endpoint
@@ -88,4 +132,7 @@ class GlobusAuthService {
     //return email != null && accessToken != null;
     return accessToken != null;
   }
+
+  //refresh token function here
+
 }

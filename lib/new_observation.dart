@@ -988,17 +988,17 @@ class _NewObservationPageState extends State<NewObservationPage> {
                 ///// Note field /////
                 SpeechToTextWidget(
                   controller: _notesEditingController,
-                  decoration: InputDecoration(
+/*                  decoration: InputDecoration(
                     labelText: 'Notes (Optional)',
                     hintText: 'Enter any additional notes here',
                     border: OutlineInputBorder(),
                     labelStyle:
                     TextStyle(color: Theme.of(context).primaryColor),
                     hintStyle: TextStyle(color: Theme.of(context).primaryColor),
-                  ),
-                  keyboardType: TextInputType.text,
-
-                  style: TextStyle(color: Theme.of(context).primaryColor),
+                  ),*/
+                  // keyboardType: TextInputType.text,
+                  //
+                  // style: TextStyle(color: Theme.of(context).primaryColor),
                 ),
                 //////
                 SizedBox(height: 20),

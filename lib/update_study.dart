@@ -71,7 +71,7 @@ class UpdateStudy {
           ),
           actions: [
             ElevatedButton(
-              onPressed: () async{
+              onPressed: () async {
                 if (_formKey.currentState!.validate()) {
                   String studyName = nameController.text.trim();
                   String studyDescription = descriptionController.text.trim();
@@ -80,8 +80,9 @@ class UpdateStudy {
                   //print("StudyDescription: $studyDescription");
                   //print("StudyID: ${this.id}");
 
-                  bool successFlag = await updateStudy(studyName,studyDescription);  //review parameters
-                  print('Success $successFlag');
+                  bool successFlag = await updateStudy(
+                      studyName, studyDescription); //review parameters
+                  //print('Success $successFlag');
 
                   if (successFlag) {
                     Navigator.of(context).pop();
@@ -89,8 +90,10 @@ class UpdateStudy {
                     Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(builder: (_) => GrassrootsStudies()),
-                          (_) => false,
+                      (_) => false,
                     );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error updating")));
                   }
                 }
               },
@@ -111,21 +114,13 @@ class UpdateStudy {
           "start_service": true,
           "parameter_set": {
             "parameters": [
-              {
-                "param": "ST Id",
-                "current_value": "$id",
-                "group": "Study"
-              },
+              {"param": "ST Id", "current_value": "$id", "group": "Study"},
               {
                 "param": "ST Description",
                 "current_value": "$description",
                 "group": "Study"
               },
-              {
-                "param": "ST Name",
-                "current_value": "$name",
-                "group": "Study"
-              }
+              {"param": "ST Name", "current_value": "$name", "group": "Study"}
             ]
           }
         }
@@ -138,8 +133,10 @@ class UpdateStudy {
     Map<String, dynamic>? service_result = response['results']?[0];
 
     if (service_result != null) {
-      String? status = service_result['status_text'];
-      if ((status != null) && (status == 'Succeeded')) {
+      //String? status = service_result['status_text'];
+      String? job_uuid = service_result['job_uuid'];
+      //if ((status != null) && (status == 'Succeeded')) {
+      if (job_uuid != null) {
         success_flag = true;
       }
     }

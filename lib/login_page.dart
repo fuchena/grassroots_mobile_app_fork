@@ -117,6 +117,7 @@ class _OrcidWebViewLoginState extends State<OrcidWebViewLogin> {
   bool _isLoading = true;
   bool _afterLogin = false;
   bool _isWebViewReady = false;
+  final _secureStorage = const FlutterSecureStorage();
 
   @override
   void initState() {
@@ -135,7 +136,7 @@ class _OrcidWebViewLoginState extends State<OrcidWebViewLogin> {
       'response_type': 'code',
       'client_id': GlobusConfig.clientId,
       'redirect_uri': GlobusConfig.redirectUri,
-      'scope': 'openid email',
+      'scope': 'openid email offline_access',
       'access_type': 'offline',
       'prompt': 'login',
     });
@@ -194,6 +195,7 @@ class _OrcidWebViewLoginState extends State<OrcidWebViewLogin> {
       }
 
       final accessToken = tokenData['access_token'] as String?;
+      final refreshToken = tokenData['refresh_token'] as String?;
       //final idToken = tokenData['id_token'] as String?;
 
       //print('idToken $idToken');
@@ -211,6 +213,9 @@ class _OrcidWebViewLoginState extends State<OrcidWebViewLogin> {
         return;
       }
 
+      if (refreshToken != null) {
+        await _secureStorage.write(key: 'REFRESH_TOKEN', value: refreshToken);
+      }
       await widget.onLoginSuccess(accessToken, email, sub);
     } catch (e) {
       widget.onLoginFailed('Login failed: $e');

@@ -39,6 +39,7 @@ class _StartDeciderState extends State<StartDecider> {
         body: Center(child: CircularProgressIndicator()),
       );
 
-    return _credentialExist ? HomePage() : LoginScreen();
+    //return _credentialExist ? HomePage() : LoginScreen();   //uncomment later
+    return HomePage();
   }
 }

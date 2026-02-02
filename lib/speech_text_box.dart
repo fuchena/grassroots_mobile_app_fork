@@ -11,10 +11,10 @@ class SpeechToTextWidget extends StatefulWidget {
 
   SpeechToTextWidget({
     super.key,
-    String? initialValue,
-    InputDecoration? decoration,
-    TextInputType? keyboardType,
-    TextStyle? style,
+    //String? initialValue,
+    //InputDecoration? decoration,
+    //TextInputType? keyboardType,
+    //TextStyle? style,
     TextEditingController? controller,
   }) {
     _controller = controller;
@@ -26,8 +26,8 @@ class SpeechToTextWidget extends StatefulWidget {
   _SpeechToTextWidget createState () {
     _state = _SpeechToTextWidget (_controller);
 
-    _state._text_decoration = _decoration;
-    _state._text_style = _style;
+   // _state._text_decoration = _decoration;
+    //_state._text_style = _style;
 
     return _state;
   }
@@ -50,8 +50,8 @@ class _SpeechToTextWidget extends State <SpeechToTextWidget> {
   final SpeechToText _speech_to_text = SpeechToText ();
   bool _speechEnabled = false;
   //String _content = "";
-  InputDecoration? _text_decoration;
-  TextStyle? _text_style;
+  //InputDecoration? _text_decoration;
+  //TextStyle? _text_style;
 
 
   _SpeechToTextWidget (TextEditingController? controller) {
@@ -146,8 +146,11 @@ class _SpeechToTextWidget extends State <SpeechToTextWidget> {
                   controller: _text_controller,
                   minLines: 6,
                   maxLines: 10,
-                  decoration: _text_decoration,
-                  style: _text_style,
+                  //decoration: _text_decoration,
+                  decoration: InputDecoration(labelText: "Notes (Optional)"),
+                  //style: _text_style,
+                  keyboardType: TextInputType.text,
+                  style: TextStyle(color: Theme.of(context).primaryColor),
                 ),
               ),
               const SizedBox(
