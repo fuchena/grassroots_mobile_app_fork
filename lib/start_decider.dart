@@ -29,6 +29,8 @@ class _StartDeciderState extends State<StartDecider> {
     setState(() {
       _credentialExist = credentialExist;
     });
+
+    GlobusConfig.globusUpdateConfig();
   }
 
   @override
@@ -39,7 +41,7 @@ class _StartDeciderState extends State<StartDecider> {
         body: Center(child: CircularProgressIndicator()),
       );
 
-    //return _credentialExist ? HomePage() : LoginScreen();   //uncomment later
-    return HomePage();
+    return _credentialExist ? HomePage() : LoginScreen();   //uncomment later
+    //return HomePage();
   }
 }

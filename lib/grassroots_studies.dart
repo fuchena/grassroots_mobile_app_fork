@@ -704,7 +704,7 @@ class GrassrootsPageState extends State<GrassrootsStudies> {
                       ),
                     ),
                     SizedBox(width: 40),
-                    ElevatedButton(
+/*                    ElevatedButton(
                       onPressed: () async {
                       UpdateStudy(selectedStudyLabel!.id,studyTitle!,
                           studyDescription?? 'Not Available').showLoginPopup(context);
@@ -717,7 +717,7 @@ class GrassrootsPageState extends State<GrassrootsStudies> {
                         'Update Study',
                         textAlign: TextAlign.center,
                       ),
-                    ),
+                    ),*/
                   ],
                 ),
 
@@ -748,7 +748,7 @@ class GrassrootsPageState extends State<GrassrootsStudies> {
                       ),
                     );
                   },
-                  child: Text('Add New Observation or image'),
+                  child: Text('Add New Observation'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).canvasColor,
                     textStyle: TextStyle(

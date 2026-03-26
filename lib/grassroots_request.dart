@@ -44,30 +44,19 @@ class GrassrootsRequest {
       print (">>> Calling Grassroots Server at ${url}");
     }
 
-    String? userEmail = await GlobusAuthService.getEmail();
+    //String? userEmail = await GlobusAuthService.getEmail();
     final accessToken = await _secureStorage.read(key: 'ACCESS_TOKEN');
     final sub = await _secureStorage.read(key: 'SUB');
-    //print('accessToken: $accessToken');
+    print('accessToken: $accessToken');
 
+    //String basicAuth = 'Basic ' + base64Encode(utf8.encode("username:$accessToken"));
 
-    final accessTokenObj = {"access_token": accessToken};
-    String basicAuth = 'Basic ' + base64Encode(utf8.encode("username:$accessToken"));
-
-
-    // Creating a Map for headers
-    /*final headers = {
-      "Authorization": "Bearer $accessToken",
-      "Content-Type": "application/json",
-    };
-*/
 
     // Creating a Map for headers
      final headers = {
       "Authorization": "Bearer $accessToken",
       'Content-Type': 'application/json',
     };
-
-    // 'OIDC_access_token': '$accessToken',
 
     // If the server key is for the queen_bee_backend, add the Authorization header
     if (serverKey == 'queen_bee_backend') {

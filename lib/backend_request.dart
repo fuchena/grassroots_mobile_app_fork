@@ -61,12 +61,27 @@ class backendRequests {
     String requestString = jsonEncode({
       "services": [
         {
-          "so:name": "Search Field Trials",
+          "so:name": "Search Grassroots",
           "start_service": true,
           "parameter_set": {
             "level": "advanced",
             "parameters": [
-              {"param": "FT Search", "current_value": true, "group": "Field Trials"}
+              {
+                "param": "SS Keyword Search",
+                "current_value": null
+              },
+              {
+                "param": "SS Facet",
+                "current_value": "Field Trial"
+              },
+/*              {
+                "param": "SS Results Page Number",
+                "current_value": 0
+              },
+              {
+                "param": "SS Results Page Size",
+                "current_value": 500     //do we have to limit by page?
+              }*/
             ]
           }
         }
@@ -79,7 +94,7 @@ class backendRequests {
       List<Map<String, String>> trials = response['results'][0]['results'].map<Map<String, String>>((trial) {
         //String name = study['title'] as String? ?? 'Unknown Study';
         String name = trial['data']['so:name'] as String? ?? 'Unknown Trial';
-        String id = trial['data']['_id']['\$oid'] as String? ?? 'Unknown ID';
+        String id = trial['data']['_id'] as String? ?? 'Unknown ID';
 
         return {'name': name, 'id': id};
       }).toList();

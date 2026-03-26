@@ -210,7 +210,7 @@ class MeasuredVariableSearchDelegate
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
-          if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+          if (snapshot.hasData) {
             _listWidget.setValues(snapshot.data!);
           }
           return _listWidget;

@@ -63,6 +63,7 @@ class GrassrootsConfig {
     return _GetBackendURL ("public");
   }
 
+
   static String? GetPrivateBackendURL () {
     return _GetBackendURL ("private");
   }
@@ -81,12 +82,17 @@ class GrassrootsConfig {
   }
 
 
+  static Map<String,dynamic>? GetGlobusConfig () {
+    return GlobalConfiguration().getValue ("globus_config");
+  }
+
+
   static String? _GetBackendURL (String key) {
     String? url = null;
     String? host = GetHost ();
 
     if (host != null) {
-      Map <String, dynamic> ? host_config = GlobalConfiguration ().getValue (host);
+      Map <String, dynamic> ? host_config = GlobalConfiguration ().getValue (host);  //host_config is a json object mapped to host
 
       if (host_config != null) {
         String? sub_url = host_config [key];

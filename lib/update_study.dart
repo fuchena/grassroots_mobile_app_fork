@@ -33,7 +33,7 @@ class UpdateStudy {
             children: [
               const Padding(
                 padding: EdgeInsets.all(16.0),
-                child: Text("Update Study", style: TextStyle(fontSize: 20)),
+                child: Text("Edit Existing Study", style: TextStyle(fontSize: 20)),
               ),
               IconButton(
                 icon: const Icon(Icons.close),
@@ -80,7 +80,7 @@ class UpdateStudy {
                   //print("StudyDescription: $studyDescription");
                   //print("StudyID: ${this.id}");
 
-                  bool successFlag = await updateStudy(
+                  bool successFlag = await updateData(
                       studyName, studyDescription); //review parameters
                   //print('Success $successFlag');
 
@@ -105,7 +105,7 @@ class UpdateStudy {
     );
   }
 
-  Future<bool> updateStudy(String name, String description) async {
+  Future<bool> updateData(String name, String description) async {
     bool success_flag = false;
     String request_string = jsonEncode({
       "services": [

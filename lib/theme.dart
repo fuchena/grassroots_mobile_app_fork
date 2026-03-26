@@ -45,8 +45,8 @@ final ThemeData light_theme = ThemeData(
   scaffoldBackgroundColor: Colors.white, // Set the default background color for Scaffold widgets to white
   indicatorColor: _light_primary_color,
   appBarTheme: AppBarTheme(
-    backgroundColor: Colors.white, // Set the AppBar color
-    foregroundColor: Color(0xFF2c3e50),  // Set the AppBar icon and text color
+    backgroundColor: Color(0xFF2c3e50), // Set the AppBar color
+    foregroundColor: _dark_primary_color, // Set the AppBar icon and text color
   ),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(

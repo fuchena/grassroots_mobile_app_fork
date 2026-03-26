@@ -144,8 +144,8 @@ class _SpeechToTextWidget extends State <SpeechToTextWidget> {
               Expanded(
                 child: TextFormField(
                   controller: _text_controller,
-                  minLines: 6,
-                  maxLines: 10,
+                  minLines: 2,
+                  maxLines: 4,
                   //decoration: _text_decoration,
                   decoration: InputDecoration(labelText: "Notes (Optional)"),
                   //style: _text_style,

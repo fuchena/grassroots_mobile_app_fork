@@ -1,10 +1,15 @@
 import 'dart:io' show Platform;
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:grassroots_field_trials/global_variable.dart';
 import 'package:grassroots_field_trials/globus_auth_service.dart';
 import 'package:grassroots_field_trials/server.dart';
+import 'globals.dart';
+import 'login_page.dart';
 import 'welcome_message.dart';
 import 'grassroots_studies.dart';
 import 'api_requests.dart';
@@ -22,18 +27,28 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
 /*  String hps_djangoStatus = 'unknown';
   String hps_mongoStatus = 'unknown';*/
-  String? userFirstName;
+  String? userFirstName = "";
   final ServerModel _model = ServerModel();
-
   @override
   void initState() {
     super.initState();
-    _model.addListener(() => setState(() {}));
+    _model.addListener(_handleModelUpdate);
     checkHealthStatus();
     getUserName();
     GrassrootsPageState.CheckAndUpdateAllowedStudyIDs();
     _printLocalObservations(); // Fetch and print local observations
     _printLocalPhotoSubmissions();
+  }
+
+  void _handleModelUpdate() {
+    if (!mounted) return;
+    setState(() {});
+  }
+
+  @override
+  void dispose() {
+    _model.removeListener(_handleModelUpdate);
+    super.dispose();
   }
 
   Future<void> _printLocalPhotoSubmissions() async {
@@ -70,6 +85,7 @@ class _HomePageState extends State<HomePage> {
     print("checkHealthStatus called");
     try {
       await _model.checkStatus();
+      if (!mounted) return;
 
       /* Are we back online? */
       if (_model.isOnline) {
@@ -82,8 +98,10 @@ class _HomePageState extends State<HomePage> {
           backgroundColor: Colors.green,
         );
 
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(snack_bar);
         await Observation.SyncLocalObservations();
+        if (!mounted) return;
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
       }
       // Show snackbar if server is unhealthy
@@ -96,6 +114,7 @@ class _HomePageState extends State<HomePage> {
           "Warning: There is a problem with the server connection to ${app_url}. Error ${ApiRequests.latest_error}";
         } else {}
 
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(
             error_message,
@@ -111,6 +130,7 @@ class _HomePageState extends State<HomePage> {
         hps_djangoStatus = 'error';
         hps_mongoStatus = 'error';
       });*/
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -130,7 +150,9 @@ class _HomePageState extends State<HomePage> {
   }*/
 
   Future<void> getUserName() async {
-    final firstName = (await GlobusAuthService.getFirstName())?.split('.')[0];
+//final firstName = (await GlobusAuthService.getFirstName())?.split('.')[0];
+    final firstName = (await FlutterSecureStorage().read(key: 'USER_NAME'))?.split(' ')[0];
+    if (!mounted) return;
     setState(() {
       userFirstName = '$firstName!'; //concat firstname with !
     });
@@ -169,7 +191,7 @@ class _HomePageState extends State<HomePage> {
           IconButton(
             icon: const Icon(Icons.logout),
             tooltip: 'Logout',
-            onPressed: () => GlobusAuthService.logout(context),
+            onPressed: () => logout(context),
           ),
         ],
       ),
@@ -186,7 +208,8 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   const SizedBox(height: 30),
                   Text(
-                    "Welcome to the Grassroots App \n $userFirstName",
+                    "Welcome to the Grassroots App, \n $userFirstName",
+                   // "Welcome to the Grassroots App",
                     style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold),
@@ -270,5 +293,17 @@ class _HomePageState extends State<HomePage> {
 
   void EmptyBox(final String name) async {
     await Hive.deleteBoxFromDisk(name);
+  }
+
+
+
+  void logout(BuildContext context) async{
+    if (context.mounted) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => LoginScreen()),
+            (route) => false,
+      );
+    }
   }
 }

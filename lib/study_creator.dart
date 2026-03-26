@@ -37,9 +37,6 @@ class _NewStudyPageState extends State<NewStudyPage> {
 
   List<Map<String, String>> _locations = []; // Store both name and ID
 
-  MeasuredVariableSearchDelegate _measured_variables_search =
-      MeasuredVariableSearchDelegate("search new phenotypes");
-
   MeasuredVariablesModel _model =
       MeasuredVariablesModel("Selected Phenotypes List");
 
@@ -75,8 +72,6 @@ class _NewStudyPageState extends State<NewStudyPage> {
       _model = model;
     });
   }
-
-
 
   Future<MeasuredVariablesModel?> _navigateAndDisplaySelection(
       BuildContext context) async {
@@ -153,23 +148,23 @@ class _NewStudyPageState extends State<NewStudyPage> {
 
                       // validator: _ValidateStringField,
                     ),
-                        SizedBox(height: 10),
-                        TextFormField(
-                          style: TextStyle(color: Theme.of(context).primaryColor),
-                          decoration: InputDecoration(
-                              border: OutlineInputBorder(),
-                              labelText: 'Study Description'),
+                    SizedBox(height: 10),
+                    TextFormField(
+                      style: TextStyle(color: Theme.of(context).primaryColor),
+                      decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: 'Study Description'),
 
-                          onChanged: (String? new_value) {
-                            setState(() {
-                              _description = new_value;
-                            });
-                          },
+                      onChanged: (String? new_value) {
+                        setState(() {
+                          _description = new_value;
+                        });
+                      },
 
-                          // validator: _ValidateStringField,
-                        ),
+                      // validator: _ValidateStringField,
+                    ),
 
-                        SizedBox(height: 10),
+                    SizedBox(height: 10),
 
                     // Trials menu
                     DropdownMenu<StringLabel>(
@@ -352,7 +347,10 @@ class _NewStudyPageState extends State<NewStudyPage> {
                             final List<MeasuredVariable>? selected_mvs =
                                 await showSearch<List<MeasuredVariable>>(
                               context: context,
-                              delegate: _measured_variables_search,
+                              delegate: MeasuredVariableSearchDelegate(
+                                //Fresh delegate per search open
+                                "search new phenotypes",
+                              ),
                             );
 
                             if (selected_mvs != null) {
@@ -386,7 +384,8 @@ class _NewStudyPageState extends State<NewStudyPage> {
                           //  if (_form_key.currentState!.validate ()) {
                           // Process data.
                           String user_name = "user name";
-                          String? user_email = await GlobusAuthService.getEmail();
+                          //String? user_email = await GlobusAuthService.getEmail();
+                          String? user_email = null;
                           List<MeasuredVariable> phenotypes =
                               phenotypes_widget.getSelectedVariables();
                           final String? name = _name;
@@ -411,14 +410,13 @@ class _NewStudyPageState extends State<NewStudyPage> {
                                     _description ?? '',
                                     trial_id,
                                     location_id,
-                                    user_email!,
+                                    user_email,
                                     user_name,
                                     _num_rows,
                                     _num_columns,
                                     phenotypes);
                                 Icon icon;
                                 String message;
-
 
                                 if (success_flag) {
                                   icon = Icon(Icons.check_circle_outline,
@@ -516,7 +514,7 @@ class _NewStudyPageState extends State<NewStudyPage> {
         });
       }
     } catch (e) {
-      print('Error fetching s: $e');
+      print('Error fetching: $e');
       if (mounted) {
         setState(() {
           _is_loading = false;
@@ -632,7 +630,7 @@ class _NewStudyPageState extends State<NewStudyPage> {
       final String study_description,
       final String trial_id,
       final String location_id,
-      final String user_email,
+      final String? user_email,
       final String user_name,
       final int num_rows,
       final int num_cols,
@@ -646,6 +644,7 @@ class _NewStudyPageState extends State<NewStudyPage> {
       }
     }
 
+    final accessToken = await _secureStorage.read(key: 'ACCESS_TOKEN');
 
     print("measured_variables: ${measured_variables}");
     String request_string = jsonEncode({

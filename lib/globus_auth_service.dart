@@ -1,27 +1,61 @@
 import 'dart:convert';
+import 'dart:math';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:crypto/crypto.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:http/http.dart' as http;
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'global_variable.dart';
 import 'login_page.dart';
 
-/// Config (move to env/secure store in real app)
+/// Config
 class GlobusConfig {
-  static const clientId = 'f3cb960a-601c-43e0-b045-81a266fd2193';
-  static const clientSecret = '+Zvcm80kmI6jvMw7NCt9rtQDG7SCxZ8LNs7sUA4G42Q=';
-  static const redirectUri = 'https://grassroots.tools/private/redirect_uri';
-  static const authBase = 'auth.globus.org';
+  static final Map<String,dynamic>? globus = GrassrootsConfig.GetGlobusConfig();
+  static const _secureStorage =  FlutterSecureStorage();
+
+  static final update = globus?["update"] ;
+  static final clientId = globus?["clientId"];
+  static final clientSecret = globus?["clientSecret"];
+  static final authBase = globus?["authBase"];
+  static final redirectUri = globus?["redirectUri"];
+
+  static Future<void> globusUpdateConfig() async {
+     if (kDebugMode ) {
+       await _secureStorage.write(key: 'CLIENT_SECRET', value: clientSecret);
+    }
+  }
 }
 
 /// Globus Auth Service
 class GlobusAuthService {
   static final _http = http.Client();
-  static final _secureStorage = const FlutterSecureStorage();
+  static const _secureStorage = FlutterSecureStorage();
+
+
+  static Future<Uri> buildAuthorizationUrl() async {
+    //authorization endpoint
+    final authUrl = Uri.https(GlobusConfig.authBase, '/v2/oauth2/authorize', {
+      'response_type': 'code',
+      'client_id': GlobusConfig.clientId,
+      'redirect_uri': GlobusConfig.redirectUri,
+      'scope': 'profile openid email offline_access',
+      'access_type': 'offline',
+      'prompt': 'login',
+    });
+
+    return authUrl;
+
+  }
+
 
   //gets token (IdToken, Access token, refresh token etc) based on authorization code
   static Future<Map<String, dynamic>?> exchangeCodeForToken(String code) async {
+    //GlobusConfig.globusUpdateConfig();
+    final clientSecret = await _secureStorage.read(key: 'CLIENT_SECRET');
     final basicAuth = 'Basic ${base64Encode(
-      utf8.encode('${GlobusConfig.clientId}:${GlobusConfig.clientSecret}'),
+      utf8.encode('${GlobusConfig.clientId}:${clientSecret}'),
     )}';
 
     final response = await _http.post(
@@ -37,55 +71,12 @@ class GlobusAuthService {
       },
     );
 
-    if (response.statusCode == 200) {
-      print('TokenResponse ${response.body}');
-      return jsonDecode(response.body) as Map<String, dynamic>;
+    if (response.statusCode != 200) {
+      throw Exception(
+          'Backend token exchange failed: ${response.statusCode} ${response.body}');
     }
-    return null;
-  }
-
-  // Refresh access token using a stored refresh token.
-  static Future<Map<String, dynamic>?> refreshAccessToken(
-      String refreshToken) async {
-    final basicAuth = 'Basic ${base64Encode(
-      utf8.encode('${GlobusConfig.clientId}:${GlobusConfig.clientSecret}'),
-    )}';
-
-    final response = await _http.post(
-      Uri.https(GlobusConfig.authBase, '/v2/oauth2/token'),
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Authorization': basicAuth,
-      },
-      body: {
-        'grant_type': 'refresh_token',
-        'refresh_token': refreshToken,
-      },
-    );
-
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body) as Map<String, dynamic>;
-    }
-    return null;
-  }
-
-  // Refresh token and persist any rotated tokens.
-  static Future<String?> refreshAndStoreAccessToken() async {
-    final refreshToken = await _secureStorage.read(key: 'REFRESH_TOKEN');
-    if (refreshToken == null) return null;
-
-    final tokenData = await refreshAccessToken(refreshToken);
-    if (tokenData == null) return null;
-
-    final accessToken = tokenData['access_token'] as String?;
-    final newRefreshToken = tokenData['refresh_token'] as String?;
-    if (accessToken != null) {
-      await _secureStorage.write(key: 'ACCESS_TOKEN', value: accessToken);
-    }
-    if (newRefreshToken != null) {
-      await _secureStorage.write(key: 'REFRESH_TOKEN', value: newRefreshToken);
-    }
-    return accessToken;
+    //print('TokenResponse ${response.body}');
+    return jsonDecode(response.body) as Map<String, dynamic>;
   }
 
   //userinfo endpoint
@@ -94,23 +85,25 @@ class GlobusAuthService {
       Uri.https(GlobusConfig.authBase, '/v2/oauth2/userinfo'),
       headers: {'Authorization': 'Bearer $accessToken'},
     );
-    if (response.statusCode == 200) {
-      final userInfo = jsonDecode(response.body);
-      //print('UserInfo: $userInfo');
-      return userInfo;
+    if (response.statusCode != 200) {
+      throw Exception(
+          'Backend fetch user info failed: ${response.statusCode} ${response.body}');
     }
-    return null;
+    //final userInfo = jsonDecode(response.body);
+    //print('UserInfo: $userInfo');
+    return jsonDecode(response.body) as Map<String, dynamic>;
   }
 
+
   static void logout(BuildContext context) async {
-    await _secureStorage.deleteAll();
-    await WebViewCookieManager().clearCookies();
-    // Navigate back to login screen
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => LoginScreen()),
-      (route) => false,
-    );
+
+  }
+
+  static Future<void> clearStoredTokens() async {
+    await _secureStorage.delete(key: "ACCESS_TOKEN");
+    await _secureStorage.delete(key: 'GLOBUS_EMAIL');
+    await _secureStorage.delete(key: 'SUB');
+    await _secureStorage.delete(key: 'USER_NAME');
   }
 
   static Future<String?> getFirstName() async {
@@ -133,6 +126,5 @@ class GlobusAuthService {
     return accessToken != null;
   }
 
-  //refresh token function here
-
+//refresh token function here
 }

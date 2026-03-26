@@ -1,4 +1,5 @@
 //name: NewObservationPage  (new_observation.dart)
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:grassroots_field_trials/speech_text_box.dart';
 import 'package:grassroots_field_trials/widget_util.dart';
@@ -338,8 +339,7 @@ class _NewObservationPageState extends State<NewObservationPage> {
        * The study indices start from 1 and arrays count from 0
        * so we need to decrement the index that we're looking for
        */
-      int res =
-      binarySearch(plots, plots[currentIndex - 1], compare: _ComparePlots);
+      int res = _BinarySearchPlots(plots, plots[currentIndex - 1]);
 
       /* Have we found the element? */
       if (res != -1) {
@@ -486,6 +486,8 @@ class _NewObservationPageState extends State<NewObservationPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          surfaceTintColor: Colors.transparent,
+          backgroundColor: Theme.of(context).colorScheme.surface,
           title: Text('Edit Values for ${traits[selectedTraitKey] ?? ''}'),
           content: SingleChildScrollView(
             child: Column(
@@ -538,7 +540,7 @@ class _NewObservationPageState extends State<NewObservationPage> {
             ),
           ),
           actions: <Widget>[
-            TextButton(
+            ElevatedButton(
               child: Text('Update'),
               onPressed: () async {
                 // Parse and validate the new max and min values
@@ -579,7 +581,7 @@ class _NewObservationPageState extends State<NewObservationPage> {
                 Navigator.of(context).pop();
               },
             ),
-            TextButton(
+            ElevatedButton(
               child: Text('Close'),
               onPressed: () {
                 Navigator.of(context).pop();
@@ -781,8 +783,8 @@ class _NewObservationPageState extends State<NewObservationPage> {
             Navigator.of(context).pop();
           },
         ),
-        //title: Text('New Observation for plot ${plotNumber ?? 'Loading...'}'),
-        title: Text('Plot ${plotNumber ?? 'Loading...'}'),
+        title: Text('New Observation for plot ${plotNumber ?? 'Loading...'}'),
+        //title: Text('Plot ${plotNumber ?? 'Loading...'}'),
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
@@ -1152,8 +1154,7 @@ class _NewObservationPageState extends State<NewObservationPage> {
                             child: Container(
                               height: 200,
                               width: double.infinity,
-                              child:
-                              Image.network(_imageUrl!, fit: BoxFit.cover),
+                              child: (!kDebugMode) ? (Image.network(_imageUrl!, fit: BoxFit.cover)) : const SizedBox(height: 200),
                             ),
                           ),
                         ),
