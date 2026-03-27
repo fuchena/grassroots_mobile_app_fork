@@ -33,13 +33,12 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  Future<void> _openOrcidWebView(BuildContext context) async {    //we can route directly to this page
-    Navigator.pushAndRemoveUntil(
+  Future<void> _openGlobusWebView(BuildContext context) async {    //we can route directly to this page
+    Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => OrcidWebViewLogin(key: UniqueKey()),
+        builder: (_) => GlobusWebViewLogin(key: UniqueKey()),
       ),
-          (route) => false,
     );
   }
 
@@ -73,7 +72,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     label: const Text("Login with Globus",
                         style: TextStyle(fontSize: 16)),
                     onPressed: () async {
-                      _openOrcidWebView(context);
+                      _openGlobusWebView(context);
                     }),
               ],
             ),
@@ -85,16 +84,16 @@ class _LoginScreenState extends State<LoginScreen> {
 }
 
 //WebView Login
-class OrcidWebViewLogin extends StatefulWidget {
+class GlobusWebViewLogin extends StatefulWidget {
    final String url = GrassrootsAppGlobals.GRASSROOTS_URL;
 
-   OrcidWebViewLogin({super.key});
+   GlobusWebViewLogin({super.key});
   @override
-  State<OrcidWebViewLogin> createState() => _OrcidWebViewLoginState();
+  State<GlobusWebViewLogin> createState() => _GlobusWebViewLoginState();
 
 }
 
-class _OrcidWebViewLoginState extends State<OrcidWebViewLogin> {
+class _GlobusWebViewLoginState extends State<GlobusWebViewLogin> {
   String url = '';
   String title = '';
   double progress = 0;
@@ -122,6 +121,7 @@ class _OrcidWebViewLoginState extends State<OrcidWebViewLogin> {
           icon: const Icon (Icons.close),
           onPressed: () {
             Navigator.pop(context);
+
           },
         ),
         title: Row(
@@ -202,16 +202,8 @@ class _OrcidWebViewLoginState extends State<OrcidWebViewLogin> {
                       if (this.url.startsWith(GrassrootsAppGlobals.GRASSROOTS_URL)) {
                         String? cookie = await GetGrassrootsCookie();
                         print('mod_auth_openidc_session $cookie');
-                        /*if (cookie==null) {
+                        if (cookie==null) {
 
-                          Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => LoginScreen(key: UniqueKey()),
-                            ),
-                                (route) => false,
-                          );
-                        } */
                         /*final claims = await fetchClaims(cookie);
                         final user = claims["user"];
                         final email = user["so:email"];
@@ -223,7 +215,7 @@ class _OrcidWebViewLoginState extends State<OrcidWebViewLogin> {
                           if (context.mounted) {
                             navigateToHome();
                           }
-                        //}
+                        }
 
                         return;
                       }
@@ -297,32 +289,41 @@ class _OrcidWebViewLoginState extends State<OrcidWebViewLogin> {
   }
 
   Future<void> _logoutAndReload() async {
+      try {
+        final cookieManager = CookieManager.instance();
 
-    final cookieManager = CookieManager.instance();
+        //call Globus logout URL
+        await webViewController?.loadUrl(
+          urlRequest: URLRequest(
+            url: WebUri(
+                'https://auth.globus.org/v2/web/logout'), //if web server url clear cookies then we need not call the deleteAllCookies()
+          ),
+        );
 
-    // Step 1: Call Globus logout URL
-    await webViewController?.loadUrl(
-      urlRequest: URLRequest(
-        url: WebUri('https://auth.globus.org/v2/web/logout'),
-      ),
-    );
+        //wait for logout to complete
+        await Future.delayed(const Duration(seconds: 2));
 
-    // Wait for logout to complete
-    await Future.delayed(const Duration(seconds: 2));
+        // clear ALL cookies (includes mod_auth_openidc)
+        await cookieManager.deleteAllCookies();
 
-    // Step 2: Clear ALL cookies (includes mod_auth_openidc)
-    await cookieManager.deleteAllCookies();
+        //clear WebView cache/history
+        //await webViewController?.clearCache();
+        if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+          await webViewController?.clearHistory();
+        }
 
-    // Step 3: Clear WebView cache/history
-    await webViewController?.clearCache();
-    await webViewController?.clearHistory();
+        //load fresh login page
+        await webViewController?.loadUrl(
+          urlRequest: URLRequest(
+            url: WebUri(GrassrootsAppGlobals.GRASSROOTS_URL),
+          ),
+        );
+      }
+      catch (e) {
+       // test exception handling here
+        throw Exception('Error signing out: $e');
+      }
 
-    // Step 4: Load fresh login page
-    await webViewController?.loadUrl(
-      urlRequest: URLRequest(
-        url: WebUri(GrassrootsAppGlobals.GRASSROOTS_URL),
-      ),
-    );
   }
 
   static bool urlIsSecure(Uri url) {
@@ -384,6 +385,5 @@ class _OrcidWebViewLoginState extends State<OrcidWebViewLogin> {
           (_) => false,
     );
   }
-
 }
 
