@@ -29,6 +29,7 @@ class _HomePageState extends State<HomePage> {
   String hps_mongoStatus = 'unknown';*/
   String? userFirstName = "";
   final ServerModel _model = ServerModel();
+  final _secureStorage = const FlutterSecureStorage();
   @override
   void initState() {
     super.initState();
@@ -54,9 +55,9 @@ class _HomePageState extends State<HomePage> {
   Future<void> _printLocalPhotoSubmissions() async {
     try {
       var box =
-      Hive.box<PhotoSubmission>('photo_submissions'); // Open the Hive box
+          Hive.box<PhotoSubmission>('photo_submissions'); // Open the Hive box
       List<PhotoSubmission> photoSubmissions =
-      box.values.toList(); // Get all photo submissions
+          box.values.toList(); // Get all photo submissions
       print('Local Photo Submissions:');
       for (var photo in photoSubmissions) {
         print(photo.toJson()); // Print each photo submission as JSON
@@ -71,7 +72,7 @@ class _HomePageState extends State<HomePage> {
     try {
       var box = Hive.box<Observation>('observations'); // Open the Hive box
       List<Observation> observations =
-      box.values.toList(); // Get all observations
+          box.values.toList(); // Get all observations
       print('Local Observations:');
       for (var observation in observations) {
         print(observation.toJson()); // Print each observation as JSON
@@ -111,7 +112,7 @@ class _HomePageState extends State<HomePage> {
 
         if (app_url != null) {
           error_message =
-          "Warning: There is a problem with the server connection to ${app_url}. Error ${ApiRequests.latest_error}";
+              "Warning: There is a problem with the server connection to ${app_url}. Error ${ApiRequests.latest_error}";
         } else {}
 
         if (!mounted) return;
@@ -151,10 +152,11 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> getUserName() async {
 //final firstName = (await GlobusAuthService.getFirstName())?.split('.')[0];
-    final firstName = (await FlutterSecureStorage().read(key: 'USER_NAME'))?.split(' ')[0];
+    String? firstName = await _secureStorage.read(key: 'USER_NAME');
+    firstName = firstName?.split(' ')[0];
     if (!mounted) return;
     setState(() {
-      userFirstName = '$firstName!'; //concat firstname with !
+      userFirstName = (firstName== null ? "" : '$firstName!'); //concat firstname with !
     });
   }
 
@@ -209,16 +211,16 @@ class _HomePageState extends State<HomePage> {
                   const SizedBox(height: 30),
                   Text(
                     "Welcome to the Grassroots App, \n $userFirstName",
-                   // "Welcome to the Grassroots App",
-                    style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold),
+                    // "Welcome to the Grassroots App",
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 20),
                   Text(
                     "Empowering agricultural research through technology",
-                    style: TextStyle(fontSize: 16,),
+                    style: TextStyle(
+                      fontSize: 16,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                   const Spacer(),
@@ -295,15 +297,15 @@ class _HomePageState extends State<HomePage> {
     await Hive.deleteBoxFromDisk(name);
   }
 
-
-
-  void logout(BuildContext context) async{
+  void logout(BuildContext context) async {
     if (context.mounted) {
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (_) => LoginScreen()),
-            (route) => false,
+        (route) => false,
       );
+
+      await _secureStorage.deleteAll();
     }
   }
 }

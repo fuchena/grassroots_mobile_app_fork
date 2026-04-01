@@ -185,7 +185,6 @@ class _GlobusWebViewLoginState extends State<GlobusWebViewLogin> {
                     _logoutAndReload();
                   },
                   onLoadStart: (controller, url) {
-                    print('onLoadStart');
                     if (url != null) {
                       setState(() {
                         this.url = url.toString();
@@ -198,26 +197,34 @@ class _GlobusWebViewLoginState extends State<GlobusWebViewLogin> {
                       setState(() {
                         this.url = url.toString();
                       });
-                      print("thisURL $url");
                       if (this.url.startsWith(GrassrootsAppGlobals.GRASSROOTS_URL)) {
-                        String? cookie = await GetGrassrootsCookie();
-                        print('mod_auth_openidc_session $cookie');
-                        if (cookie==null) {
+                        final cookie = await getGrassrootsCookie();
+                        debugPrint('mod_auth_openidc_session: $cookie');
 
-                        /*final claims = await fetchClaims(cookie);
-                        final user = claims["user"];
-                        final email = user["so:email"];
-                        final givenName = user["so:givenName"];
-                        final familyName = user["so:familyName"];
-                        final name  = '$givenName $familyName';
-                        print('fullname: $name'); */
-                       // else {
-                          if (context.mounted) {
+                        // If no cookie, user is not authenticated
+                        if (cookie != null) {
+                          debugPrint(
+                              'No session cookie found. User not logged in.');
+
+                          final claims = await fetchClaims(cookie);
+                          final user = claims["user"];
+                          final email = user["so:email"];
+                          final givenName = user["so:givenName"];
+                          final familyName = user["so:familyName"];
+                          final name = '$givenName $familyName';
+
+                          await _secureStorage.write(
+                              key: 'COOKIE', value: cookie);
+                          await _secureStorage.write(
+                              key: 'USER_NAME', value: name);
+                          await _secureStorage.write(
+                              key: 'EMAIL', value: email);
+
+                          if (mounted) {
                             navigateToHome();
                           }
                         }
-
-                        return;
+                        return; // return?
                       }
                     }
 
@@ -296,7 +303,7 @@ class _GlobusWebViewLoginState extends State<GlobusWebViewLogin> {
         await webViewController?.loadUrl(
           urlRequest: URLRequest(
             url: WebUri(
-                'https://auth.globus.org/v2/web/logout'), //if web server url clear cookies then we need not call the deleteAllCookies()
+                'https://grassroots.tools/private/redirect_uri?logout=https://grassroots.tools/dev/grassroots/private/login_success.html'), //if web server url clear cookies then we need not call the deleteAllCookies()
           ),
         );
 
@@ -304,10 +311,10 @@ class _GlobusWebViewLoginState extends State<GlobusWebViewLogin> {
         await Future.delayed(const Duration(seconds: 2));
 
         // clear ALL cookies (includes mod_auth_openidc)
-        await cookieManager.deleteAllCookies();
+        //await cookieManager.deleteAllCookies();
 
         //clear WebView cache/history
-        //await webViewController?.clearCache();
+         await webViewController?.clearCache();
         if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
           await webViewController?.clearHistory();
         }
@@ -365,7 +372,7 @@ class _GlobusWebViewLoginState extends State<GlobusWebViewLogin> {
     }
   }
 
-  Future <String?> GetGrassrootsCookie () async {
+  Future <String?> getGrassrootsCookie () async {
     String? session_value = null;
     CookieManager cookie_manager = CookieManager.instance ();
     final grassroots_url = WebUri (GrassrootsAppGlobals.GRASSROOTS_URL);
