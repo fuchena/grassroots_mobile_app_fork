@@ -199,12 +199,11 @@ class _GlobusWebViewLoginState extends State<GlobusWebViewLogin> {
                       });
                       if (this.url.startsWith(GrassrootsAppGlobals.GRASSROOTS_URL)) {
                         final cookie = await getGrassrootsCookie();
-                        debugPrint('mod_auth_openidc_session: $cookie');
+                        //debugPrint('mod_auth_openidc_session: $cookie');
 
                         // If no cookie, user is not authenticated
                         if (cookie != null) {
-                          debugPrint(
-                              'No session cookie found. User not logged in.');
+                          //debugPrint('No session cookie found. User not logged in.');
 
                           final claims = await fetchClaims(cookie);
                           final user = claims["user"];
@@ -297,13 +296,13 @@ class _GlobusWebViewLoginState extends State<GlobusWebViewLogin> {
 
   Future<void> _logoutAndReload() async {
       try {
-        final cookieManager = CookieManager.instance();
+        //final cookieManager = CookieManager.instance();
 
         //call Globus logout URL
         await webViewController?.loadUrl(
           urlRequest: URLRequest(
             url: WebUri(
-                'https://grassroots.tools/private/redirect_uri?logout=https://grassroots.tools/dev/grassroots/private/login_success.html'), //if web server url clear cookies then we need not call the deleteAllCookies()
+                'https://grassroots.tools/private/redirect_uri?logout=https://grassroots.tools/private/redirect.html'),
           ),
         );
 

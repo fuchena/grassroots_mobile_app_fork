@@ -72,7 +72,7 @@ class MyApp extends StatelessWidget {
       darkTheme: dark_theme,
       //themeMode: themeNotifier.themeMode,
       themeMode: ThemeMode.system,
-      home: HomePage(),
+      home: const StartDecider(),
     );
 
 /*

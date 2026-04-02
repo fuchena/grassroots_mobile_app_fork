@@ -121,9 +121,9 @@ class GlobusAuthService {
 
   static Future<bool> isCredentialExist() async {
     final email = await _secureStorage.read(key: 'GLOBUS_EMAIL');
-    final accessToken = await _secureStorage.read(key: 'ACCESS_TOKEN');
+    final cookie = await _secureStorage.read(key: 'COOKIE');
     //return email != null && accessToken != null;
-    return accessToken != null;
+    return cookie != null;
   }
 
 //refresh token function here

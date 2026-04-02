@@ -45,17 +45,18 @@ class GrassrootsRequest {
     }
 
     //String? userEmail = await GlobusAuthService.getEmail();
-    final accessToken = await _secureStorage.read(key: 'ACCESS_TOKEN');
-    final sub = await _secureStorage.read(key: 'SUB');
-    print('accessToken: $accessToken');
+    final cookie = await _secureStorage.read(key: 'COOKIE');
+    //final sub = await _secureStorage.read(key: 'SUB');
+    print('mod_cookie: $cookie');
 
     //String basicAuth = 'Basic ' + base64Encode(utf8.encode("username:$accessToken"));
 
 
     // Creating a Map for headers
      final headers = {
-      "Authorization": "Bearer $accessToken",
-      'Content-Type': 'application/json',
+      //"Authorization": "Bearer $accessToken",
+       'Accept': 'application/json',
+       'Cookie': 'mod_auth_openidc_session=$cookie'
     };
 
     // If the server key is for the queen_bee_backend, add the Authorization header

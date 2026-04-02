@@ -30,6 +30,7 @@ class _HomePageState extends State<HomePage> {
   String? userFirstName = "";
   final ServerModel _model = ServerModel();
   final _secureStorage = const FlutterSecureStorage();
+  final cookieManager = CookieManager.instance();
   @override
   void initState() {
     super.initState();
@@ -193,7 +194,7 @@ class _HomePageState extends State<HomePage> {
           IconButton(
             icon: const Icon(Icons.logout),
             tooltip: 'Logout',
-            onPressed: () => logout(context),
+            onPressed: () => logout(),
           ),
         ],
       ),
@@ -297,15 +298,17 @@ class _HomePageState extends State<HomePage> {
     await Hive.deleteBoxFromDisk(name);
   }
 
-  void logout(BuildContext context) async {
-    if (context.mounted) {
+  void logout() async {
+    await _secureStorage.deleteAll();
+    await cookieManager.deleteAllCookies();
+    if (mounted) {
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (_) => LoginScreen()),
         (route) => false,
       );
 
-      await _secureStorage.deleteAll();
+
     }
   }
 }

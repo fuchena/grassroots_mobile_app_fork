@@ -20,28 +20,30 @@ class _StartDeciderState extends State<StartDecider> {
   }
 
   Future<void> _checkLogin() async {
-    setState(() {
-      _isLoading = false;
-    });
-
     bool credentialExist = await GlobusAuthService.isCredentialExist();
     //print('Credential exist: $credentialExist');
     setState(() {
       _credentialExist = credentialExist;
     });
 
-    GlobusConfig.globusUpdateConfig();
+    //GlobusConfig.globusUpdateConfig();
+
+    setState(() {
+      _isLoading = false;
+    });
+
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading)
+    if (_isLoading) {
       return const Scaffold(
         backgroundColor: Color(0xFF74C188),
         body: Center(child: CircularProgressIndicator()),
       );
+    }
 
-    return _credentialExist ? HomePage() : LoginScreen();   //uncomment later
+    return _credentialExist ? HomePage() : const LoginScreen();   //uncomment later
     //return HomePage();
   }
 }

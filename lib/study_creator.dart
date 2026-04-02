@@ -644,7 +644,7 @@ class _NewStudyPageState extends State<NewStudyPage> {
       }
     }
 
-    final accessToken = await _secureStorage.read(key: 'ACCESS_TOKEN');
+    //final accessToken = await _secureStorage.read(key: 'ACCESS_TOKEN');
 
     print("measured_variables: ${measured_variables}");
     String request_string = jsonEncode({
