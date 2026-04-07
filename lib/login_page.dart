@@ -1,14 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:grassroots_field_trials/globus_auth_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'globals.dart';
-import 'globus_auth_service.dart';
 import 'home.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -18,20 +16,11 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _secureStorage = const FlutterSecureStorage();
   @override
   void initState() {
     super.initState();
-    //_checkExistingLogin();
   }
 
-
-  Future<void> _checkExistingLogin() async {
-    bool credentialExist = await GlobusAuthService.isCredentialExist();
-    if (credentialExist && mounted) {
-      //navigateToHome();
-    }
-  }
 
   Future<void> _openGlobusWebView(BuildContext context) async {    //we can route directly to this page
     Navigator.push(
@@ -85,7 +74,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
 //WebView Login
 class GlobusWebViewLogin extends StatefulWidget {
-   final String url = GrassrootsAppGlobals.GRASSROOTS_URL;
+   final String url = GlobusAuthService.GRASSROOTS_PAGE_URL;
 
    GlobusWebViewLogin({super.key});
   @override
@@ -169,7 +158,7 @@ class _GlobusWebViewLoginState extends State<GlobusWebViewLogin> {
               children: [
                 InAppWebView(
                   //initialUrlRequest: URLRequest (url: WebUri(widget.url)),
-                  initialUrlRequest: URLRequest (url: WebUri(GrassrootsAppGlobals.GRASSROOTS_URL)),
+                  initialUrlRequest: URLRequest (url: WebUri(GlobusAuthService.GRASSROOTS_PAGE_URL)),
                   initialSettings: InAppWebViewSettings (
                       transparentBackground: true,
                       safeBrowsingEnabled: true,
@@ -197,7 +186,7 @@ class _GlobusWebViewLoginState extends State<GlobusWebViewLogin> {
                       setState(() {
                         this.url = url.toString();
                       });
-                      if (this.url.startsWith(GrassrootsAppGlobals.GRASSROOTS_URL)) {
+                      if (this.url.startsWith(GlobusAuthService.GRASSROOTS_PAGE_URL)) {
                         final cookie = await getGrassrootsCookie();
                         //debugPrint('mod_auth_openidc_session: $cookie');
 
@@ -213,14 +202,18 @@ class _GlobusWebViewLoginState extends State<GlobusWebViewLogin> {
                           final name = '$givenName $familyName';
 
                           await _secureStorage.write(
-                              key: 'COOKIE', value: cookie);
+                              key: 'SESSION_COOKIE', value: cookie);
                           await _secureStorage.write(
                               key: 'USER_NAME', value: name);
                           await _secureStorage.write(
                               key: 'EMAIL', value: email);
 
-                          if (mounted) {
-                            navigateToHome();
+                          if (context.mounted) {
+                            Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(builder: (_) => HomePage()),
+                                  (_) => false,
+                            );
                           }
                         }
                         return; // return?
@@ -301,8 +294,7 @@ class _GlobusWebViewLoginState extends State<GlobusWebViewLogin> {
         //call Globus logout URL
         await webViewController?.loadUrl(
           urlRequest: URLRequest(
-            url: WebUri(
-                'https://grassroots.tools/private/redirect_uri?logout=https://grassroots.tools/private/redirect.html'),
+            url: WebUri('${GlobusAuthService.GRASSROOTS_REDIRECT_URL}?logout=${GlobusAuthService.GRASSROOTS_PAGE_URL}'),
           ),
         );
 
@@ -321,7 +313,7 @@ class _GlobusWebViewLoginState extends State<GlobusWebViewLogin> {
         //load fresh login page
         await webViewController?.loadUrl(
           urlRequest: URLRequest(
-            url: WebUri(GrassrootsAppGlobals.GRASSROOTS_URL),
+            url: WebUri(GlobusAuthService.GRASSROOTS_PAGE_URL),
           ),
         );
       }
@@ -345,9 +337,7 @@ class _GlobusWebViewLoginState extends State<GlobusWebViewLogin> {
   }
 
   Future<dynamic> fetchClaims(String? cookie) async {
-    final url = Uri.parse(
-      'https://grassroots.tools/dev/grassroots/private/backend/operation/get_all_services',
-    );
+    final url = Uri.parse(GlobusAuthService.USER_INFO_URL);
     try {
       final response = await http.get(
         url,
@@ -374,7 +364,7 @@ class _GlobusWebViewLoginState extends State<GlobusWebViewLogin> {
   Future <String?> getGrassrootsCookie () async {
     String? session_value = null;
     CookieManager cookie_manager = CookieManager.instance ();
-    final grassroots_url = WebUri (GrassrootsAppGlobals.GRASSROOTS_URL);
+    final grassroots_url = WebUri (GlobusAuthService.GRASSROOTS_PAGE_URL);
     final Cookie? cookie = await cookie_manager.getCookie(url: grassroots_url, name: "mod_auth_openidc_session");
 
     if (cookie != null) {
@@ -384,12 +374,5 @@ class _GlobusWebViewLoginState extends State<GlobusWebViewLogin> {
     return session_value;
   }
 
-  void navigateToHome() {
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (_) => HomePage()),
-          (_) => false,
-    );
-  }
 }
 

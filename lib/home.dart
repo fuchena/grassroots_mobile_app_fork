@@ -6,9 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:grassroots_field_trials/global_variable.dart';
-import 'package:grassroots_field_trials/globus_auth_service.dart';
 import 'package:grassroots_field_trials/server.dart';
-import 'globals.dart';
 import 'login_page.dart';
 import 'welcome_message.dart';
 import 'grassroots_studies.dart';
@@ -194,7 +192,7 @@ class _HomePageState extends State<HomePage> {
           IconButton(
             icon: const Icon(Icons.logout),
             tooltip: 'Logout',
-            onPressed: () => logout(),
+            onPressed: () => routeToLoginLogout(),
           ),
         ],
       ),
@@ -298,7 +296,7 @@ class _HomePageState extends State<HomePage> {
     await Hive.deleteBoxFromDisk(name);
   }
 
-  void logout() async {
+  void routeToLoginLogout() async {
     await _secureStorage.deleteAll();
     await cookieManager.deleteAllCookies();
     if (mounted) {
