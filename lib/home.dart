@@ -150,7 +150,6 @@ class _HomePageState extends State<HomePage> {
   }*/
 
   Future<void> getUserName() async {
-//final firstName = (await GlobusAuthService.getFirstName())?.split('.')[0];
     String? firstName = await _secureStorage.read(key: 'USER_NAME');
     firstName = firstName?.split(' ')[0];
     if (!mounted) return;

@@ -82,10 +82,6 @@ class GrassrootsConfig {
   }
 
 
-  static Map<String,dynamic>? GetGlobusConfig () {
-    return GlobalConfiguration().getValue ("globus_config");
-  }
-
 
   static String? _GetBackendURL (String key) {
     String? url = null;

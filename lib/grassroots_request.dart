@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:grassroots_field_trials/global_variable.dart';
 import 'package:http/http.dart' as http;
@@ -41,13 +42,13 @@ class GrassrootsRequest {
     }
 
     if (GrassrootsConfig.log_level >= LOG_FINE) {
-      print (">>> Calling Grassroots Server at ${url}");
+      print (">>> Calling Grassroots Server at $url");
     }
 
     //String? userEmail = await GlobusAuthService.getEmail();
-    final cookie = await _secureStorage.read(key: 'COOKIE');
+    final cookie = await _secureStorage.read(key: 'SESSION_COOKIE');
     //final sub = await _secureStorage.read(key: 'SUB');
-    print('mod_cookie: $cookie');
+    //print('mod_cookie: $cookie');
 
     //String basicAuth = 'Basic ' + base64Encode(utf8.encode("username:$accessToken"));
 

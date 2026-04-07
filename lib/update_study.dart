@@ -114,13 +114,13 @@ class UpdateStudy {
           "start_service": true,
           "parameter_set": {
             "parameters": [
-              {"param": "ST Id", "current_value": "$id", "group": "Study"},
+              {"param": "ST Id", "current_value": id, "group": "Study"},
               {
                 "param": "ST Description",
-                "current_value": "$description",
+                "current_value": description,
                 "group": "Study"
               },
-              {"param": "ST Name", "current_value": "$name", "group": "Study"}
+              {"param": "ST Name", "current_value": name, "group": "Study"}
             ]
           }
         }

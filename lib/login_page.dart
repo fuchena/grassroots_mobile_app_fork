@@ -188,14 +188,14 @@ class _GlobusWebViewLoginState extends State<GlobusWebViewLogin> {
                       });
                       if (this.url.startsWith(GlobusAuthService.GRASSROOTS_PAGE_URL)) {
                         final cookie = await getGrassrootsCookie();
-                        //debugPrint('mod_auth_openidc_session: $cookie');
+                        //print('mod_auth_openidc_session: $cookie');
 
                         // If no cookie, user is not authenticated
                         if (cookie != null) {
-                          //debugPrint('No session cookie found. User not logged in.');
+                          print('No session cookie found. User not logged in.');
 
-                          final claims = await fetchClaims(cookie);
-                          final user = claims["user"];
+                          final userInfo = await fetchUserInfo(cookie);
+                          final user = userInfo["user"];
                           final email = user["so:email"];
                           final givenName = user["so:givenName"];
                           final familyName = user["so:familyName"];
@@ -336,7 +336,7 @@ class _GlobusWebViewLoginState extends State<GlobusWebViewLogin> {
         url.scheme == "about");
   }
 
-  Future<dynamic> fetchClaims(String? cookie) async {
+  Future<dynamic> fetchUserInfo(String? cookie) async {
     final url = Uri.parse(GlobusAuthService.USER_INFO_URL);
     try {
       final response = await http.get(
@@ -352,9 +352,7 @@ class _GlobusWebViewLoginState extends State<GlobusWebViewLogin> {
         final data = jsonDecode(response.body);
         return data;
       } else {
-        throw Exception(
-          'Failed to load data. Status code: ${response.statusCode}',
-        );
+        throw Exception('Failed to load data. Status code: ${response.statusCode}',);
       }
     } catch (e) {
       throw Exception('Error fetching data: $e');

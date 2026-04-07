@@ -2,9 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:grassroots_field_trials/caching.dart';
-import 'package:grassroots_field_trials/globus_auth_service.dart';
 import 'package:grassroots_field_trials/grassroots_request.dart';
 import 'package:grassroots_field_trials/measured_variables.dart';
 import 'package:grassroots_field_trials/search_phenotypes.dart';
@@ -29,7 +27,6 @@ class NewStudyPage extends StatefulWidget {
 }
 
 class _NewStudyPageState extends State<NewStudyPage> {
-  static final _secureStorage = const FlutterSecureStorage();
   final TextEditingController _trials_controller = TextEditingController();
   final TextEditingController _locations_controller = TextEditingController();
   bool _is_loading = true;
@@ -94,7 +91,7 @@ class _NewStudyPageState extends State<NewStudyPage> {
 
       for (int i = 0; i < mvs.length; ++i) {
         print(
-            ">>> _navigateAndDisplaySelection () returned ${i}: ${mvs[i].variableName}");
+            ">>> _navigateAndDisplaySelection () returned $i: ${mvs[i].variableName}");
       }
     }
     return result;
@@ -135,14 +132,14 @@ class _NewStudyPageState extends State<NewStudyPage> {
                       child: Column(children: <Widget>[
                     TextFormField(
                       style: TextStyle(color: Theme.of(context).primaryColor),
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                           border: OutlineInputBorder(),
                           labelText: 'Study name'),
 
                       onChanged: (String? new_value) {
                         setState(() {
                           _name = new_value;
-                          print("set _name to ${_name}");
+                          print("set _name to $_name");
                         });
                       },
 
@@ -151,7 +148,7 @@ class _NewStudyPageState extends State<NewStudyPage> {
                     SizedBox(height: 10),
                     TextFormField(
                       style: TextStyle(color: Theme.of(context).primaryColor),
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                           border: OutlineInputBorder(),
                           labelText: 'Study Description'),
 
@@ -275,7 +272,7 @@ class _NewStudyPageState extends State<NewStudyPage> {
                     // Number of plot rows
                     TextFormField(
                       style: TextStyle(color: Theme.of(context).primaryColor),
-                      decoration: new InputDecoration(
+                      decoration: const InputDecoration(
                           labelText: "Number of rows of plots"),
                       keyboardType: TextInputType.number,
                       inputFormatters: <TextInputFormatter>[
@@ -289,7 +286,7 @@ class _NewStudyPageState extends State<NewStudyPage> {
                           if (c != null) {
                             setState(() {
                               _num_rows = c;
-                              print("set rows to ${_num_rows}");
+                              print("set rows to $_num_rows");
                             });
                           }
                         }
@@ -302,7 +299,7 @@ class _NewStudyPageState extends State<NewStudyPage> {
                     // Number of plot columns
                     TextFormField(
                       style: TextStyle(color: Theme.of(context).primaryColor),
-                      decoration: new InputDecoration(
+                      decoration: const InputDecoration(
                           labelText: "Number of columns of plots"),
                       keyboardType: TextInputType.number,
                       inputFormatters: <TextInputFormatter>[
@@ -316,7 +313,7 @@ class _NewStudyPageState extends State<NewStudyPage> {
                           if (c != null) {
                             setState(() {
                               _num_columns = c;
-                              print("set columns to ${_num_columns}");
+                              print("set columns to $_num_columns");
                             });
                           }
                         }
@@ -355,7 +352,7 @@ class _NewStudyPageState extends State<NewStudyPage> {
 
                             if (selected_mvs != null) {
                               for (int i = 0; i < selected_mvs.length; ++i) {
-                                print("${i}: ${selected_mvs[i].variableName}");
+                                print("$i: ${selected_mvs[i].variableName}");
                               }
 
                               setState(() {
@@ -393,12 +390,12 @@ class _NewStudyPageState extends State<NewStudyPage> {
                           final String? location_id = _selected_location_id;
 
                           if (GrassrootsConfig.log_level >= LOG_INFO) {
-                            print("name ${name}");
-                            print("trial_id ${trial_id}");
-                            print("location_id ${location_id}");
+                            print("name $name");
+                            print("trial_id $trial_id");
+                            print("location_id $location_id");
                             print("phenotypes ${phenotypes.length}");
-                            print("rows ${_num_rows}");
-                            print("columns ${_num_columns}");
+                            print("rows $_num_rows");
+                            print("columns $_num_columns");
                           }
 
                           if (name != null) {
@@ -422,11 +419,11 @@ class _NewStudyPageState extends State<NewStudyPage> {
                                   icon = Icon(Icons.check_circle_outline,
                                       color: Colors.green);
                                   message =
-                                      "Study ${name} created successfully";
+                                      "Study $name created successfully";
                                 } else {
                                   icon = Icon(Icons.error_outline,
                                       color: Colors.red);
-                                  message = "Failed to create Study ${name}";
+                                  message = "Failed to create Study $name";
                                 }
 
                                 ScaffoldMessenger.of(context).showSnackBar(
@@ -569,7 +566,7 @@ class _NewStudyPageState extends State<NewStudyPage> {
       final int num_entries = box.length;
 
       for (int i = 0; i < num_entries; i++) {
-        Map<String, String> entry = Map<String, String>();
+        Map<String, String> entry = <String, String>{};
         IdName? cached_item = box.getAt(i);
 
         if (cached_item != null) {
@@ -604,10 +601,10 @@ class _NewStudyPageState extends State<NewStudyPage> {
       var id = e['id'];
 
       if (id != null) {
-        StringLabel sl = StringLabel(e['name'] ?? 'Unknown ${datatype}', id);
+        StringLabel sl = StringLabel(e['name'] ?? 'Unknown $datatype', id);
 
         StringEntry se = StringEntry(
-          label: e['name'] ?? 'Unknown ${datatype}',
+          label: e['name'] ?? 'Unknown $datatype',
           value: sl,
           style: ButtonStyle(
             foregroundColor:
@@ -646,7 +643,7 @@ class _NewStudyPageState extends State<NewStudyPage> {
 
     //final accessToken = await _secureStorage.read(key: 'ACCESS_TOKEN');
 
-    print("measured_variables: ${measured_variables}");
+    print("measured_variables: $measured_variables");
     String request_string = jsonEncode({
       "services": [
         {
@@ -657,27 +654,27 @@ class _NewStudyPageState extends State<NewStudyPage> {
             "parameters": [
               {
                 "param": "ST Name",
-                "current_value": "${study_name}",
+                "current_value": study_name,
                 "group": "Study"
               },
               {
                 "param": "Field Trials",
-                "current_value": "${trial_id}",
+                "current_value": trial_id,
                 "group": "Study"
               },
               {
                 "param": "Locations",
-                "current_value": "${location_id}",
+                "current_value": location_id,
                 "group": "Study"
               },
               {
                 "param": "ST Curator name",
-                "current_value": "${user_name}",
+                "current_value": user_name,
                 "group": "Curator"
               },
               {
                 "param": "ST Curator email",
-                "current_value": "${user_email}",
+                "current_value": "$user_email",
                 "group": "Curator"
               },
               {
@@ -739,7 +736,7 @@ class _NewStudyPageState extends State<NewStudyPage> {
     });
 
     if (GrassrootsConfig.log_level >= LOG_INFO) {
-      print("About to send:\n${request_string}");
+      print("About to send:\n$request_string");
     }
 
     Map<String, dynamic> response =
@@ -758,7 +755,7 @@ class _NewStudyPageState extends State<NewStudyPage> {
           */
 
         if (GrassrootsConfig.log_level >= LOG_INFO) {
-          print("status ${status}");
+          print("status $status");
         }
 
         Map<String, dynamic>? first_result = service_result['results']?[0];

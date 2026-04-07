@@ -33,7 +33,7 @@ class ServerModel extends ChangeNotifier {
     await _fetchHealthStatus();
 
     if (GrassrootsConfig.log_level >= LOG_INFO) {
-      debugPrint("Django: $_djangoStatus | Mongo: $_mongoStatus");
+      print("Django: $_djangoStatus | Mongo: $_mongoStatus");
     }
 
     if (previousStatus != isOnline) {
@@ -69,14 +69,14 @@ class ServerModel extends ChangeNotifier {
     _djangoStatus = ServerStatus.offline;
     _mongoStatus = ServerStatus.offline;
     latestError = message;
-    if (GrassrootsConfig.log_level >= LOG_INFO) debugPrint(message);
+    if (GrassrootsConfig.log_level >= LOG_INFO) print(message);
   }
 
   void _setUnknown(String message) {
     _djangoStatus = ServerStatus.unknown;
     _mongoStatus = ServerStatus.unknown;
     latestError = message;
-    if (GrassrootsConfig.log_level >= LOG_INFO) debugPrint(message);
+    if (GrassrootsConfig.log_level >= LOG_INFO) print(message);
   }
 
 }

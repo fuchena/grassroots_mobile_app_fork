@@ -88,8 +88,9 @@ class MeasuredVariable {
       throw Exception("Missing child: $key");
     }
     final value = child[field] ?? "";
-    if (value.isEmpty && !optional)
+    if (value.isEmpty && !optional) {
       throw Exception("Missing field: $field in $key");
+    }
     return value;
   }
 
