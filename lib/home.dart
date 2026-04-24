@@ -197,74 +197,88 @@ class _HomePageState extends State<HomePage> {
       ),
       body: RefreshIndicator(
         onRefresh: checkHealthStatus,
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              minHeight: MediaQuery.of(context).size.height - 150,
-            ),
-            child: IntrinsicHeight(
-              child: Column(
-                children: [
-                  const SizedBox(height: 30),
-                  Text(
-                    "Welcome to the Grassroots App, \n $userFirstName",
-                    // "Welcome to the Grassroots App",
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 20),
-                  Text(
-                    "Empowering agricultural research through technology",
-                    style: TextStyle(
-                      fontSize: 16,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const Spacer(),
-                  Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: OverflowBar(
-                      alignment: MainAxisAlignment.center,
-                      overflowAlignment: OverflowBarAlignment.center,
-                      spacing: 16,
-                      overflowSpacing: 12,
-                      children: [
-                        _buildButton(
-                          label: 'Browse\nAll Studies',
-                          icon: Icons.folder_open,
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (_) => GrassrootsStudies()),
-                            );
-                          },
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: constraints.maxHeight,
+                ),
+                child: Center(
+                child: Padding( padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 20),
+
+                      Text(
+                        "Welcome to the Grassroots App, $userFirstName",
+                        style: const TextStyle(
+                            fontSize: 22, fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.center,
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      const Text(
+                        "Empowering agricultural research through technology",
+                        style: TextStyle(fontSize: 16),
+                        textAlign: TextAlign.center,
+                      ),
+
+                      const SizedBox(height: 40),
+
+                      // 👇 Centered Buttons Container
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 400),
+                        child: Column(
+                          children: [
+                            _buildButton(
+                              label: 'Browse All Studies',
+                              icon: Icons.folder_open,
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (_) => GrassrootsStudies()),
+                                );
+                              },
+                            ),
+                            const SizedBox(height: 16),
+
+                            _buildButton(
+                              label: 'Create Study',
+                              icon: Icons.add_circle_outline,
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (_) => NewStudyPage()),
+                                );
+                              },
+                            ),
+                            const SizedBox(height: 16),
+
+                            _buildButton(
+                              label: 'Exit',
+                              icon: Icons.exit_to_app,
+                              onPressed: () => SystemNavigator.pop(),
+                            ),
+                          ],
                         ),
-                        _buildButton(
-                          label: 'Create Study',
-                          icon: Icons.add_circle_outline,
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (_) => NewStudyPage()),
-                            );
-                          },
-                        ),
-                        _buildButton(
-                          label: 'Exit',
-                          icon: Icons.exit_to_app,
-                          onPressed: () => SystemNavigator.pop(),
-                        ),
-                      ],
-                    ),
+                      ),
+
+                      const SizedBox(height: 40),
+
+                      WelcomeMessageWidget(),
+                    ],
                   ),
-                  const SizedBox(height: 40),
-                  WelcomeMessageWidget(),
-                ],
+                ),
               ),
             ),
-          ),
+            );
+          },
         ),
       ),
     );
@@ -275,18 +289,24 @@ class _HomePageState extends State<HomePage> {
     required IconData icon,
     required VoidCallback onPressed,
   }) {
-    return ElevatedButton.icon(
-      onPressed: onPressed,
-      icon: Icon(icon, size: 26),
-      label: Text(
-        label,
-        textAlign: TextAlign.center,
-      ),
-      style: ElevatedButton.styleFrom(
-        minimumSize: const Size(180, 70),
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 24),
-        textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: onPressed,
+        icon: Icon(icon, size: 28),
+        label: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 25),
+          child: Text(
+            label,
+            style: const TextStyle(fontSize: 18),
+            textAlign: TextAlign.center,
+          ),
+        ),
+        style: ElevatedButton.styleFrom(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+        ),
       ),
     );
   }

@@ -1,14 +1,7 @@
 import 'dart:convert';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:grassroots_field_trials/global_variable.dart';
 import 'package:http/http.dart' as http;
-
-import 'package:global_configuration/global_configuration.dart';
-
-import 'globus_auth_service.dart';
-
 
 class GrassrootsRequest {
   // Server names for public, private and queen services. Currently using BETA SERVER
