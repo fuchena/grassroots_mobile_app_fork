@@ -39,21 +39,21 @@ class ObservationTable extends StatelessWidget {
                       
                     ),
                     children: [
-                      Padding(padding: EdgeInsets.all(8.0), child: Text ('Value', 
+                      Padding(padding: const EdgeInsets.all(8.0), child: Text ('Value', 
                         style: TextStyle (
                           backgroundColor: Theme.of (context).canvasColor, 
                           color: Theme.of(context).primaryColor)
                         )
                       ),
                       
-                      Padding(padding: EdgeInsets.all(8.0), child: Text ('Date', 
+                      Padding(padding: const EdgeInsets.all(8.0), child: Text ('Date', 
                         style: TextStyle (
                           backgroundColor: Theme.of (context).canvasColor, 
                           color: Theme.of(context).primaryColor)
                         )
                       ),
                       
-                      Padding(padding: EdgeInsets.all(8.0), child: Text ('Notes', 
+                      Padding(padding: const EdgeInsets.all(8.0), child: Text ('Notes', 
                         style: TextStyle (
                           backgroundColor: Theme.of (context).canvasColor, 
                           color: Theme.of(context).primaryColor)
@@ -64,7 +64,7 @@ class ObservationTable extends StatelessWidget {
                   ...rawValues.map((observation) => TableRow(
                         children: [
                           Padding (
-                            padding: EdgeInsets.all(8.0), 
+                            padding: const EdgeInsets.all(8.0), 
                             child: Text( '${observation['raw_value']}', 
                               style: TextStyle(
                                 backgroundColor: Theme.of (context).canvasColor, 
@@ -73,7 +73,7 @@ class ObservationTable extends StatelessWidget {
                           ),
 
                           Padding (
-                            padding: EdgeInsets.all(8.0), 
+                            padding: const EdgeInsets.all(8.0), 
                             child: Text( '${observation['date']}', 
                               style: TextStyle(
                                 backgroundColor: Theme.of (context).canvasColor, 
@@ -82,7 +82,7 @@ class ObservationTable extends StatelessWidget {
                           ),
 
                           Padding(
-                            padding: EdgeInsets.all(8.0),
+                            padding: const EdgeInsets.all(8.0),
                             child: Text(
                               observation['notes'] ?? '',
                               softWrap: false, // Prevents text from wrapping

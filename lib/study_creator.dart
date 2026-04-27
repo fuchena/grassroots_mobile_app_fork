@@ -18,7 +18,7 @@ import 'server.dart';
 class NewStudyPage extends StatefulWidget {
   String? study_name;
 
-  NewStudyPage({
+  NewStudyPage({super.key, 
     this.study_name,
   });
 
@@ -77,7 +77,7 @@ class _NewStudyPageState extends State<NewStudyPage> {
     final MeasuredVariablesModel? result = await Navigator.push(
       context,
       // Create the SelectionScreen in the next step.
-      MaterialPageRoute(builder: (context) => SearchPhenotypesPage()),
+      MaterialPageRoute(builder: (context) => const SearchPhenotypesPage()),
     );
 
     // When a BuildContext is used from a StatefulWidget, the mounted property
@@ -99,13 +99,13 @@ class _NewStudyPageState extends State<NewStudyPage> {
 
   @override
   Widget build(BuildContext context) {
-    MeasuredVariablesListWidget phenotypes_widget =
+    MeasuredVariablesListWidget phenotypesWidget =
         MeasuredVariablesListWidget("Selected Phenotypes List", _model);
 
     return Scaffold(
         appBar: AppBar(
           leading: IconButton(
-            icon: Icon(Icons.arrow_back),
+            icon: const Icon(Icons.arrow_back),
             onPressed: () {
               // Reset the image state
               setState(() {});
@@ -114,7 +114,7 @@ class _NewStudyPageState extends State<NewStudyPage> {
               Navigator.of(context).pop();
             },
           ),
-          title: Text('Create a Study'),
+          title: const Text('Create a Study'),
         ),
         body: ListenableBuilder(
             listenable: _model,
@@ -125,7 +125,7 @@ class _NewStudyPageState extends State<NewStudyPage> {
                   _model.values; // copy the list
 
               return Padding(
-                  padding: EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(16.0),
                   child: SingleChildScrollView(
                       //child: Form(
                       //  key: _form_key,
@@ -136,32 +136,32 @@ class _NewStudyPageState extends State<NewStudyPage> {
                           border: OutlineInputBorder(),
                           labelText: 'Study name'),
 
-                      onChanged: (String? new_value) {
+                      onChanged: (String? newValue) {
                         setState(() {
-                          _name = new_value;
+                          _name = newValue;
                           print("set _name to $_name");
                         });
                       },
 
                       // validator: _ValidateStringField,
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     TextFormField(
                       style: TextStyle(color: Theme.of(context).primaryColor),
                       decoration: const InputDecoration(
                           border: OutlineInputBorder(),
                           labelText: 'Study Description'),
 
-                      onChanged: (String? new_value) {
+                      onChanged: (String? newValue) {
                         setState(() {
-                          _description = new_value;
+                          _description = newValue;
                         });
                       },
 
                       // validator: _ValidateStringField,
                     ),
 
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
 
                     // Trials menu
                     DropdownMenu<StringLabel>(
@@ -214,7 +214,7 @@ class _NewStudyPageState extends State<NewStudyPage> {
                       },
                     ),
 
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
 
                     // Locations menu
                     DropdownMenu(
@@ -267,7 +267,7 @@ class _NewStudyPageState extends State<NewStudyPage> {
                       },
                     ),
 
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
 
                     // Number of plot rows
                     TextFormField(
@@ -279,9 +279,9 @@ class _NewStudyPageState extends State<NewStudyPage> {
                         FilteringTextInputFormatter.digitsOnly
                       ], // Only numbers can be entered
 
-                      onChanged: (String? new_value) {
-                        if (new_value != null) {
-                          int? c = int.tryParse(new_value);
+                      onChanged: (String? newValue) {
+                        if (newValue != null) {
+                          int? c = int.tryParse(newValue);
 
                           if (c != null) {
                             setState(() {
@@ -294,7 +294,7 @@ class _NewStudyPageState extends State<NewStudyPage> {
                       // validator: _ValidateNumberField,
                     ),
 
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
 
                     // Number of plot columns
                     TextFormField(
@@ -306,9 +306,9 @@ class _NewStudyPageState extends State<NewStudyPage> {
                         FilteringTextInputFormatter.digitsOnly
                       ], // Only numbers can be entered
 
-                      onChanged: (String? new_value) {
-                        if (new_value != null) {
-                          int? c = int.tryParse(new_value);
+                      onChanged: (String? newValue) {
+                        if (newValue != null) {
+                          int? c = int.tryParse(newValue);
 
                           if (c != null) {
                             setState(() {
@@ -320,7 +320,7 @@ class _NewStudyPageState extends State<NewStudyPage> {
                       },
                     ),
 
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
 
                     Row(
                       children: [
@@ -341,7 +341,7 @@ class _NewStudyPageState extends State<NewStudyPage> {
                             }
     */
 
-                            final List<MeasuredVariable>? selected_mvs =
+                            final List<MeasuredVariable>? selectedMvs =
                                 await showSearch<List<MeasuredVariable>>(
                               context: context,
                               delegate: MeasuredVariableSearchDelegate(
@@ -350,27 +350,27 @@ class _NewStudyPageState extends State<NewStudyPage> {
                               ),
                             );
 
-                            if (selected_mvs != null) {
-                              for (int i = 0; i < selected_mvs.length; ++i) {
-                                print("$i: ${selected_mvs[i].variableName}");
+                            if (selectedMvs != null) {
+                              for (int i = 0; i < selectedMvs.length; ++i) {
+                                print("$i: ${selectedMvs[i].variableName}");
                               }
 
                               setState(() {
                                 // Call setState to refresh the page.
-                                phenotypes_widget.addValues(selected_mvs);
+                                phenotypesWidget.addValues(selectedMvs);
                               });
                             }
                           },
                         ),
-                        Text("Phenotypes"),
+                        const Text("Phenotypes"),
                       ],
                     ),
 
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
 
-                    phenotypes_widget,
+                    phenotypesWidget,
 
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
 
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 16.0),
@@ -380,48 +380,48 @@ class _NewStudyPageState extends State<NewStudyPage> {
                           // the form is invalid.
                           //  if (_form_key.currentState!.validate ()) {
                           // Process data.
-                          String user_name = "user name";
+                          String userName = "user name";
                           //String? user_email = await GlobusAuthService.getEmail();
-                          String? user_email = null;
+                          String? userEmail;
                           List<MeasuredVariable> phenotypes =
-                              phenotypes_widget.getSelectedVariables();
+                              phenotypesWidget.getSelectedVariables();
                           final String? name = _name;
-                          final String? trial_id = _selected_trial_id;
-                          final String? location_id = _selected_location_id;
+                          final String? trialId = _selected_trial_id;
+                          final String? locationId = _selected_location_id;
 
                           if (GrassrootsConfig.log_level >= LOG_INFO) {
                             print("name $name");
-                            print("trial_id $trial_id");
-                            print("location_id $location_id");
+                            print("trial_id $trialId");
+                            print("location_id $locationId");
                             print("phenotypes ${phenotypes.length}");
                             print("rows $_num_rows");
                             print("columns $_num_columns");
                           }
 
                           if (name != null) {
-                            if (trial_id != null) {
-                              if (location_id != null) {
+                            if (trialId != null) {
+                              if (locationId != null) {
                                 print("submitting");
-                                bool success_flag = await submitStudy(
+                                bool successFlag = await submitStudy(
                                     name,
                                     _description ?? '',
-                                    trial_id,
-                                    location_id,
-                                    user_email,
-                                    user_name,
+                                    trialId,
+                                    locationId,
+                                    userEmail,
+                                    userName,
                                     _num_rows,
                                     _num_columns,
                                     phenotypes);
                                 Icon icon;
                                 String message;
 
-                                if (success_flag) {
-                                  icon = Icon(Icons.check_circle_outline,
+                                if (successFlag) {
+                                  icon = const Icon(Icons.check_circle_outline,
                                       color: Colors.green);
                                   message =
                                       "Study $name created successfully";
                                 } else {
-                                  icon = Icon(Icons.error_outline,
+                                  icon = const Icon(Icons.error_outline,
                                       color: Colors.red);
                                   message = "Failed to create Study $name";
                                 }
@@ -431,11 +431,11 @@ class _NewStudyPageState extends State<NewStudyPage> {
                                     content: Row(
                                       children: [
                                         icon,
-                                        SizedBox(width: 10),
+                                        const SizedBox(width: 10),
                                         Expanded(
                                           child: Text(
                                             message,
-                                            style: TextStyle(fontSize: 16.0),
+                                            style: const TextStyle(fontSize: 16.0),
                                           ),
                                         ),
                                       ],
@@ -465,11 +465,11 @@ class _NewStudyPageState extends State<NewStudyPage> {
   }
 
   String? _ValidateStringField(String? value) {
-    String? res = null;
+    String? res;
 
-    print("Value \"${value}\"");
+    print("Value \"$value\"");
 
-    if ((value == null) || (value.trim().length == 0)) {
+    if ((value == null) || (value.trim().isEmpty)) {
       res = "This is required";
     }
 
@@ -547,34 +547,34 @@ class _NewStudyPageState extends State<NewStudyPage> {
   }
 
   Future<List<Map<String, String>>> _FetchData(
-      Future<List<Map<String, String>>> Function() rest_api_call,
-      final String cache_name,
+      Future<List<Map<String, String>>> Function() restApiCall,
+      final String cacheName,
       final String datatype) async {
     List<Map<String, String>> data = [];
-    bool healthy_flag =
+    bool healthyFlag =
         await ApiRequests.isServerHealthy(); //use the one from server model?
 
     /*
      * If the server are online then get the live data
      */
-    if (healthy_flag) {
-      data = await rest_api_call();
+    if (healthyFlag) {
+      data = await restApiCall();
     } else {
       /* Use any cached data */
-      var box = await Hive.openBox<IdName>(cache_name);
+      var box = await Hive.openBox<IdName>(cacheName);
 
-      final int num_entries = box.length;
+      final int numEntries = box.length;
 
-      for (int i = 0; i < num_entries; i++) {
+      for (int i = 0; i < numEntries; i++) {
         Map<String, String> entry = <String, String>{};
-        IdName? cached_item = box.getAt(i);
+        IdName? cachedItem = box.getAt(i);
 
-        if (cached_item != null) {
-          entry["name"] = cached_item.name;
-          entry["id"] = cached_item.id;
+        if (cachedItem != null) {
+          entry["name"] = cachedItem.name;
+          entry["id"] = cachedItem.id;
 
-          String date_str = "";
-          date_str = cached_item.date.toString();
+          String dateStr = "";
+          dateStr = cachedItem.date.toString();
           data.add(entry);
         }
       }
@@ -592,12 +592,12 @@ class _NewStudyPageState extends State<NewStudyPage> {
   }
 
   List<StringEntry> _GetEntries(
-      List<Map<String, String>> mongo_obects, final String datatype) {
+      List<Map<String, String>> mongoObects, final String datatype) {
     List<StringEntry> l = [];
 
-    print("Num ${datatype}s: ${mongo_obects}");
+    print("Num ${datatype}s: $mongoObects");
 
-    for (final e in mongo_obects) {
+    for (final e in mongoObects) {
       var id = e['id'];
 
       if (id != null) {
@@ -614,7 +614,7 @@ class _NewStudyPageState extends State<NewStudyPage> {
 
         l.add(se);
       } else {
-        print("no id in ${e}");
+        print("no id in $e");
       }
     }
 
@@ -623,28 +623,28 @@ class _NewStudyPageState extends State<NewStudyPage> {
   }
 
   Future<bool> submitStudy(
-      final String study_name,
-      final String study_description,
-      final String trial_id,
-      final String location_id,
-      final String? user_email,
-      final String user_name,
-      final int num_rows,
-      final int num_cols,
+      final String studyName,
+      final String studyDescription,
+      final String trialId,
+      final String locationId,
+      final String? userEmail,
+      final String userName,
+      final int numRows,
+      final int numCols,
       final List<MeasuredVariable> phenotypes) async {
-    bool success_flag = false;
-    List<String> measured_variables = [];
+    bool successFlag = false;
+    List<String> measuredVariables = [];
 
-    if (phenotypes.length > 0) {
+    if (phenotypes.isNotEmpty) {
       for (int i = 0; i < phenotypes.length; ++i) {
-        measured_variables.add(phenotypes[i].variableName);
+        measuredVariables.add(phenotypes[i].variableName);
       }
     }
 
     //final accessToken = await _secureStorage.read(key: 'ACCESS_TOKEN');
 
-    print("measured_variables: $measured_variables");
-    String request_string = jsonEncode({
+    print("measured_variables: $measuredVariables");
+    String requestString = jsonEncode({
       "services": [
         {
           "so:name": "Submit Field Trial Study",
@@ -654,27 +654,27 @@ class _NewStudyPageState extends State<NewStudyPage> {
             "parameters": [
               {
                 "param": "ST Name",
-                "current_value": study_name,
+                "current_value": studyName,
                 "group": "Study"
               },
               {
                 "param": "Field Trials",
-                "current_value": trial_id,
+                "current_value": trialId,
                 "group": "Study"
               },
               {
                 "param": "Locations",
-                "current_value": location_id,
+                "current_value": locationId,
                 "group": "Study"
               },
               {
                 "param": "ST Curator name",
-                "current_value": user_name,
+                "current_value": userName,
                 "group": "Curator"
               },
               {
                 "param": "ST Curator email",
-                "current_value": "$user_email",
+                "current_value": "$userEmail",
                 "group": "Curator"
               },
               {
@@ -694,7 +694,7 @@ class _NewStudyPageState extends State<NewStudyPage> {
               },
               {
                 "param": "ST Description",
-                "current_value": study_description,
+                "current_value": studyDescription,
                 "group": "Study"
               },
               {"param": "ST Design", "current_value": null, "group": "Study"},
@@ -706,12 +706,12 @@ class _NewStudyPageState extends State<NewStudyPage> {
               },
               {
                 "param": "ST Num Rows",
-                "current_value": num_rows,
+                "current_value": numRows,
                 "group": "Default Plots data"
               },
               {
                 "param": "ST Num Columns",
-                "current_value": num_cols,
+                "current_value": numCols,
                 "group": "Default Plots data"
               },
               {
@@ -726,7 +726,7 @@ class _NewStudyPageState extends State<NewStudyPage> {
               },
               {
                 "param": "ST Measured Variables",
-                "current_value": measured_variables,
+                "current_value": measuredVariables,
                 "group": "Measured Variables"
               }
             ]
@@ -736,18 +736,18 @@ class _NewStudyPageState extends State<NewStudyPage> {
     });
 
     if (GrassrootsConfig.log_level >= LOG_INFO) {
-      print("About to send:\n$request_string");
+      print("About to send:\n$requestString");
     }
 
     Map<String, dynamic> response =
-        await GrassrootsRequest.sendRequest(request_string, 'private');
+        await GrassrootsRequest.sendRequest(requestString, 'private');
 
-    Map<String, dynamic>? service_result = response['results']?[0];
+    Map<String, dynamic>? serviceResult = response['results']?[0];
 
-    if (service_result != null) {
-      String? status = service_result['status_text'];
+    if (serviceResult != null) {
+      String? status = serviceResult['status_text'];
       if ((status != null) && (status == 'Succeeded')) {
-        success_flag = true;
+        successFlag = true;
 
         /*
           * The study was created successfully so we can add it to the
@@ -758,18 +758,18 @@ class _NewStudyPageState extends State<NewStudyPage> {
           print("status $status");
         }
 
-        Map<String, dynamic>? first_result = service_result['results']?[0];
-        if (first_result != null) {
-          String? study_id = first_result['title'];
+        Map<String, dynamic>? firstResult = serviceResult['results']?[0];
+        if (firstResult != null) {
+          String? studyId = firstResult['title'];
 
-          if (study_id != null) {
+          if (studyId != null) {
             /* Add the study id to the list of allowed studies */
-            IdCache.addId(LOCAL_ALLOWED_STUDIES, study_id);
+            IdCache.addId(LOCAL_ALLOWED_STUDIES, studyId);
           }
         }
       }
     }
 
-    return success_flag;
+    return successFlag;
   }
 }

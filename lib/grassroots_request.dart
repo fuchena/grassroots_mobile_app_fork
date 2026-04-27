@@ -16,11 +16,11 @@ class GrassrootsRequest {
   // User name and password for requests to queen services.
   static const String _username = 'doc';
   static const String _password = '123_REPLACE_';
-  static final _secureStorage = const FlutterSecureStorage();
+  static const _secureStorage = FlutterSecureStorage();
 
 
   static Future<Map<String, dynamic>> sendRequest(String requestString, String serverKey,) async {
-    String? url = null;
+    String? url;
 
     if (serverKey == "public") {
       url = GrassrootsConfig.GetPublicBackendURL ();
@@ -55,7 +55,7 @@ class GrassrootsRequest {
 
     // If the server key is for the queen_bee_backend, add the Authorization header
     if (serverKey == 'queen_bee_backend') {
-      String basicAuth = 'Basic ' + base64Encode(utf8.encode('$_username:$_password'));
+      String basicAuth = 'Basic ${base64Encode(utf8.encode('$_username:$_password'))}';
       headers['Authorization'] = basicAuth;
     }
 

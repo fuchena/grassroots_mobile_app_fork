@@ -1,12 +1,10 @@
-import 'dart:io' show Platform;
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:grassroots_field_trials/global_variable.dart';
 import 'package:grassroots_field_trials/server.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'login_page.dart';
 import 'welcome_message.dart';
 import 'grassroots_studies.dart';
@@ -18,6 +16,8 @@ import 'models/photo_submission.dart';
 import 'study_creator.dart';
 
 class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -90,7 +90,7 @@ class _HomePageState extends State<HomePage> {
       /* Are we back online? */
       if (_model.isOnline) {
         /* Sync any locally-saved observations */
-        SnackBar snack_bar = SnackBar(
+        SnackBar snackBar = const SnackBar(
           content: Text(
             'Syncing local data',
             style: TextStyle(color: Colors.white),
@@ -99,29 +99,29 @@ class _HomePageState extends State<HomePage> {
         );
 
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(snack_bar);
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
         await Observation.SyncLocalObservations();
         if (!mounted) return;
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
       }
       // Show snackbar if server is unhealthy
       if (!_model.isOnline) {
-        final String? app_url = GrassrootsConfig.GetPhotoReceiverURL();
-        String error_message = "Error: No Grassroots Server has been specified";
+        final String? appUrl = GrassrootsConfig.GetPhotoReceiverURL();
+        String errorMessage = "Error: No Grassroots Server has been specified";
 
-        if (app_url != null) {
-          error_message =
-              "Warning: There is a problem with the server connection to ${app_url}. Error ${ApiRequests.latest_error}";
+        if (appUrl != null) {
+          errorMessage =
+              "Warning: There is a problem with the server connection to $appUrl. Error ${ApiRequests.latest_error}";
         } else {}
 
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(
-            error_message,
-            style: TextStyle(color: Colors.white),
+            errorMessage,
+            style: const TextStyle(color: Colors.white),
           ),
           backgroundColor: Colors.red,
-          duration: Duration(seconds: 5),
+          duration: const Duration(seconds: 5),
         ));
       }
     } catch (e) {
@@ -132,7 +132,7 @@ class _HomePageState extends State<HomePage> {
       });*/
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text(
             'Error checking server status. Please try again.',
             style: TextStyle(color: Colors.white),
@@ -241,7 +241,7 @@ class _HomePageState extends State<HomePage> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (_) => GrassrootsStudies()),
+                                      builder: (_) => const GrassrootsStudies()),
                                 );
                               },
                             ),
@@ -261,9 +261,9 @@ class _HomePageState extends State<HomePage> {
                             const SizedBox(height: 16),
 
                             _buildButton(
-                              label: 'Exit',
-                              icon: Icons.exit_to_app,
-                              onPressed: () => SystemNavigator.pop(),
+                              label: 'Access Web Portal',
+                              icon: Icons.open_in_browser,
+                              onPressed: () async => launchUrl(Uri.parse("https://grassroots.tools/fieldtrial/")),
                             ),
                           ],
                         ),
@@ -271,7 +271,7 @@ class _HomePageState extends State<HomePage> {
 
                       const SizedBox(height: 40),
 
-                      WelcomeMessageWidget(),
+                       WelcomeMessageWidget(),
                     ],
                   ),
                 ),
@@ -321,7 +321,7 @@ class _HomePageState extends State<HomePage> {
     if (mounted) {
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (_) => LoginScreen()),
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
         (route) => false,
       );
 

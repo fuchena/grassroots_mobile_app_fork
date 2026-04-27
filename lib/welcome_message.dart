@@ -7,6 +7,8 @@ class WelcomeMessageWidget extends StatelessWidget {
   final Uri _websiteUrl =
       Uri.parse('https://grassroots.tools/docs/user/mobile_app/');
 
+   WelcomeMessageWidget({super.key});
+
   @override
   Widget build(BuildContext context) {
 /*    return FutureBuilder<String?>(
@@ -35,7 +37,7 @@ class WelcomeMessageWidget extends StatelessWidget {
           ),
           TextSpan(
             text: "https://grassroots.tools/documentation/mobile_app",
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 18,
               decoration: TextDecoration.underline,
               color: Colors.blue,
@@ -47,7 +49,7 @@ class WelcomeMessageWidget extends StatelessWidget {
                 }
               },
           ),
-          TextSpan(
+          const TextSpan(
             text: " for more information.",
             style: TextStyle(fontSize: 18),
           ),

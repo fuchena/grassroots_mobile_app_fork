@@ -20,23 +20,23 @@ class GeneralDetails extends StatelessWidget {
         if (studyName != null) // Only display if there's a study name
           Text(
             '$studyName',
-            style: TextStyle(fontSize: 14, color: Colors.black, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 14, color: Colors.black, fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
           ),
-        SizedBox(height: 10), // A spacing of 10 pixels
+        const SizedBox(height: 10), // A spacing of 10 pixels
         Text(
           '$serverResponse',
-          style: TextStyle(fontSize: 12, color: Colors.black),
+          style: const TextStyle(fontSize: 12, color: Colors.black),
           textAlign: TextAlign.center,
         ),
-        SizedBox(height: 20), // A spacing of 20 pixels for visual separation
+        const SizedBox(height: 20), // A spacing of 20 pixels for visual separation
         if (selectedRawValue != null) // Only display if there's a value selected
           Text(
             'Selected Raw Value: $selectedRawValue',
-            style: TextStyle(fontSize: 14, color: Colors.black),
+            style: const TextStyle(fontSize: 14, color: Colors.black),
             textAlign: TextAlign.center,
           ),
-        SizedBox(height: 20), // A spacing of 20 pixels for visual separation
+        const SizedBox(height: 20), // A spacing of 20 pixels for visual separation
       ],
     );
   }

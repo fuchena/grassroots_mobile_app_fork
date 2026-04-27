@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:global_configuration/global_configuration.dart';
 import 'package:grassroots_field_trials/caching.dart';
 import 'package:grassroots_field_trials/global_variable.dart';
 import 'package:grassroots_field_trials/start_decider.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'home.dart';
 import 'models/observation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'models/photo_submission.dart'; 

@@ -11,30 +11,19 @@ import 'home.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  @override
-  void initState() {
-    super.initState();
-  }
-
-
-  Future<void> _openGlobusWebView(BuildContext context) async {    //we can route directly to this page
+  Future<void> _openGlobusWebView() async {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => GlobusWebViewLogin(key: UniqueKey()),
       ),
     );
-  }
-
-  void showSnackBar(String content) {
-    if (!mounted) return;
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(content)));
   }
 
   @override
@@ -57,12 +46,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 40),
                 ElevatedButton.icon(
-                    icon: const Icon(Icons.login),
-                    label: const Text("Login with Globus",
-                        style: TextStyle(fontSize: 16)),
-                    onPressed: () async {
-                      _openGlobusWebView(context);
-                    }),
+                  icon: const Icon(Icons.login),
+                  label: const Text("Login with Globus"),
+                  onPressed: _openGlobusWebView,
+                ),
               ],
             ),
           ),
@@ -72,14 +59,13 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 }
 
-//WebView Login
 class GlobusWebViewLogin extends StatefulWidget {
-   final String url = GlobusAuthService.GRASSROOTS_PAGE_URL;
+  final String url = GlobusAuthService.GRASSROOTS_PAGE_URL;
 
-   GlobusWebViewLogin({super.key});
+  const GlobusWebViewLogin({super.key});
+
   @override
   State<GlobusWebViewLogin> createState() => _GlobusWebViewLoginState();
-
 }
 
 class _GlobusWebViewLoginState extends State<GlobusWebViewLogin> {
@@ -87,290 +73,230 @@ class _GlobusWebViewLoginState extends State<GlobusWebViewLogin> {
   String title = '';
   double progress = 0;
   bool? isSecure;
+
   InAppWebViewController? webViewController;
+
   final _secureStorage = const FlutterSecureStorage();
-  final cookieManager = CookieManager.instance();
-  @override
-  void initState() {
-    super.initState();
+
+  bool _disposed = false;
+  bool _didNavigate = false;
+  bool _logoutTriggered = false;
+
+  void safeSetState(VoidCallback fn) {
+    if (_disposed || !mounted) return;
+    setState(fn);
   }
 
   @override
   void dispose() {
+    _disposed = true;
     super.dispose();
   }
 
+  Future<void> _navigateHome() async {
+    if (_didNavigate || _disposed || !mounted) return;
+    _didNavigate = true;
 
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (_) => const HomePage()),
+          (_) => false,
+    );
+  }
+
+  Future<void> _handleLogin(String cookie) async {
+    try {
+      final userInfo = await fetchUserInfo(cookie);
+      final user = userInfo["user"];
+
+      final email = user["so:email"];
+      final name =
+          '${user["so:givenName"]} ${user["so:familyName"]}';
+
+      await _secureStorage.write(key: 'SESSION_COOKIE', value: cookie);
+      await _secureStorage.write(key: 'USER_NAME', value: name);
+      await _secureStorage.write(key: 'EMAIL', value: email);
+
+      await _navigateHome();
+    } catch (e) {
+      debugPrint("Login error: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon (Icons.close),
-          onPressed: () {
-            Navigator.pop(context);
-
-          },
+          icon: const Icon(Icons.close),
+          onPressed: () => Navigator.pop(context),
         ),
-        title: Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      title,
-                      overflow: TextOverflow.fade,
-                    ),
-                    Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        isSecure != null
-                            ? Icon(isSecure == true ? Icons.lock : Icons.lock_open,
-                            color: isSecure == true ? Colors.green : Colors.red,
-                            size: 12)
-                            : Container(),
-/*                        const SizedBox(
-                          width: 5,
-                        ),
-                        Flexible(
-                            child: Text(
-                              url,
-                              style:
-                              const TextStyle(fontSize: 12, color: Colors.white70),
-                              overflow: TextOverflow.fade,
-                            )),*/
-                      ],
-                    )
-                  ],
-                )
-            ),
-          ],
-        ),
+        title: Text(title),
       ),
-      body: Column(children: <Widget>[
-        Expanded(
+      body: Column(
+        children: [
+          Expanded(
             child: Stack(
               children: [
                 InAppWebView(
-                  //initialUrlRequest: URLRequest (url: WebUri(widget.url)),
-                  initialUrlRequest: URLRequest (url: WebUri(GlobusAuthService.GRASSROOTS_PAGE_URL)),
-                  initialSettings: InAppWebViewSettings (
-                      transparentBackground: true,
-                      safeBrowsingEnabled: true,
-                      isFraudulentWebsiteWarningEnabled: true),
+                  initialUrlRequest: URLRequest(
+                    url: WebUri(GlobusAuthService.GRASSROOTS_PAGE_URL),
+                  ),
+                  initialSettings: InAppWebViewSettings(
+                    transparentBackground: true,
+                    safeBrowsingEnabled: true,
+                    isFraudulentWebsiteWarningEnabled: true,
+                  ),
+
                   onWebViewCreated: (controller) async {
                     webViewController = controller;
-                    if (!kIsWeb &&
-                        defaultTargetPlatform == TargetPlatform.android) {
-                        await controller.startSafeBrowsing();
-                    }
 
-                    // Trigger logout once when WebView is ready
-                    _logoutAndReload();
+                    if (_logoutTriggered) return;
+                    _logoutTriggered = true;
+
+                    await _logoutAndReload();
                   },
+
                   onLoadStart: (controller, url) {
-                    if (url != null) {
-                      setState(() {
-                        this.url = url.toString();
-                        isSecure = urlIsSecure(url);
-                      });
-                    }
-                  },
-                  onLoadStop: (controller, url) async {
-                    if (url != null) {
-                      setState(() {
-                        this.url = url.toString();
-                      });
-                      if (this.url.startsWith(GlobusAuthService.GRASSROOTS_PAGE_URL)) {
-                        final cookie = await getGrassrootsCookie();
-                        //print('mod_auth_openidc_session: $cookie');
+                    if (_disposed || url == null) return;
 
-                        // If no cookie, user is not authenticated
-                        if (cookie != null) {
-                          print('No session cookie found. User not logged in.');
-
-                          final userInfo = await fetchUserInfo(cookie);
-                          final user = userInfo["user"];
-                          final email = user["so:email"];
-                          final givenName = user["so:givenName"];
-                          final familyName = user["so:familyName"];
-                          final name = '$givenName $familyName';
-
-                          await _secureStorage.write(
-                              key: 'SESSION_COOKIE', value: cookie);
-                          await _secureStorage.write(
-                              key: 'USER_NAME', value: name);
-                          await _secureStorage.write(
-                              key: 'EMAIL', value: email);
-
-                          if (context.mounted) {
-                            Navigator.pushAndRemoveUntil(
-                              context,
-                              MaterialPageRoute(builder: (_) => HomePage()),
-                                  (_) => false,
-                            );
-                          }
-                        }
-                        return; // return?
-                      }
-                    }
-
-                    final sslCertificate = await controller.getCertificate();
-                    setState(() {
-                      isSecure = sslCertificate != null ||
-                          (url != null && urlIsSecure(url));
+                    safeSetState(() {
+                      this.url = url.toString();
+                      isSecure = urlIsSecure(url);
                     });
                   },
-                  onUpdateVisitedHistory: (controller, url, isReload) {
-                    if (url != null) {
-                      setState(() {
-                        this.url = url.toString();
-                      });
+
+                  onLoadStop: (controller, url) async {
+                    if (_disposed || url == null || _didNavigate) return;
+
+                    safeSetState(() {
+                      this.url = url.toString();
+                    });
+
+                    if (!this.url.startsWith(
+                        GlobusAuthService.GRASSROOTS_PAGE_URL)) {
+                      return;
+                    }
+
+                    final cookie = await getGrassrootsCookie();
+
+                    if (cookie != null) {
+                      await _handleLogin(cookie);
                     }
                   },
+
+                  onUpdateVisitedHistory: (controller, url, _) {
+                    if (_disposed || url == null) return;
+
+                    safeSetState(() {
+                      this.url = url.toString();
+                    });
+                  },
+
                   onTitleChanged: (controller, title) {
-                    if (title != null) {
-                      setState(() {
-                        this.title = title;
-                      });
-                    }
+                    if (_disposed || title == null) return;
+
+                    safeSetState(() {
+                      this.title = title;
+                    });
                   },
+
                   onProgressChanged: (controller, progress) {
-                    setState(() {
+                    safeSetState(() {
                       this.progress = progress / 100;
                     });
                   },
-                  onReceivedHttpError: (InAppWebViewController controller, WebResourceRequest request, WebResourceResponse errorResponse) {
 
-                  },
-                  shouldOverrideUrlLoading: (controller, navigationAction) async {
-                    final url = navigationAction.request.url;
-                    if (navigationAction.isForMainFrame &&
-                        url != null &&
-                        ![
-                          'http',
-                          'https',
-                          'file',
-                          'chrome',
-                          'data',
-                          'javascript',
-                          'about'
-                        ].contains(url.scheme)) {
+                  shouldOverrideUrlLoading: (controller, action) async {
+                    final url = action.request.url;
+
+                    if (url != null &&
+                        !["http", "https", "file", "data", "javascript"]
+                            .contains(url.scheme)) {
                       if (await canLaunchUrl(url)) {
-                        // Launch the App
                         launchUrl(url);
-                        // and cancel the request
                         return NavigationActionPolicy.CANCEL;
                       }
                     }
                     return NavigationActionPolicy.ALLOW;
                   },
                 ),
-                progress < 1.0
-                    ? LinearProgressIndicator(value: progress)
-                    : Container(),
-              ],
-            )),
-   /*     ElevatedButton(
-          child: const Text('Clear'),
-          onPressed: () {
-            clear();
-          },
-        ),*/
-      ]),
 
+                if (progress < 1.0)
+                  LinearProgressIndicator(value: progress),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   Future<void> _logoutAndReload() async {
-      try {
-        //final cookieManager = CookieManager.instance();
-
-        //call Globus logout URL
-        await webViewController?.loadUrl(
-          urlRequest: URLRequest(
-            url: WebUri('${GlobusAuthService.GRASSROOTS_REDIRECT_URL}?logout=${GlobusAuthService.GRASSROOTS_PAGE_URL}'),
+    try {
+      await webViewController?.loadUrl(
+        urlRequest: URLRequest(
+          url: WebUri(
+            '${GlobusAuthService.GRASSROOTS_REDIRECT_URL}'
+                '?logout=${GlobusAuthService.GRASSROOTS_PAGE_URL}',
           ),
-        );
+        ),
+      );
 
-        //wait for logout to complete
-        await Future.delayed(const Duration(seconds: 2));
+      await webViewController?.clearCache();
 
-        // clear ALL cookies (includes mod_auth_openidc)
-        //await cookieManager.deleteAllCookies();
-
-        //clear WebView cache/history
-         await webViewController?.clearCache();
-        if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
-          await webViewController?.clearHistory();
-        }
-
-        //load fresh login page
-        await webViewController?.loadUrl(
-          urlRequest: URLRequest(
-            url: WebUri(GlobusAuthService.GRASSROOTS_PAGE_URL),
-          ),
-        );
-      }
-      catch (e) {
-       // test exception handling here
-        throw Exception('Error signing out: $e');
+      if (!kIsWeb &&
+          defaultTargetPlatform == TargetPlatform.android) {
+        await webViewController?.clearHistory();
       }
 
+      await webViewController?.loadUrl(
+        urlRequest: URLRequest(
+          url: WebUri(GlobusAuthService.GRASSROOTS_PAGE_URL),
+        ),
+      );
+    } catch (e) {
+      debugPrint("Logout error: $e");
+    }
   }
 
   static bool urlIsSecure(Uri url) {
-    return (url.scheme == "https") || isLocalizedContent(url);
+    return url.scheme == "https" || isLocal(url);
   }
 
-  static bool isLocalizedContent(Uri url) {
-    return (url.scheme == "file" ||
-        url.scheme == "chrome" ||
-        url.scheme == "data" ||
-        url.scheme == "javascript" ||
-        url.scheme == "about");
+  static bool isLocal(Uri url) {
+    return ["file", "chrome", "data", "javascript", "about"]
+        .contains(url.scheme);
   }
 
   Future<dynamic> fetchUserInfo(String? cookie) async {
     final url = Uri.parse(GlobusAuthService.USER_INFO_URL);
-    try {
-      final response = await http.get(
-        url,
-        headers: {
-          'Accept': 'application/json',
-          'Cookie': 'mod_auth_openidc_session=$cookie',
-        },
-      );
 
-      if (response.statusCode == 200) {
-        // Decode JSON response
-        final data = jsonDecode(response.body);
-        return data;
-      } else {
-        throw Exception('Failed to load data. Status code: ${response.statusCode}',);
-      }
-    } catch (e) {
-      throw Exception('Error fetching data: $e');
-    }
-  }
+    final response = await http.get(
+      url,
+      headers: {
+        'Accept': 'application/json',
+        'Cookie': 'mod_auth_openidc_session=$cookie',
+      },
+    );
 
-  Future <String?> getGrassrootsCookie () async {
-    String? session_value = null;
-    CookieManager cookie_manager = CookieManager.instance ();
-    final grassroots_url = WebUri (GlobusAuthService.GRASSROOTS_PAGE_URL);
-    final Cookie? cookie = await cookie_manager.getCookie(url: grassroots_url, name: "mod_auth_openidc_session");
-
-    if (cookie != null) {
-      session_value = cookie.value;
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
     }
 
-    return session_value;
+    throw Exception(
+      'Failed user info: ${response.statusCode}',
+    );
   }
 
+  Future<String?> getGrassrootsCookie() async {
+    final cookieManager = CookieManager.instance();
+
+    final cookie = await cookieManager.getCookie(
+      url: WebUri(GlobusAuthService.GRASSROOTS_PAGE_URL),
+      name: "mod_auth_openidc_session",
+    );
+
+    return cookie?.value;
+  }
 }
-

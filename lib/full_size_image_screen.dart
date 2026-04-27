@@ -7,7 +7,7 @@ class FullSizeImageScreenFile extends StatelessWidget {
   final File? imageFile;
   final int? plotNumber;
 
-  FullSizeImageScreenFile({this.imageFile, this.plotNumber});
+  const FullSizeImageScreenFile({super.key, this.imageFile, this.plotNumber});
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +30,7 @@ class FullSizeImageScreen extends StatelessWidget {
   final int? plotNumber;
   final DateTime? photoDate;
 
-  FullSizeImageScreen({this.imageUrl, this.plotNumber, this.photoDate});
+  const FullSizeImageScreen({super.key, this.imageUrl, this.plotNumber, this.photoDate});
 
   @override
   Widget build(BuildContext context) {

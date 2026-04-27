@@ -14,11 +14,11 @@ class UpdateStudy {
 
   void showLoginPopup(BuildContext context) {
     final TextEditingController nameController =
-        TextEditingController(text: this.name); // <-- Default study
+        TextEditingController(text: name); // <-- Default study
     final TextEditingController descriptionController = TextEditingController(
-        text: this.description); // <-- Default description
+        text: description); // <-- Default description
 
-    final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+    final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
     showDialog(
       context: context,
@@ -42,7 +42,7 @@ class UpdateStudy {
             ],
           ),
           content: Form(
-            key: _formKey,
+            key: formKey,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -72,7 +72,7 @@ class UpdateStudy {
           actions: [
             ElevatedButton(
               onPressed: () async {
-                if (_formKey.currentState!.validate()) {
+                if (formKey.currentState!.validate()) {
                   String studyName = nameController.text.trim();
                   String studyDescription = descriptionController.text.trim();
 
@@ -89,11 +89,11 @@ class UpdateStudy {
 
                     Navigator.pushAndRemoveUntil(
                       context,
-                      MaterialPageRoute(builder: (_) => GrassrootsStudies()),
+                      MaterialPageRoute(builder: (_) => const GrassrootsStudies()),
                       (_) => false,
                     );
                   } else {
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error updating")));
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Error updating")));
                   }
                 }
               },
@@ -106,8 +106,8 @@ class UpdateStudy {
   }
 
   Future<bool> updateData(String name, String description) async {
-    bool success_flag = false;
-    String request_string = jsonEncode({
+    bool successFlag = false;
+    String requestString = jsonEncode({
       "services": [
         {
           "so:name": "Submit Field Trial Study",
@@ -128,18 +128,18 @@ class UpdateStudy {
     });
 
     Map<String, dynamic> response =
-        await GrassrootsRequest.sendRequest(request_string, 'private');
+        await GrassrootsRequest.sendRequest(requestString, 'private');
 
-    Map<String, dynamic>? service_result = response['results']?[0];
+    Map<String, dynamic>? serviceResult = response['results']?[0];
 
-    if (service_result != null) {
+    if (serviceResult != null) {
       //String? status = service_result['status_text'];
-      String? job_uuid = service_result['job_uuid'];
+      String? jobUuid = serviceResult['job_uuid'];
       //if ((status != null) && (status == 'Succeeded')) {
-      if (job_uuid != null) {
-        success_flag = true;
+      if (jobUuid != null) {
+        successFlag = true;
       }
     }
-    return success_flag;
+    return successFlag;
   }
 }

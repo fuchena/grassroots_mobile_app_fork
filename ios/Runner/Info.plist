@@ -26,6 +26,12 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>This app uses the camera to capture photos and videos.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This app uses the microphone to capture audio for speech recognition.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>This app uses speech recognition to convert your speech into text.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
@@ -66,11 +72,5 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>This app uses speech recognition to convert your speech into text.</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>This app uses the microphone to capture audio for speech recognition.</string>
-	<key>NSCameraUsageDescription</key>
-	<string>This app uses the camera to capture photos and videos.</string>
 </dict>
 </plist>

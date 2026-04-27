@@ -126,9 +126,9 @@ class _SpeechToTextWidget extends State <SpeechToTextWidget> {
   /// the platform returns recognized words.
   void _onSpeechResult (SpeechRecognitionResult result) {
     setState(() {
-      String old_content = _text_controller.text;
-      String new_content = "${old_content}${result.recognizedWords} ";
-      _text_controller.text = new_content;
+      String oldContent = _text_controller.text;
+      String newContent = "$oldContent${result.recognizedWords} ";
+      _text_controller.text = newContent;
     });
   }
 
@@ -147,7 +147,7 @@ class _SpeechToTextWidget extends State <SpeechToTextWidget> {
                   minLines: 2,
                   maxLines: 4,
                   //decoration: _text_decoration,
-                  decoration: InputDecoration(labelText: "Notes (Optional)"),
+                  decoration: const InputDecoration(labelText: "Notes (Optional)"),
                   //style: _text_style,
                   keyboardType: TextInputType.text,
                   style: TextStyle(color: Theme.of(context).primaryColor),

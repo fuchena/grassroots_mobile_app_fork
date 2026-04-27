@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:collection/collection.dart';
 import 'package:grassroots_field_trials/caching.dart';
-import 'package:grassroots_field_trials/update_study.dart';
 import 'package:grassroots_field_trials/widget_util.dart';
 import 'backend_request.dart';
 import 'grassroots_request.dart';
@@ -14,6 +12,8 @@ import 'package:hive/hive.dart';
 import 'server.dart';
 
 class GrassrootsStudies extends StatefulWidget {
+  const GrassrootsStudies({super.key});
+
   @override
   GrassrootsPageState createState() => GrassrootsPageState();
 }
@@ -66,22 +66,22 @@ class GrassrootsPageState extends State<GrassrootsStudies> {
   // ...existing code...
   static Future<void> CheckAndUpdateAllowedStudyIDs() async {
     print('Initial Allowed Study IDs: $allowedStudyIDs');
-    bool healthy_flag = await ApiRequests.isServerHealthy();
+    bool healthyFlag = await ApiRequests.isServerHealthy();
     List<String> fetchedIDs = [];
 
-    print("healthy_flag $healthy_flag}");
+    print("healthy_flag $healthyFlag}");
 
-    if (healthy_flag) {
-      List<String>? server_ids = await ApiRequests.fetchAllowedStudyIDs();
+    if (healthyFlag) {
+      List<String>? serverIds = await ApiRequests.fetchAllowedStudyIDs();
 
-      if (server_ids != null) {
-        for (int i = 0; i < server_ids.length; ++i) {
-          fetchedIDs.add(server_ids[i]);
+      if (serverIds != null) {
+        for (int i = 0; i < serverIds.length; ++i) {
+          fetchedIDs.add(serverIds[i]);
         }
       }
 
       if (GrassrootsConfig.log_level >= LOG_FINEST) {
-        print("1: Allowed studies ${fetchedIDs}");
+        print("1: Allowed studies $fetchedIDs");
       }
     } else {
       /* Use any cached data */
@@ -89,26 +89,26 @@ class GrassrootsPageState extends State<GrassrootsStudies> {
           CACHE_SERVER_ALLOWED_STUDIES, fetchedIDs);
 
       if (GrassrootsConfig.log_level >= LOG_FINEST) {
-        print("2: Allowed studies ${fetchedIDs}");
+        print("2: Allowed studies $fetchedIDs");
       }
     }
 
     if (GrassrootsConfig.log_level >= LOG_FINEST) {
-      print("3: Allowed studies ${fetchedIDs}");
+      print("3: Allowed studies $fetchedIDs");
     }
 
     /* Add any user-created studies */
     await GetandAddLocallyAllowedStudies(LOCAL_ALLOWED_STUDIES, fetchedIDs);
 
     if (GrassrootsConfig.log_level >= LOG_FINEST) {
-      print("4: Allowed studies ${fetchedIDs}");
+      print("4: Allowed studies $fetchedIDs");
     }
 
     //setState(() {
     // Add only new IDs to the allowedStudyIDs list
-    final int num_fetched_ids = fetchedIDs.length;
+    final int numFetchedIds = fetchedIDs.length;
 
-    for (int i = 0; i < num_fetched_ids; i++) {
+    for (int i = 0; i < numFetchedIds; i++) {
       final String id = fetchedIDs[i];
 
       if (!allowedStudyIDs.contains(id)) {
@@ -127,24 +127,24 @@ class GrassrootsPageState extends State<GrassrootsStudies> {
   }
 
   static Future<int> GetandAddLocallyAllowedStudies(
-      final String box_name, List<String> ids) async {
-    List<String> local_ids = await IdCache.getAllEntries(box_name);
+      final String boxName, List<String> ids) async {
+    List<String> localIds = await IdCache.getAllEntries(boxName);
 
-    for (String local_id in local_ids) {
+    for (String local_id in localIds) {
       ids.add(local_id);
 
       if (GrassrootsConfig.log_level >= LOG_FINEST) {
-        print("Getting ${local_id} from ${box_name}");
+        print("Getting $local_id from $boxName");
       }
     }
 
-    return local_ids.length;
+    return localIds.length;
   }
 
   void fetchStudies() async {
-    bool healthy_flag = await ApiRequests.isServerHealthy();
+    bool healthyFlag = await ApiRequests.isServerHealthy();
 
-    List<Map<String, String>> studies_data = [];
+    List<Map<String, String>> studiesData = [];
 
     setState(() {
       isLoading = true;
@@ -153,9 +153,9 @@ class GrassrootsPageState extends State<GrassrootsStudies> {
     /*
      * If the server are online then get the live data
      */
-    if (healthy_flag) {
+    if (healthyFlag) {
       try {
-        studies_data = await backendRequests.fetchAllStudies();
+        studiesData = await backendRequests.fetchAllStudies();
       } catch (e) {
         print('Error fetching studies: $e');
         if (mounted) {
@@ -168,40 +168,40 @@ class GrassrootsPageState extends State<GrassrootsStudies> {
       /* Use any cached data */
       var box = await Hive.openBox<IdName>(CACHE_STUDIES);
 
-      final int num_entries = box.length;
+      final int numEntries = box.length;
 
-      for (int i = 0; i < num_entries; i++) {
-        Map<String, String> entry = Map<String, String>();
+      for (int i = 0; i < numEntries; i++) {
+        Map<String, String> entry = <String, String>{};
         IdName? study = box.getAt(i);
 
         if (study != null) {
           entry["name"] = study.name;
           entry["id"] = study.id;
 
-          String date_str = "";
-          date_str = study.date.toString();
+          String dateStr = "";
+          dateStr = study.date.toString();
 
           if (GrassrootsConfig.log_level >= LOG_FINEST) {
             print(
-                "using cached study ${entry["name"]}, ${entry["id"]} from ${date_str}");
+                "using cached study ${entry["name"]}, ${entry["id"]} from $dateStr");
           }
 
-          studies_data.add(entry);
+          studiesData.add(entry);
         }
       }
 
       if (GrassrootsConfig.log_level >= LOG_FINEST) {
         print("Got ${gps_studies.length} cached studies");
         print("BEGIN gps_studies");
-        print("${gps_studies}");
+        print("$gps_studies");
         print("END gps_studies");
       }
     }
 
-    if (studies_data.length > 0) {
+    if (studiesData.isNotEmpty) {
       if (mounted) {
         setState(() {
-          gps_studies = studies_data;
+          gps_studies = studiesData;
 
           if (GrassrootsConfig.log_level >= LOG_FINEST) {
             print("got ${gps_studies.length} studies");
@@ -297,7 +297,7 @@ class GrassrootsPageState extends State<GrassrootsStudies> {
                           color: Theme.of(context).colorScheme.primary),
                     ),
                     TextSpan(
-                        text: '${studyDescription ?? 'Not available'}',
+                        text: studyDescription ?? 'Not available',
                         style: TextStyle(
                             color: Theme.of(context).colorScheme.primary)),
                   ],
@@ -312,7 +312,7 @@ class GrassrootsPageState extends State<GrassrootsStudies> {
                           color: Theme.of(context).colorScheme.primary),
                     ),
                     TextSpan(
-                        text: '${programme ?? 'Not available'}',
+                        text: programme ?? 'Not available',
                         style: TextStyle(
                             color: Theme.of(context).colorScheme.primary)),
                   ],
@@ -327,7 +327,7 @@ class GrassrootsPageState extends State<GrassrootsStudies> {
                           color: Theme.of(context).colorScheme.primary),
                     ),
                     TextSpan(
-                        text: '${address ?? 'Not available'}',
+                        text: address ?? 'Not available',
                         style: TextStyle(
                             color: Theme.of(context).colorScheme.primary)),
                   ],
@@ -342,7 +342,7 @@ class GrassrootsPageState extends State<GrassrootsStudies> {
                           color: Theme.of(context).colorScheme.primary),
                     ),
                     TextSpan(
-                        text: '${FTrial ?? 'Not available'}',
+                        text: FTrial ?? 'Not available',
                         style: TextStyle(
                             color: Theme.of(context).colorScheme.primary)),
                   ],
@@ -376,7 +376,7 @@ class GrassrootsPageState extends State<GrassrootsStudies> {
                         width: 1,
                       ),
                       borderRadius: BorderRadius.circular(10)))),
-              child: Text('Close'),
+              child: const Text('Close'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -395,16 +395,16 @@ class GrassrootsPageState extends State<GrassrootsStudies> {
           resultData['submissionSuccessful']) {
         print('*****REFRESHING STUDY DETAILS AFTER SUCCESSFUL OBSERVATION');
         try {
-          String? study_id = selectedStudyLabel?.id;
-          if (study_id == null) return;
+          String? studyId = selectedStudyLabel?.id;
+          if (studyId == null) return;
 
           String cacheClearRequestJson =
-          backendRequests.clearCacheRequest(study_id);
+          backendRequests.clearCacheRequest(studyId);
           await GrassrootsRequest.sendRequest(
               cacheClearRequestJson, 'queen_bee_backend');
           print('Cache cleared successfully');
 
-          var studyDetails = await backendRequests.fetchSingleStudy(study_id);
+          var studyDetails = await backendRequests.fetchSingleStudy(studyId);
           if (!mounted) return;
 
           _updateStudyAfterReturn(studyDetails, resultData);
@@ -514,14 +514,14 @@ class GrassrootsPageState extends State<GrassrootsStudies> {
 
     if (GrassrootsConfig.log_level >= LOG_FINER) {
       print("in GetStudiesAsList ()");
-      print("Num studies ${gps_studies}");
+      print("Num studies $gps_studies");
     }
 
     for (final e in gps_studies) {
       var study = e;
 
       if (GrassrootsConfig.log_level >= LOG_FINER) {
-        print("STUDY: ${study}");
+        print("STUDY: $study");
       }
       var id = study['id'];
 
@@ -549,7 +549,7 @@ class GrassrootsPageState extends State<GrassrootsStudies> {
 
         l.add(se);
       } else {
-        print("no id in ${study}");
+        print("no id in $study");
       }
     }
 
@@ -560,22 +560,22 @@ class GrassrootsPageState extends State<GrassrootsStudies> {
     return l;
   }
 
-  GetStudyDetails(selected_study_id) async {
-    Map<String, dynamic> study_details = {};
+  GetStudyDetails(selectedStudyId) async {
+    Map<String, dynamic> studyDetails = {};
 
     try {
       // Fetch the study details
-      study_details =
-      await backendRequests.fetchSingleStudy(selected_study_id!);
+      studyDetails =
+      await backendRequests.fetchSingleStudy(selectedStudyId!);
     } catch (e) {
-      print(">>>>> Couldn't get study $selected_study_id");
+      print(">>>>> Couldn't get study $selectedStudyId");
     }
 
     if (GrassrootsConfig.log_level >= LOG_FINE) {
-      print("returning\n$study_details");
+      print("returning\n$studyDetails");
     }
 
-    return study_details;
+    return studyDetails;
   }
 
 ////////////////////// MAIN BUILD ////////////////////////////////////
@@ -587,21 +587,21 @@ class GrassrootsPageState extends State<GrassrootsStudies> {
     //print('Selected Phenotype: $selectedPhenotype');
     //print('Number of Plots: $numberOfPlots');
 
-    final List<StringEntry> all_studies = GetStudiesAsList();
+    final List<StringEntry> allStudies = GetStudiesAsList();
 
     // TextEditingController accession_controller =
     //     TextEditingController(text: _selected_plot_accession);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Grassroots Studies'),
+        title: const Text('Grassroots Studies'),
       ),
       body: isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : Padding(
         padding: const EdgeInsets.all(16.0),
         child: isSingleStudyLoading
-            ? Center(
+            ? const Center(
             child:
             CircularProgressIndicator()) // Show loading indicator while fetching single study
         //wrap the column in a singlechildscrollview
@@ -612,7 +612,7 @@ class GrassrootsPageState extends State<GrassrootsStudies> {
               //________ Dropdown to select a study.  1st DROPDOWN MENU______
               DropdownMenu(
                 requestFocusOnTap: true,
-                dropdownMenuEntries: all_studies,
+                dropdownMenuEntries: allStudies,
                 controller: studies_controller,
                 enableFilter: true,
                 label: const Text("Search for a study..."),
@@ -634,14 +634,14 @@ class GrassrootsPageState extends State<GrassrootsStudies> {
                   backgroundColor: WidgetStateProperty.all(
                       Theme.of(context).canvasColor),
                 ),
-                onSelected: (StringLabel? study_label) async {
-                  if (study_label != null) {
+                onSelected: (StringLabel? studyLabel) async {
+                  if (studyLabel != null) {
                     print(
-                        "****** selected study: ${study_label.id}, ${study_label.name}");
+                        "****** selected study: ${studyLabel.id}, ${studyLabel.name}");
                   }
 
                   setState(() {
-                    selectedStudyLabel = study_label;
+                    selectedStudyLabel = studyLabel;
                     isSingleStudyLoading =
                     true; // Start loading the study details
                     // Reset plot lists
@@ -663,7 +663,7 @@ class GrassrootsPageState extends State<GrassrootsStudies> {
                       String? id = selectedStudyLabel?.id;
                       String? name = selectedStudyLabel?.name;
 
-                      print("****** selectedStudy: ${id}, ${name}");
+                      print("****** selectedStudy: $id, $name");
 
                       if (id != null) {
                         await _loadStudyDetails(id);
@@ -685,7 +685,7 @@ class GrassrootsPageState extends State<GrassrootsStudies> {
               ),
 
               // End of dropdown to select a study.   END  OF 1st DROPDOWN MENU______
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               // __________MODAL FOR DISPLAYING STUDY DETAILS______
               if (selectedStudyLabel != null) ...[
                 // Button to open the details dialog
@@ -695,15 +695,15 @@ class GrassrootsPageState extends State<GrassrootsStudies> {
                     ElevatedButton(
                       onPressed: () => _showStudyDetailsDialog(context),
                       style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(
+                        padding: const EdgeInsets.symmetric(
                             vertical: 3, horizontal: 20),
                       ),
-                      child: Text(
+                      child: const Text(
                         'View Study Details',
                         textAlign: TextAlign.center,
                       ),
                     ),
-                    SizedBox(width: 40),
+                    const SizedBox(width: 40),
 /*                    ElevatedButton(
                       onPressed: () async {
                       UpdateStudy(selectedStudyLabel!.id,studyTitle!,
@@ -725,7 +725,7 @@ class GrassrootsPageState extends State<GrassrootsStudies> {
                 //   onPressed: () => _showStudyDetailsDialog(context),
                 //   child: Text('View Study Details'),
                 // ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 // __________BUTTON TO ADD NEW OBSERVATION__________
                 //if (selectedPlotId?.isNotEmpty == true)
                 ElevatedButton(
@@ -748,14 +748,14 @@ class GrassrootsPageState extends State<GrassrootsStudies> {
                       ),
                     );
                   },
-                  child: Text('Add New Observation'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).canvasColor,
                     textStyle: TextStyle(
                         color: Theme.of(context).primaryColor),
                   ),
+                  child: const Text('Add New Observation'),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
 
                 // Dropdown to select a plot.  ______2nd DROPDOWN MENU______
 
@@ -791,10 +791,10 @@ class GrassrootsPageState extends State<GrassrootsStudies> {
                       backgroundColor: WidgetStateProperty.all(
                           Theme.of(context).canvasColor),
                     ),
-                    onSelected: (String? plot_entry) async {
+                    onSelected: (String? plotEntry) async {
                       setState(() {
-                        selectedPlotId = plot_entry;
-                        int index = plotIDs.indexOf(plot_entry!);
+                        selectedPlotId = plotEntry;
+                        int index = plotIDs.indexOf(plotEntry!);
                         if (index != -1) {
                           selectedPlotDisplayValue =
                           plotDisplayValues[index];
@@ -826,7 +826,7 @@ class GrassrootsPageState extends State<GrassrootsStudies> {
                               if (GrassrootsConfig.log_level >=
                                   LOG_FINER) {
                                 print(
-                                    "plot has ${observationCount} observations");
+                                    "plot has $observationCount observations");
                               }
 
                               //  **********lists for phenotypes dropdown menu********
@@ -837,7 +837,7 @@ class GrassrootsPageState extends State<GrassrootsStudies> {
                                 if (GrassrootsConfig.log_level >=
                                     LOG_FINER) {
                                   print(
-                                      ">>> Observation:  ${observation}");
+                                      ">>> Observation:  $observation");
                                 }
 
                                 if (observation is Map &&
@@ -878,7 +878,7 @@ class GrassrootsPageState extends State<GrassrootsStudies> {
                               if (GrassrootsConfig.log_level >=
                                   LOG_FINER) {
                                 print(
-                                    "accession: ${_selected_plot_accession}");
+                                    "accession: $_selected_plot_accession");
                               }
                             }
                           }
@@ -891,27 +891,27 @@ class GrassrootsPageState extends State<GrassrootsStudies> {
                       });
                       // Additional logic when a plot is selected, if needed
                       print(
-                          'Selected Plot ID: $plot_entry'); // Print the actual plot ID to console
+                          'Selected Plot ID: $plotEntry'); // Print the actual plot ID to console
                     },
                   ),
 
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   ///// Accession field /////
 
                   TextField(
                     controller: accession_controller,
                     onSubmitted: (accession) async {
-                      print("accession ${accession}");
+                      print("accession $accession");
 
-                      String? plot_id = selectedPlotId;
-                      String? study_id = selectedStudyLabel?.id;
+                      String? plotId = selectedPlotId;
+                      String? studyId = selectedStudyLabel?.id;
 
-                      if ((plot_id != null) && (study_id != null)) {
+                      if ((plotId != null) && (studyId != null)) {
                         // Create the JSON request
                         String jsonString = backendRequests
                             .GetSubmitAccessionRequest(
-                          studyId: study_id,
-                          plotId: plot_id,
+                          studyId: studyId,
+                          plotId: plotId,
                           accession: accession,
                         );
 
@@ -920,9 +920,9 @@ class GrassrootsPageState extends State<GrassrootsStudies> {
                           print('Request to server: $jsonString');
                         }
 
-                        bool success_flag = false;
+                        bool successFlag = false;
                         String message =
-                            "Failed to update accession to ${accession}";
+                            "Failed to update accession to $accession";
 
                         if (jsonString != "{}") {
                           try {
@@ -941,24 +941,24 @@ class GrassrootsPageState extends State<GrassrootsStudies> {
                             if ((statusText != null) &&
                                 (statusText == 'Succeeded')) {
                               message =
-                              "Updated accession to ${accession}";
-                              success_flag = true;
+                              "Updated accession to $accession";
+                              successFlag = true;
                             } else {}
                           } catch (e) {
-                            print("failed to send request ${e}");
+                            print("failed to send request $e");
                             message =
-                            "Failed to complete request to update accession to ${accession}";
+                            "Failed to complete request to update accession to $accession";
                           }
                         }
 
                         WidgetUtil.ShowSnackBar(
-                            context, message, success_flag);
+                            context, message, successFlag);
                       }
                     },
                     decoration: InputDecoration(
                       labelText: 'Accession',
                       //hintText: 'The accession for the material in this plot',
-                      border: OutlineInputBorder(),
+                      border: const OutlineInputBorder(),
                       labelStyle: TextStyle(
                           color: Theme.of(context).primaryColor),
                       hintStyle: TextStyle(
@@ -973,7 +973,7 @@ class GrassrootsPageState extends State<GrassrootsStudies> {
                   ),
                 ], // end if (plotDisplayValues is not empty)
 
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 if (observationCount > 0) ...[
                   DropdownMenu(
                     dropdownMenuEntries:
@@ -1033,14 +1033,14 @@ class GrassrootsPageState extends State<GrassrootsStudies> {
                           return Dialog(
                             child: SingleChildScrollView(
                               child: Container(
-                                decoration: new BoxDecoration(
+                                decoration: BoxDecoration(
                                   borderRadius:
-                                  new BorderRadius.circular(
+                                  BorderRadius.circular(
                                       16.0),
                                   color:
                                   Theme.of(context).canvasColor,
                                 ),
-                                padding: EdgeInsets.all(20.0),
+                                padding: const EdgeInsets.all(20.0),
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
@@ -1051,13 +1051,13 @@ class GrassrootsPageState extends State<GrassrootsStudies> {
                                             FontWeight.bold,
                                             color: Theme.of(context)
                                                 .primaryColor)),
-                                    SizedBox(height: 10),
+                                    const SizedBox(height: 10),
                                     Text('Unit: $displayUnit',
                                         style: TextStyle(
                                             fontSize: 15,
                                             color: Theme.of(context)
                                                 .primaryColor)),
-                                    SizedBox(height: 20),
+                                    const SizedBox(height: 20),
                                     if (rawValues.isEmpty)
                                       Text('No Data Found',
                                           style: TextStyle(
@@ -1081,7 +1081,7 @@ class GrassrootsPageState extends State<GrassrootsStudies> {
                           Theme.of(context).canvasColor),
                     ),
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                 ],
               ], // IF studyTitle is not null
             ],

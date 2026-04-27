@@ -1,8 +1,5 @@
 // global_variables.dart
-import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/services.dart';
 import 'package:global_configuration/global_configuration.dart';
 
 
@@ -12,23 +9,23 @@ List<String> allowedStudyIDs = [
   '65a532e1536b7214e714a97f', // Glasshouse test study
 ];
 
-final int HI_OBSERVATIONS = 1;
-final int HI_PHOTOS = 2;
-final int HI_STUDIES = 3;
-final int HI_ALLOWED_IDS = 4;
+const int HI_OBSERVATIONS = 1;
+const int HI_PHOTOS = 2;
+const int HI_STUDIES = 3;
+const int HI_ALLOWED_IDS = 4;
 
-final String CACHE_STUDIES = "studies_cache";
-final String CACHE_TRIALS = "trials_cache";
-final String CACHE_LOCATIONS = "locations_cache";
-final String CACHE_PROGRAMMES = "programmes_cache";
-final String CACHE_MEASURED_VARIABLES = "measured_variables_cache";
-final String LOCAL_ALLOWED_STUDIES = "local_allowed_studies";
-final String CACHE_SERVER_ALLOWED_STUDIES = "server_allowed_studies_cache";
+const String CACHE_STUDIES = "studies_cache";
+const String CACHE_TRIALS = "trials_cache";
+const String CACHE_LOCATIONS = "locations_cache";
+const String CACHE_PROGRAMMES = "programmes_cache";
+const String CACHE_MEASURED_VARIABLES = "measured_variables_cache";
+const String LOCAL_ALLOWED_STUDIES = "local_allowed_studies";
+const String CACHE_SERVER_ALLOWED_STUDIES = "server_allowed_studies_cache";
 
-final int LOG_INFO = 10;
-final int LOG_FINE = 20;
-final int LOG_FINER = 30;
-final int LOG_FINEST = 40;
+const int LOG_INFO = 10;
+const int LOG_FINE = 20;
+const int LOG_FINER = 30;
+const int LOG_FINEST = 40;
 
 
 class GrassrootsConfig {
@@ -84,20 +81,20 @@ class GrassrootsConfig {
 
 
   static String? _GetBackendURL (String key) {
-    String? url = null;
+    String? url;
     String? host = GetHost ();
 
     if (host != null) {
-      Map <String, dynamic> ? host_config = GlobalConfiguration ().getValue (host);  //host_config is a json object mapped to host
+      Map <String, dynamic> ? hostConfig = GlobalConfiguration ().getValue (host);  //host_config is a json object mapped to host
 
-      if (host_config != null) {
-        String? sub_url = host_config [key];
+      if (hostConfig != null) {
+        String? subUrl = hostConfig [key];
 
-        if (sub_url != null) {
+        if (subUrl != null) {
           if (host.endsWith ("/")) {
-            url = "${host}${sub_url}";
+            url = "$host$subUrl";
           } else {
-            url = "${host}/${sub_url}";
+            url = "$host/$subUrl";
           }
         }
       }
@@ -108,20 +105,20 @@ class GrassrootsConfig {
 
 
   static Map <String, dynamic> ? _GetHostConfig () {
-    Map <String, dynamic> ? host_config = null;
+    Map <String, dynamic> ? hostConfig;
     String? host = GetHost ();
 
     if (host != null) {
-      host_config = GlobalConfiguration ().getValue (host);
+      hostConfig = GlobalConfiguration ().getValue (host);
     }
 
-    return host_config;
+    return hostConfig;
   }
 
-  static bool IsStudyEditable (String study_id) {
+  static bool IsStudyEditable (String studyId) {
     /* bool editable_flag = true; */
-    bool editable_flag = allowedStudyIDs.contains (study_id);
+    bool editableFlag = allowedStudyIDs.contains (studyId);
 
-    return editable_flag;
+    return editableFlag;
   }
 }

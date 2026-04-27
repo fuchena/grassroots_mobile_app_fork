@@ -1,0 +1,6 @@
+{
+  "issuer": "https://<issuer-host>",
+  "client_id": "<client-id>",
+  "redirect_uri": "com.example.app:/oauth2redirect",
+  "scopes": ["openid", "profile", "email", "offline_access"]
+}

@@ -1,6 +1,4 @@
 import 'dart:io';
-import 'package:global_configuration/global_configuration.dart';
-import 'package:grassroots_field_trials/caching.dart';
 import 'package:grassroots_field_trials/global_variable.dart';
 import 'package:http/http.dart' as http;
 //import 'package:flutter/material.dart';
@@ -13,15 +11,15 @@ class ApiRequests {
 
 
   static Uri? GetPhotoReceiverEndpoint (final String url) {
-    Uri? uri = null;
-    final String? base_url = GrassrootsConfig.GetPhotoReceiverURL ();
+    Uri? uri;
+    final String? baseUrl = GrassrootsConfig.GetPhotoReceiverURL ();
     String s;
 
-    if (base_url != null) {
-      if (base_url.endsWith ("/")) {
-        s = "${base_url}${url}";
+    if (baseUrl != null) {
+      if (baseUrl.endsWith ("/")) {
+        s = "$baseUrl$url";
       } else {
-        s = "${base_url}/${url}";
+        s = "$baseUrl/$url";
       }
 
       uri = Uri.parse (s);
@@ -31,7 +29,7 @@ class ApiRequests {
   }
 
   static Future<bool> uploadImageDate (File image, String studyID, int plotNumber) async {
-    bool success_flag = false;
+    bool successFlag = false;
 
     try {
       Uri? uri = GetPhotoReceiverEndpoint ("upload/");
@@ -39,7 +37,7 @@ class ApiRequests {
       if (uri != null) {
         // Include the current date in the file name
         String date = DateFormat('yyyy_MM_dd').format(DateTime.now());
-        String newFileName = 'photo_plot_${plotNumber.toString()}_${date}.jpg';
+        String newFileName = 'photo_plot_${plotNumber.toString()}_$date.jpg';
 
         var request = http.MultipartRequest('POST', uri);
         request.files.add(await http.MultipartFile.fromPath(
@@ -53,13 +51,13 @@ class ApiRequests {
             plotNumber.toString(); // Add plot_number to the request
         var response = await request.send();
 
-        success_flag = response.statusCode == 201; // Return true if status code is 201
+        successFlag = response.statusCode == 201; // Return true if status code is 201
       }
     } catch (e) {
       // Return false in case of an error
     }
 
-    return success_flag;
+    return successFlag;
   }
 
   static Future<Map<String, dynamic>> retrievePhoto(String studyID, int plotNumber) async {
@@ -162,7 +160,7 @@ class ApiRequests {
   }
 
   static Future<bool> updateLimits(String studyID, int newMin, int newMax, String traitKey) async {
-    bool success_flag = false;
+    bool successFlag = false;
     String subfolder = studyID;
     Uri? uri = GetPhotoReceiverEndpoint ("update_limits/$subfolder/");
 
@@ -180,17 +178,17 @@ class ApiRequests {
         print('Status Code: ${response.statusCode}');
         print('Response Body: ${response.body}');
 
-        success_flag = response.statusCode == 200;
+        successFlag = response.statusCode == 200;
       } catch (e) {
         print('Error updating limits: $e');
       }
     }
 
-    return success_flag;
+    return successFlag;
   }
 
   static Future<List<String>?> fetchAllowedStudyIDs() async {
-    List <String> ? ids = null;
+    List <String> ? ids;
     Uri? uri = GetPhotoReceiverEndpoint ("allowed_studies/");
 
     if (uri != null) {
@@ -201,11 +199,11 @@ class ApiRequests {
         if (response.statusCode == 200) {
           final jsonResponse = json.decode(response.body);
 
-          List <String> allowed_studies = List<String>.from(jsonResponse['allowed_studies']);
+          List <String> allowedStudies = List<String>.from(jsonResponse['allowed_studies']);
 
           //IdsCache.cacheIds (allowed_studies);
 
-          ids = allowed_studies;
+          ids = allowedStudies;
 
         } else {
           print('Error fetching allowed study IDs: ${response.statusCode}');
@@ -229,7 +227,7 @@ class ApiRequests {
       try {
         final response = await http.get (uri);
         if (GrassrootsConfig.log_level >= LOG_INFO) {
-          print ("called ${uri} got ${response.statusCode}");
+          print ("called $uri got ${response.statusCode}");
         }
 
         if (response.statusCode == 200) {

@@ -13,7 +13,7 @@ class StudyDetailsWidget extends StatelessWidget {
   final Function(Map<String, dynamic>) onAddObservation;
   final Map<String, dynamic> selectedPlotDetails;
 
-  StudyDetailsWidget({
+  const StudyDetailsWidget({super.key, 
     required this.studyTitle,
     required this.studyDescription,
     required this.programme,
@@ -39,42 +39,42 @@ class StudyDetailsWidget extends StatelessWidget {
       children: [
         // Existing code to display study details
         Text(
-          '$studyTitle',
+          studyTitle,
           style: TextStyle (fontSize: 18, fontWeight: FontWeight.bold, backgroundColor: Theme.of(context).colorScheme.primary, color: Theme.of(context).colorScheme.onPrimary)
         ),
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
 
         Text(
           'The Description: ${studyDescription.isNotEmpty ? studyDescription : 'Not available'}',
           style: TextStyle (fontSize: 16, fontWeight: FontWeight.bold, backgroundColor: Theme.of(context).colorScheme.primary, color: Theme.of(context).colorScheme.onPrimary)
         ),
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
         Text(
           'Programme: ${programme.isNotEmpty ? programme : 'Not available'}',
-          style: TextStyle(fontSize: 24),
+          style: const TextStyle(fontSize: 24),
         ),
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
         Text(
           'Field Trial: ${FTrial.isNotEmpty ? FTrial : 'Not available'}',
-          style: TextStyle(fontSize: 16),
+          style: const TextStyle(fontSize: 16),
         ),
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
         Text(
           'Address: ${address.isNotEmpty ? address : 'Not available'}',
-          style: TextStyle(fontSize: 16),
+          style: const TextStyle(fontSize: 16),
         ),
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
         Text(
           'Number of Plots: $numberOfPlots',
-          style: TextStyle(fontSize: 16),
+          style: const TextStyle(fontSize: 16),
         ),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
 
         // Add New Observation Button
         if (selectedPlotId.isNotEmpty)
           ElevatedButton(
             onPressed: () => onAddObservation(selectedPlotDetails),
-            child: Text('Add New Observation'),
+            child: const Text('Add New Observation'),
           ),
       ],
     ),

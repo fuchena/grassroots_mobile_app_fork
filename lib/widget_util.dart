@@ -6,21 +6,21 @@ import 'package:flutter/material.dart';
 
 class WidgetUtil {
 
-  static void ShowSnackBar (BuildContext context, String message, bool success_flag) {
-    Icon icon = success_flag ?
-      Icon (Icons.check_circle_outline, color: Colors.green) :
-      Icon (Icons.error_outline, color: Colors.red);
+  static void ShowSnackBar (BuildContext context, String message, bool successFlag) {
+    Icon icon = successFlag ?
+      const Icon (Icons.check_circle_outline, color: Colors.green) :
+      const Icon (Icons.error_outline, color: Colors.red);
 
     ScaffoldMessenger.of (context).showSnackBar(
       SnackBar(
         content: Row(
           children: [
             icon,
-            SizedBox (width: 10),
+            const SizedBox (width: 10),
             Expanded(
               child: Text(
                 message,
-                style: TextStyle(fontSize: 16.0),
+                style: const TextStyle(fontSize: 16.0),
               ),
             ),
           ],

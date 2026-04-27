@@ -8,8 +8,8 @@ import 'dart:convert';
 import 'global_variable.dart';
 
 class backendRequests {
-  static final String SYNCED = "synced";
-  static final String PENDING = "pending";
+  static const String SYNCED = "synced";
+  static const String PENDING = "pending";
 
 
   //fetch all studies from Grassroots. Used when loading grassroot_studies.dart
@@ -52,7 +52,7 @@ class backendRequests {
     } catch (e) {
       print('Error fetching studies: $e');
       // Optionally, handle the error in a specific way or rethrow it
-      throw e;
+      rethrow;
     }
   }
 
@@ -108,7 +108,7 @@ class backendRequests {
     } catch (e) {
       print('Error fetching trials: $e');
       // Optionally, handle the error in a specific way or rethrow it
-      throw e;
+      rethrow;
     }
   }
 
@@ -136,7 +136,7 @@ class backendRequests {
       var response = await GrassrootsRequest.sendRequest(requestString, 'public');
 
       if (GrassrootsConfig.log_level >= LOG_FINEST) {
-        print ("locations: ${response}");
+        print ("locations: $response");
       }
 
       List<Map<String, String>> locations = response['results'][0]['results'].map<Map<String, String>>((location) {
@@ -145,7 +145,7 @@ class backendRequests {
         String id = location['data']['_id']['\$oid'] as String? ?? 'Unknown ID';
 
         if (GrassrootsConfig.log_level >= LOG_FINEST) {
-          print ("Adding location ${name}");
+          print ("Adding location $name");
         }
 
         return {'name': name, 'id': id};
@@ -161,7 +161,7 @@ class backendRequests {
     } catch (e) {
       print('Error fetching Locations: $e');
       // Optionally, handle the error in a specific way or rethrow it
-      throw e;
+      rethrow;
     }
   }
 
@@ -212,16 +212,16 @@ class backendRequests {
     }
 
     if (GrassrootsConfig.log_level >= LOG_FINE) {
-      print ("studyId ${studyId}");
-      print ("detectedQRCode ${plotId}");
-      print ("selectedTrait ${selectedTrait}");
-      print ("measurement ${measurement}");
-      print ("dateString ${dateString}");
-      print ("accession ${accession}");
-      print ("note ${note}");
+      print ("studyId $studyId");
+      print ("detectedQRCode $plotId");
+      print ("selectedTrait $selectedTrait");
+      print ("measurement $measurement");
+      print ("dateString $dateString");
+      print ("accession $accession");
+      print ("note $note");
     }
 
-    List <Map <String, Object>> params_array = [
+    List <Map <String, Object>> paramsArray = [
       {"param": "RO Id", "current_value": plotId, "group": "Plot"},
       {"param": "RO Append Observations", "current_value": true, "group": "Plot"},
       {
@@ -257,7 +257,7 @@ class backendRequests {
     ];
 
     if ((accession != null) && (accession.isNotEmpty)) {
-      params_array.add ({
+      paramsArray.add ({
         "param": "RO Accession",
         "current_value": accession,
         "group": "Plot"
@@ -271,7 +271,7 @@ class backendRequests {
           "start_service": true,
           "parameter_set": {
             "level": "simple",
-            "parameters": params_array
+            "parameters": paramsArray
           }
         }
       ]
@@ -281,7 +281,7 @@ class backendRequests {
     String req = jsonEncode (requestMap);
     
     if (GrassrootsConfig.log_level >= LOG_FINE) {
-      print ("Obs req: ${req}");
+      print ("Obs req: $req");
     }
 
     return req;
@@ -299,17 +299,17 @@ class backendRequests {
     if (GrassrootsConfig.IsStudyEditable (studyId)) {
       if (accession.isNotEmpty) {
         if (GrassrootsConfig.log_level >= LOG_FINE) {
-          print ("studyId ${studyId}");
-          print ("detectedQRCode ${plotId}");
-          print ("accession ${accession}");
+          print ("studyId $studyId");
+          print ("detectedQRCode $plotId");
+          print ("accession $accession");
         }
 
-        List <Map <String, Object>> params_array = [
+        List <Map <String, Object>> paramsArray = [
           {"param": "RO Id", "current_value": plotId, "group": "Plot"},
         ];
 
         if (accession.isNotEmpty) {
-          params_array.add ({
+          paramsArray.add ({
             "param": "RO Accession",
             "current_value": accession,
             "group": "Plot"
@@ -323,7 +323,7 @@ class backendRequests {
               "start_service": true,
               "parameter_set": {
                 "level": "simple",
-                "parameters": params_array
+                "parameters": paramsArray
               }
             }
           ]
@@ -333,7 +333,7 @@ class backendRequests {
         req = jsonEncode (requestMap);
 
         if (GrassrootsConfig.log_level >= LOG_FINE) {
-          print ("Obs req: ${req}");
+          print ("Obs req: $req");
         }
 
       } else {
@@ -382,7 +382,7 @@ class backendRequests {
   static Future <List <MeasuredVariable>>  searchMeasuredVariables (String? query) async {
     if (query != null) {
       /* Enable pattern matching */
-      query = query + "*";
+      query = "$query*";
     }
 
     final String request = jsonEncode({
@@ -411,23 +411,23 @@ class backendRequests {
     try {
       Map <String, dynamic> response = await GrassrootsRequest.sendRequest (request, 'public');
       
-      List <dynamic> results_data = response ['results'][0]['results'];
+      List <dynamic> resultsData = response ['results'][0]['results'];
       //print ("RESPONSE RESULT: ${results_data}");
 
 
-      List <MeasuredVariable> measured_variables = []; //results_data.map<Map <String, dynamic>> ((mv) {
+      List <MeasuredVariable> measuredVariables = []; //results_data.map<Map <String, dynamic>> ((mv) {
 
-      print ("num hits ${results_data.length}");
+      print ("num hits ${resultsData.length}");
 
-      results_data.forEach ((entry) {
+      for (var entry in resultsData) {
        // print ("entry: ${entry}");
               
         MeasuredVariable mv = MeasuredVariable.fromJson (entry ["data"]);
 
       //  print ("mv: ${mv.variable_name}");
 
-        measured_variables.add (mv);
-      });
+        measuredVariables.add (mv);
+      }
 
 //        print ("mv: ${mv}");
 //        //return MeasuredVariable.fromJson (mv);
@@ -440,13 +440,13 @@ class backendRequests {
 
       //IdNamesCache.cache (measured_variables, CACHE_MEASURED_VARIABLES);
 
-      print ("RETURNING: ${measured_variables.length} Measured Variables");
+      print ("RETURNING: ${measuredVariables.length} Measured Variables");
 
-      return measured_variables;
+      return measuredVariables;
     } catch (e) {
       print('Error fetching measured variables: $e');
       // Optionally, handle the error in a specific way or rethrow it
-      throw e;
+      rethrow;
     }    
   }
 

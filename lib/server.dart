@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'global_variable.dart';
 import 'api_requests.dart';
-import 'models/observation.dart';
 
 /// Represents a simple label with an ID
 class StringLabel {

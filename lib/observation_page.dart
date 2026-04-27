@@ -14,7 +14,7 @@ class ObservationPage extends StatefulWidget {
   final List<String> allPhenotypeNames;
   final List<String> allTraits;
 
-  ObservationPage({
+  const ObservationPage({super.key, 
     required this.studyName,
     required this.studyID,
     required this.serverResponse,
@@ -163,31 +163,31 @@ class _ObservationPageState extends State<ObservationPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add Observation'),
+        title: const Text('Add Observation'),
         automaticallyImplyLeading: false,
       ),
 
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text('Study Name: ${widget.studyName}', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              SizedBox(height: 20),
+              Text('Study Name: ${widget.studyName}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 20),
               //Text('Details: ${widget.serverResponse}', textAlign: TextAlign.center),
               if (accession != null)
                 Padding(
                   padding: const EdgeInsets.only(top: 36.0), // This will add space above the Accession Text
-                  child: Text('Accession: $accession', style: TextStyle(fontSize: 16), textAlign: TextAlign.center),
+                  child: Text('Accession: $accession', style: const TextStyle(fontSize: 16), textAlign: TextAlign.center),
                   //child: Text('$widget.serverResponse', style: TextStyle(fontSize: 16), textAlign: TextAlign.center),
                 ),
 
               DropdownButtonFormField<String>(
                 isExpanded: true,
-                value: selectedTrait,
-                hint: Text("Select phenotype"),
+                initialValue: selectedTrait,
+                hint: const Text("Select phenotype"),
                 onChanged: (newValue) {
                   setState(() {
                     selectedTrait = newValue!;
@@ -214,8 +214,8 @@ class _ObservationPageState extends State<ObservationPage> {
 
               TextFormField(
                 controller: measurementController,
-                keyboardType: TextInputType.numberWithOptions(decimal: true),
-                decoration: InputDecoration(
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                decoration: const InputDecoration(
                   labelText: "Add measurement",
                 ),
                 validator: (value) {
@@ -228,7 +228,7 @@ class _ObservationPageState extends State<ObservationPage> {
 
               // Date Picker
               ListTile(
-                title: Text("Select date"),
+                title: const Text("Select date"),
                 subtitle: Text(
                   selectedDate != null ? '${selectedDate!.toLocal()}'.split(' ')[0] : 'No date chosen',
                 ),
@@ -239,10 +239,11 @@ class _ObservationPageState extends State<ObservationPage> {
                     firstDate: DateTime(2000), // Adjust the range as needed
                     lastDate: DateTime(2101),
                   );
-                  if (picked != null && picked != selectedDate)
+                  if (picked != null && picked != selectedDate) {
                     setState(() {
                       selectedDate = picked;
                     });
+                  }
                 },
               ),
 
@@ -250,7 +251,7 @@ class _ObservationPageState extends State<ObservationPage> {
               TextFormField(
                 controller: optionalNoteController,
                 keyboardType: TextInputType.text,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: "Add optional note",
                 ),
                 validator: (value) {
@@ -261,7 +262,7 @@ class _ObservationPageState extends State<ObservationPage> {
                 },
               ),
 
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               SizedBox(
                 child: Align(
                   alignment: Alignment.centerLeft,
@@ -270,7 +271,7 @@ class _ObservationPageState extends State<ObservationPage> {
                       if (_formKey.currentState!.validate()) {
                         // If the form is valid, display a Snackbar and print form values.
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Processing Data')),
+                          const SnackBar(content: Text('Processing Data')),
                         );
 
                         print('detectedQRCode: ${widget.detectedQRCode}');
@@ -300,7 +301,7 @@ class _ObservationPageState extends State<ObservationPage> {
 
                           // Optionally show a success dialog or snackbar message
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Data successfully submitted')),
+                            const SnackBar(content: Text('Data successfully submitted')),
                           );
 
                           // If the code reaches this point, it means the request was successful
@@ -326,7 +327,7 @@ class _ObservationPageState extends State<ObservationPage> {
                           print('Error sending request: $e');
                           // Optionally show an error dialog or snackbar message
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Failed to submit data')),
+                            const SnackBar(content: Text('Failed to submit data')),
                           );
                         } finally {
                           // Clear the form fields after processing the request
@@ -334,7 +335,7 @@ class _ObservationPageState extends State<ObservationPage> {
                         }
                       }
                     },
-                    child: Text('Submit Observation'),
+                    child: const Text('Submit Observation'),
                   ), // ElevatedButton
                 ),
               ),
@@ -346,12 +347,12 @@ class _ObservationPageState extends State<ObservationPage> {
         onPressed: () {
           if (hasSuccessfullySubmitted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Refreshing observation')),
+              const SnackBar(content: Text('Refreshing observation')),
             );
           }
           Navigator.pop(context, hasSuccessfullySubmitted); // Send the flag back to the home page
         },
-        child: Icon(Icons.arrow_back), //Back Button
+        child: const Icon(Icons.arrow_back), //Back Button
       ), //FloatingActionButton
     ); // Scaffold
   }

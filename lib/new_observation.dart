@@ -8,7 +8,6 @@ import 'package:image_picker/image_picker.dart';
 //import 'package:http/http.dart' as http;
 import 'dart:io';
 import 'full_size_image_screen.dart';
-import 'grassroots_request.dart';
 import 'backend_request.dart';
 import 'api_requests.dart';
 
@@ -18,7 +17,6 @@ import 'models/photo_submission.dart'; // Import the PhotoSubmission model
 
 import 'package:path_provider/path_provider.dart';
 
-import 'package:collection/collection.dart';
 
 class NewObservationPage extends StatefulWidget {
   final Map<String, dynamic> studyDetails;
@@ -27,7 +25,7 @@ class NewObservationPage extends StatefulWidget {
   final Function(Map<String, dynamic>) onReturn;
   final String? selectedTraitKey;
 
-  NewObservationPage({
+  const NewObservationPage({super.key, 
     required this.studyDetails,
     required this.plotId,
     required this.plotDetails,
@@ -59,7 +57,7 @@ class _NewObservationPageState extends State<NewObservationPage> {
   int? minHeight;
   bool _isUploading = false; // for form clearing
   bool isClearingForm = false;
-  bool _isPhotoLoading = false; // Lock for photo loading
+  final bool _isPhotoLoading = false; // Lock for photo loading
   bool submissionSuccessful = false; // Flag for successful submission
   bool _isImageUploaded = false; // Tracks if the image is uploaded
   bool _isNewImageSelected = false; // Tracks if a new image is selected
@@ -127,7 +125,7 @@ class _NewObservationPageState extends State<NewObservationPage> {
     } else if (result['status'] == 'not_found') {
       if (mounted) {
         ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Plot has no photo')));
+            .showSnackBar(const SnackBar(content: Text('Plot has no photo')));
       }
     } else if (result['status'] == 'error') {
       if (mounted) {
@@ -240,14 +238,14 @@ class _NewObservationPageState extends State<NewObservationPage> {
         print('Error during upload or saving photo locally: $e');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error during upload or saving photo')),
+            const SnackBar(content: Text('Error during upload or saving photo')),
           );
         }
       }
     } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Image, study ID, or plot number is missing')),
+          const SnackBar(content: Text('Image, study ID, or plot number is missing')),
         );
       }
     }
@@ -293,8 +291,8 @@ class _NewObservationPageState extends State<NewObservationPage> {
     ////////////////////////////////////////////////////////////////////////////
   }
 
-  void moveToPlot(bool forwards_flag) async {
-    int counter_inc = forwards_flag ? 1 : -1;
+  void moveToPlot(bool forwardsFlag) async {
+    int counterInc = forwardsFlag ? 1 : -1;
 
     if (isNavigating) return; // Prevent multiple rapid navigations
     setState(() {
@@ -307,7 +305,7 @@ class _NewObservationPageState extends State<NewObservationPage> {
     if (plots == null || plots.isEmpty) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('No more plots available')),
+          const SnackBar(content: Text('No more plots available')),
         );
       }
       setState(() {
@@ -320,9 +318,9 @@ class _NewObservationPageState extends State<NewObservationPage> {
     plots.sort(_ComparePlots);
 
     /* The info for the plot that we are going to scroll to */
-    Map<String, dynamic>? other_plot_details;
-    String? other_plot_id;
-    String? other_plot_accession;
+    Map<String, dynamic>? otherPlotDetails;
+    String? otherPlotId;
+    String? otherPlotAccession;
 
     if (_isPhotoLoading) {
       print("Photo is still loading, please wait.");
@@ -347,32 +345,32 @@ class _NewObservationPageState extends State<NewObservationPage> {
          * As we're looking for the next/previous entry we need to go to
          * usr the counter_inc to go past the matching element
          */
-        res += counter_inc;
-        bool loop_flag = (res >= 0) && (res < plots.length);
+        res += counterInc;
+        bool loopFlag = (res >= 0) && (res < plots.length);
 
-        while (loop_flag) {
-          var other_row = plots[res];
+        while (loopFlag) {
+          var otherRow = plots[res];
 
-          if (!(other_row.containsKey('discard') && other_row['discard'])) {
-            other_plot_details = plots[res];
-            other_plot_id = other_row['_id']['\$oid'];
+          if (!(otherRow.containsKey('discard') && otherRow['discard'])) {
+            otherPlotDetails = plots[res];
+            otherPlotId = otherRow['_id']['\$oid'];
 
-            if (other_row["material"] != null) {
-              other_plot_accession = other_row["material"]["accession"];
+            if (otherRow["material"] != null) {
+              otherPlotAccession = otherRow["material"]["accession"];
             }
 
-            loop_flag = false;
+            loopFlag = false;
           } else {
-            res += counter_inc;
-            loop_flag = (res >= 0) && (res < plots.length);
+            res += counterInc;
+            loopFlag = (res >= 0) && (res < plots.length);
           }
         }
       }
     }
 
-    if ((other_plot_id != null) && (other_plot_details != null)) {
+    if ((otherPlotId != null) && (otherPlotDetails != null)) {
       try {
-        await Future.delayed(Duration(
+        await Future.delayed(const Duration(
             milliseconds: 300)); // Small delay to avoid rapid navigation
 
         if (!mounted) {
@@ -387,8 +385,8 @@ class _NewObservationPageState extends State<NewObservationPage> {
           MaterialPageRoute(
             builder: (context) => NewObservationPage(
               studyDetails: widget.studyDetails,
-              plotId: other_plot_id!,
-              plotDetails: other_plot_details ?? {},
+              plotId: otherPlotId!,
+              plotDetails: otherPlotDetails ?? {},
               onReturn: widget.onReturn,
               selectedTraitKey:
               selectedTraitKey, // Pass the selected trait to the next plot
@@ -409,7 +407,7 @@ class _NewObservationPageState extends State<NewObservationPage> {
     } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('No more valid previous plots available')),
+          const SnackBar(content: Text('No more valid previous plots available')),
         );
       }
       setState(() {
@@ -418,10 +416,10 @@ class _NewObservationPageState extends State<NewObservationPage> {
     }
   }
 
-  int _ComparePlots(dynamic plot_a, dynamic plot_b) {
-    int a_index = plot_a['rows']?[0]['study_index'] as int? ?? 0;
-    int b_index = plot_b['rows']?[0]['study_index'] as int? ?? 0;
-    return (a_index - b_index);
+  int _ComparePlots(dynamic plotA, dynamic plotB) {
+    int aIndex = plotA['rows']?[0]['study_index'] as int? ?? 0;
+    int bIndex = plotB['rows']?[0]['study_index'] as int? ?? 0;
+    return (aIndex - bIndex);
   }
 
   int _BinarySearchPlots(list, element) {
@@ -449,7 +447,7 @@ class _NewObservationPageState extends State<NewObservationPage> {
       context: context,
       initialDate: DateTime.now(),
       firstDate: DateTime(2000),
-      lastDate: DateTime.now().add(Duration(days: 1825)),
+      lastDate: DateTime.now().add(const Duration(days: 1825)),
       builder: (BuildContext context, Widget? child) {
         return Theme(
           data: Theme.of(context).copyWith(
@@ -460,11 +458,11 @@ class _NewObservationPageState extends State<NewObservationPage> {
               style: TextButton.styleFrom(
                   backgroundColor: Theme.of(context).colorScheme.primary,
                   foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                  textStyle: TextStyle(
+                  textStyle: const TextStyle(
                     color: Colors.red, //Theme.of (context).primaryColor,
                   )),
             ),
-            buttonTheme: ButtonThemeData(textTheme: ButtonTextTheme.accent),
+            buttonTheme: const ButtonThemeData(textTheme: ButtonTextTheme.accent),
           ),
           child: child!,
         );
@@ -495,7 +493,7 @@ class _NewObservationPageState extends State<NewObservationPage> {
               children: <Widget>[
                 Row(
                   children: [
-                    Text('Max: '),
+                    const Text('Max: '),
                     Expanded(
                       child: Row(
                         children: [
@@ -503,7 +501,7 @@ class _NewObservationPageState extends State<NewObservationPage> {
                             child: TextField(
                               controller: _maxHeightController,
                               keyboardType: TextInputType.number,
-                              decoration: InputDecoration(
+                              decoration: const InputDecoration(
                                 hintText: 'Enter new max value',
                               ),
                             ),
@@ -514,10 +512,10 @@ class _NewObservationPageState extends State<NewObservationPage> {
                     ),
                   ],
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 Row(
                   children: [
-                    Text('Min: '),
+                    const Text('Min: '),
                     Expanded(
                       child: Row(
                         children: [
@@ -525,7 +523,7 @@ class _NewObservationPageState extends State<NewObservationPage> {
                             child: TextField(
                               controller: _minHeightController,
                               keyboardType: TextInputType.number,
-                              decoration: InputDecoration(
+                              decoration: const InputDecoration(
                                 hintText: 'Enter new min value',
                               ),
                             ),
@@ -541,7 +539,7 @@ class _NewObservationPageState extends State<NewObservationPage> {
           ),
           actions: <Widget>[
             ElevatedButton(
-              child: Text('Update'),
+              child: const Text('Update'),
               onPressed: () async {
                 // Parse and validate the new max and min values
                 int? newMax = int.tryParse(_maxHeightController.text);
@@ -561,20 +559,20 @@ class _NewObservationPageState extends State<NewObservationPage> {
                     });
                     if (mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Limits updated successfully')),
+                        const SnackBar(content: Text('Limits updated successfully')),
                       );
                     }
                   } else {
                     if (mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Failed to update limits')),
+                        const SnackBar(content: Text('Failed to update limits')),
                       );
                     }
                   }
                 } else {
                   if (mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Invalid input')),
+                      const SnackBar(content: Text('Invalid input')),
                     );
                   }
                 }
@@ -582,7 +580,7 @@ class _NewObservationPageState extends State<NewObservationPage> {
               },
             ),
             ElevatedButton(
-              child: Text('Close'),
+              child: const Text('Close'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -649,7 +647,7 @@ class _NewObservationPageState extends State<NewObservationPage> {
     if (!isClearingForm && units[selectedTraitKey] == 'yyyymmdd') {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             duration: Duration(seconds: 3),
             content: Row(
               children: [
@@ -698,33 +696,33 @@ class _NewObservationPageState extends State<NewObservationPage> {
 
         int ret = await obs.Submit(true);
         String? message;
-        bool success_flag = false;
+        bool successFlag = false;
 
         switch (ret) {
           case 1:
             print('Submission successful *****SET FLAG TO TRUE******');
             message = "Data successfully submitted";
             submissionSuccessful = true;
-            success_flag = true;
+            successFlag = true;
             break;
 
           case 0:
             print('Submission failed');
             message = "Failed to submit observation";
             submissionSuccessful = false;
-            success_flag = false;
+            successFlag = false;
             break;
 
           case -1:
             print('NOT ALLOWED');
             message = "Submission not allowed for this study";
             submissionSuccessful = false;
-            success_flag = false;
+            successFlag = false;
             break;
         }
 
         if (message != null) {
-          WidgetUtil.ShowSnackBar(context, message, success_flag);
+          WidgetUtil.ShowSnackBar(context, message, successFlag);
         }
       }
 
@@ -771,7 +769,7 @@ class _NewObservationPageState extends State<NewObservationPage> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () {
             // Reset the image state
             setState(() {
@@ -787,7 +785,7 @@ class _NewObservationPageState extends State<NewObservationPage> {
         //title: Text('Plot ${plotNumber ?? 'Loading...'}'),
       ),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           child: Form(
             key: _formKey,
@@ -798,16 +796,16 @@ class _NewObservationPageState extends State<NewObservationPage> {
                 if (isNumericalTrait(selectedTraitKey))
                   ElevatedButton(
                     onPressed: _showEditLimitsDialog,
-                    child: Text('Edit max and min'),
+                    child: const Text('Edit max and min'),
                   ),
-                SizedBox(height: 10), // Spacing after the button
+                const SizedBox(height: 10), // Spacing after the button
                 //////////////////////////
                 // FIRST  DROPDOWN MENU
                 //////////////////////////
                 SizedBox(width: double.infinity, child: _buildTraitDropdown()),
                 //////////////////////////
                 // END OF FIRST  DROPDOWN MENU
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 // OBSERVATION FIELD (with validations)
                 //////////////////////////
                 Row(
@@ -829,7 +827,7 @@ class _NewObservationPageState extends State<NewObservationPage> {
                           hintText: units[selectedTraitKey] == 'yyyymmdd'
                               ? 'Select a date'
                               : 'Enter value',
-                          border: OutlineInputBorder(),
+                          border: const OutlineInputBorder(),
                           labelStyle:
                           TextStyle(color: Theme.of(context).primaryColor),
                           hintStyle:
@@ -898,7 +896,7 @@ class _NewObservationPageState extends State<NewObservationPage> {
                         padding: const EdgeInsets.only(left: 8.0),
                         child: Text(
                           units[selectedTraitKey] ?? '', // Display the unit
-                          style: TextStyle(
+                          style: const TextStyle(
                               fontSize: 16), // Adjust styling as needed
                         ),
                       ),
@@ -907,7 +905,7 @@ class _NewObservationPageState extends State<NewObservationPage> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 10.0),
                         child: IconButton(
-                          icon: Icon(Icons.calendar_today),
+                          icon: const Icon(Icons.calendar_today),
                           onPressed: () => _selectDate(context),
                           iconSize: 30,
                         ),
@@ -916,9 +914,9 @@ class _NewObservationPageState extends State<NewObservationPage> {
                 ),
 
                 //////////// Date Picker  //////////////
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 ListTile(
-                  title: Text("Observation date (current date is default)"),
+                  title: const Text("Observation date (current date is default)"),
                   subtitle: Text(
                     selectedDate != null
                         ? '${selectedDate!.toLocal()}'.split(' ')[0]
@@ -931,7 +929,7 @@ class _NewObservationPageState extends State<NewObservationPage> {
                       firstDate: DateTime(2000), // Adjust the range as needed
 
                       // Make the last Date in 5 years time
-                      lastDate: DateTime.now().add(Duration(days: 365 * 5)),
+                      lastDate: DateTime.now().add(const Duration(days: 365 * 5)),
 
                       builder: (BuildContext context, Widget? child) {
                         return Theme(
@@ -952,10 +950,10 @@ class _NewObservationPageState extends State<NewObservationPage> {
                                 dayStyle: TextStyle(
                                   color: Theme.of(context).primaryColor,
                                 ),
-                                yearStyle: TextStyle(
+                                yearStyle: const TextStyle(
                                   //color: Colors.lightBlue,
                                 ),
-                                inputDecorationTheme: InputDecorationTheme(
+                                inputDecorationTheme: const InputDecorationTheme(
                                   //focusColor: Colors.green,
                                   //filled: true,
 
@@ -986,7 +984,7 @@ class _NewObservationPageState extends State<NewObservationPage> {
                   },
                 ),
                 //////////// Date Picker  //////////////
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 ///// Note field /////
                 SpeechToTextWidget(
                   controller: _notesEditingController,
@@ -1003,7 +1001,7 @@ class _NewObservationPageState extends State<NewObservationPage> {
                   // style: TextStyle(color: Theme.of(context).primaryColor),
                 ),
                 //////
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
 
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1013,14 +1011,14 @@ class _NewObservationPageState extends State<NewObservationPage> {
                       flex: 1, // Adjusted to occupy half of the width
                       child: ElevatedButton(
                         onPressed: _submitObservation,
-                        child: Text(
+                        child: const Text(
                           'Submit Observation',
                           textAlign: TextAlign.center,
                         ),
                       ),
                     ),
 
-                    SizedBox(
+                    const SizedBox(
                         width:
                         10), // Add some spacing between the submit button and the arrows
 
@@ -1051,7 +1049,7 @@ class _NewObservationPageState extends State<NewObservationPage> {
                                     40.0, // Increase the size of the arrow icon
                                     tooltip: 'Previous Plot',
                                   ),
-                                  Text(
+                                  const Text(
                                     'Previous Plot', // Explanatory text
                                     style: TextStyle(
                                         fontSize: 12), // Smaller font size
@@ -1075,7 +1073,7 @@ class _NewObservationPageState extends State<NewObservationPage> {
                                     40.0, // Increase the size of the arrow icon
                                     tooltip: 'Next Plot',
                                   ),
-                                  Text(
+                                  const Text(
                                     'Next Plot', // Explanatory text
                                     style: TextStyle(
                                         fontSize: 12), // Smaller font size
@@ -1091,7 +1089,7 @@ class _NewObservationPageState extends State<NewObservationPage> {
                 ),
 
                 ////////////////////////////////////////////////////////
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 // put take picture button and select from gallery button in the same row
 
                 ////////////////////////////////////////////////////////
@@ -1104,14 +1102,14 @@ class _NewObservationPageState extends State<NewObservationPage> {
                         onPressed: () {
                           _pickImage();
                         },
-                        child: Text('Take a picture'),
+                        child: const Text('Take a picture'),
                       ),
                     ),
-                    SizedBox(width: 10),
+                    const SizedBox(width: 10),
                     Expanded(
                       child: ElevatedButton(
                         onPressed: _pickImageFromGallery,
-                        child: Text(
+                        child: const Text(
                           'Select from gallery',
                           textAlign: TextAlign.center,
                         ),
@@ -1130,7 +1128,7 @@ class _NewObservationPageState extends State<NewObservationPage> {
                               8.0), // Add some space between the date and the photo
                           child: Text(
                             'Photo from ${DateFormat('d MMMM, yyyy').format(_photoDate!)}',
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
                             ),
@@ -1151,7 +1149,7 @@ class _NewObservationPageState extends State<NewObservationPage> {
                           },
                           child: Hero(
                             tag: 'imageHero', // Unique tag for the Hero widget
-                            child: Container(
+                            child: SizedBox(
                               height: 200,
                               width: double.infinity,
                               child: (!kDebugMode) ? (Image.network(_imageUrl!, fit: BoxFit.cover)) : const SizedBox(height: 200),
@@ -1171,7 +1169,7 @@ class _NewObservationPageState extends State<NewObservationPage> {
                           },
                           child: Hero(
                             tag: 'imageHero', // Unique tag for the Hero widget
-                            child: Container(
+                            child: SizedBox(
                               height: 200,
                               width: double.infinity,
                               child: Image.file(_image!, fit: BoxFit.cover),
@@ -1189,8 +1187,8 @@ class _NewObservationPageState extends State<NewObservationPage> {
                         ? null
                         : _handleUpload, // Disable button when uploading or after upload
                     child: _isUploading
-                        ? CircularProgressIndicator() // Show loading indicator
-                        : Text('Upload Image'),
+                        ? const CircularProgressIndicator() // Show loading indicator
+                        : const Text('Upload Image'),
                   ),
               ],
             ),

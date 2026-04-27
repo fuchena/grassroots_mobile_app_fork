@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:grassroots_field_trials/measured_variables.dart';
 
 class SearchPhenotypesPage extends StatelessWidget {
+  const SearchPhenotypesPage({super.key});
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Second Page'),
+        title: const Text('Second Page'),
       ),
       body: Center(
         child: ElevatedButton(
@@ -22,7 +24,7 @@ class SearchPhenotypesPage extends StatelessWidget {
 
             Navigator.pop (context, model);
           },
-          child: Text('Go Back'),
+          child: const Text('Go Back'),
         ),
       ),
     );

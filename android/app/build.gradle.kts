@@ -17,8 +17,8 @@ if (keystorePropertiesFile.exists()) {
 android {
     namespace = "uk.ac.earlham.grassroots.field_trials"
     compileSdk = flutter.compileSdkVersion
-    //ndkVersion = flutter.ndkVersion
-    ndkVersion = "27.0.12077973"
+    ndkVersion = flutter.ndkVersion
+    //ndkVersion = "27.0.12077973"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -39,6 +39,8 @@ android {
         versionCode = flutter.versionCode
         versionName = flutter.versionName
      //   manifestPlaceholders = [auth0Domain: "@string/com_auth0_domain", auth0Scheme: "demo"]
+        manifestPlaceholders["appAuthRedirectScheme"] = "com.grassroots.auth"
+
     }
 
     signingConfigs {

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-final Color _light_primary_color = Color(0xFF2c3e50);
+const Color _light_primary_color = Color(0xFF2c3e50);
 
-final Color _dark_primary_color = Colors.white;
+const Color _dark_primary_color = Colors.white;
 
 final ThemeData light_theme = ThemeData(
   brightness: Brightness.light,
   primaryColor: _light_primary_color,
-   textTheme: TextTheme(
+   textTheme: const TextTheme(
     displayLarge: TextStyle (color: _light_primary_color),
     displayMedium: TextStyle (color: _light_primary_color),
     displaySmall: TextStyle (color: _light_primary_color),
@@ -24,7 +24,7 @@ final ThemeData light_theme = ThemeData(
     labelMedium: TextStyle (color: _light_primary_color),
     labelSmall: TextStyle (color: _light_primary_color), 
   ), 
-  listTileTheme: ListTileThemeData(
+  listTileTheme: const ListTileThemeData(
     textColor: _light_primary_color,
     titleTextStyle: TextStyle (color: _light_primary_color),
     subtitleTextStyle: TextStyle (color: _light_primary_color),
@@ -42,9 +42,8 @@ final ThemeData light_theme = ThemeData(
     primary: _light_primary_color,
     surface: Colors.white, // Set the background color to white
   ),
-  scaffoldBackgroundColor: Colors.white, // Set the default background color for Scaffold widgets to white
-  indicatorColor: _light_primary_color,
-  appBarTheme: AppBarTheme(
+  scaffoldBackgroundColor: Colors.white,
+  appBarTheme: const AppBarTheme(
     backgroundColor: Color(0xFF2c3e50), // Set the AppBar color
     foregroundColor: _dark_primary_color, // Set the AppBar icon and text color
   ),
@@ -62,25 +61,25 @@ final ThemeData light_theme = ThemeData(
   inputDecorationTheme: InputDecorationTheme(
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(4.0),
-      borderSide: BorderSide(color: _light_primary_color),
+      borderSide: const BorderSide(color: _light_primary_color),
     ),
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(4.0),
-      borderSide: BorderSide(color: _light_primary_color),
+      borderSide: const BorderSide(color: _light_primary_color),
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(4.0),
-      borderSide: BorderSide(
+      borderSide: const BorderSide(
           color:
               _light_primary_color
       ), // Use primary color for focused border
     ),
-  ),
+  ), tabBarTheme: const TabBarThemeData(indicatorColor: _light_primary_color),
 );
 
 
 final ThemeData dark_theme = ThemeData(
-  textTheme: TextTheme(
+  textTheme: const TextTheme(
     displayLarge: TextStyle (color: _dark_primary_color),
     displayMedium: TextStyle (color: _dark_primary_color),
     displaySmall: TextStyle (color: _dark_primary_color),
@@ -97,7 +96,7 @@ final ThemeData dark_theme = ThemeData(
     labelMedium: TextStyle (color: _dark_primary_color),
     labelSmall: TextStyle (color: _dark_primary_color), 
   ),
-  listTileTheme: ListTileThemeData(
+  listTileTheme: const ListTileThemeData(
     textColor: _dark_primary_color,
     titleTextStyle: TextStyle (color: _dark_primary_color),
     subtitleTextStyle: TextStyle (color: _dark_primary_color),
@@ -105,7 +104,7 @@ final ThemeData dark_theme = ThemeData(
   ),  
   checkboxTheme: CheckboxThemeData(
     fillColor: WidgetStateProperty.all (_dark_primary_color),
-    checkColor: WidgetStateProperty.all (Color(0xFF2c3e50)),
+    checkColor: WidgetStateProperty.all (const Color(0xFF2c3e50)),
   ),
   primaryColor: _dark_primary_color,
   colorScheme: ColorScheme.fromSwatch(
@@ -114,18 +113,17 @@ final ThemeData dark_theme = ThemeData(
   ).copyWith(
     secondary: _dark_primary_color,
     primary: _dark_primary_color,
-    surface: Color(0xFF2c3e50), // Set the background color to white
+    surface: const Color(0xFF2c3e50), // Set the background color to white
     brightness: Brightness.dark,
   ),
-  scaffoldBackgroundColor: Colors.black, // Set the default background color for Scaffold widgets to white
-  indicatorColor: _dark_primary_color,
-  appBarTheme: AppBarTheme(
+  scaffoldBackgroundColor: Colors.black,
+  appBarTheme: const AppBarTheme(
     backgroundColor: Color(0xFF2c3e50), // Set the AppBar color
     foregroundColor: _dark_primary_color, // Set the AppBar icon and text color
   ),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
-      backgroundColor: Color(0xFF2c3e50), // Button background color
+      backgroundColor: const Color(0xFF2c3e50), // Button background color
       foregroundColor: _dark_primary_color, // Text and icon color
     ),
   ),
@@ -137,17 +135,17 @@ final ThemeData dark_theme = ThemeData(
   inputDecorationTheme: InputDecorationTheme(
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(4.0),
-      borderSide: BorderSide(color:_dark_primary_color),
+      borderSide: const BorderSide(color:_dark_primary_color),
     ),
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(4.0),
-      borderSide: BorderSide(color: _dark_primary_color),
+      borderSide: const BorderSide(color: _dark_primary_color),
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(4.0),
-      borderSide: BorderSide(
+      borderSide: const BorderSide(
           color: _dark_primary_color, // Use primary color for focused border
       ),
     ),
-  ),
+  ), tabBarTheme: const TabBarThemeData(indicatorColor: _dark_primary_color),
 );
