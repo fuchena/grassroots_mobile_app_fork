@@ -6,6 +6,7 @@ import 'package:grassroots_field_trials/caching.dart';
 import 'package:grassroots_field_trials/grassroots_request.dart';
 import 'package:grassroots_field_trials/measured_variables.dart';
 import 'package:grassroots_field_trials/search_phenotypes.dart';
+import 'package:grassroots_field_trials/utils_service.dart';
 import 'package:hive/hive.dart';
 
 import 'package:grassroots_field_trials/api_requests.dart';
@@ -18,7 +19,7 @@ import 'server.dart';
 class NewStudyPage extends StatefulWidget {
   String? study_name;
 
-  NewStudyPage({super.key, 
+  NewStudyPage({super.key,
     this.study_name,
   });
 
@@ -127,8 +128,8 @@ class _NewStudyPageState extends State<NewStudyPage> {
               return Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: SingleChildScrollView(
-                      //child: Form(
-                      //  key: _form_key,
+                      child: Form(
+                        key: _form_key,
                       child: Column(children: <Widget>[
                     TextFormField(
                       style: TextStyle(color: Theme.of(context).primaryColor),
@@ -143,7 +144,7 @@ class _NewStudyPageState extends State<NewStudyPage> {
                         });
                       },
 
-                      // validator: _ValidateStringField,
+                      validator: UtilsService.validateStringField,
                     ),
                     const SizedBox(height: 10),
                     TextFormField(
@@ -158,112 +159,159 @@ class _NewStudyPageState extends State<NewStudyPage> {
                         });
                       },
 
-                      // validator: _ValidateStringField,
+                      validator: UtilsService.validateStringField,
                     ),
 
                     const SizedBox(height: 10),
 
                     // Trials menu
-                    DropdownMenu<StringLabel>(
-                      expandedInsets: EdgeInsets.zero, // full width
-                      requestFocusOnTap: true,
-                      dropdownMenuEntries: GetTrialsAsList(),
-                      controller: _trials_controller,
-                      enableFilter: true,
-                      label: const Text(
-                          "Choose the Field Trial that this study is a part of..."),
-                      helperText: "Select a Trial",
-                      trailingIcon: Icon(
-                        Icons.arrow_drop_down,
-                        color: Theme.of(context).primaryColor,
-                      ),
-                      textStyle:
-                          TextStyle(color: Theme.of(context).primaryColor),
-                      inputDecorationTheme: InputDecorationTheme(
-                        labelStyle:
-                            TextStyle(color: Theme.of(context).primaryColor),
-                        helperStyle:
-                            TextStyle(color: Theme.of(context).primaryColor),
-                      ),
+                    FormField<String>(
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      validator: (_) => UtilsService.validateDropdownField(_selected_trial_id),
+                      builder: (FormFieldState<String> field) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            DropdownMenu<StringLabel>(
+                              expandedInsets: EdgeInsets.zero, // full width
+                              requestFocusOnTap: true,
+                              dropdownMenuEntries: GetTrialsAsList(),
+                              controller: _trials_controller,
+                              enableFilter: true,
+                              label: const Text(
+                                  "Choose the Field Trial that this study is a part of..."),
+                              helperText: "Select a Trial",
+                              trailingIcon: Icon(
+                                Icons.arrow_drop_down,
+                                color: Theme.of(context).primaryColor,
+                              ),
+                              textStyle:
+                                  TextStyle(color: Theme.of(context).primaryColor),
+                              inputDecorationTheme: InputDecorationTheme(
+                                labelStyle:
+                                    TextStyle(color: Theme.of(context).primaryColor),
+                                helperStyle:
+                                    TextStyle(color: Theme.of(context).primaryColor),
+                              ),
 
-                      /*
-                        inputDecorationTheme: InputDecorationTheme(
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                          constraints: BoxConstraints.tight(const
-                          Size.fromHeight(40)),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        */
+                              /*
+                                inputDecorationTheme: InputDecorationTheme(
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                                  constraints: BoxConstraints.tight(const
+                                  Size.fromHeight(40)),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                */
 
-                      menuHeight: 500,
-                      menuStyle: MenuStyle(
-                        backgroundColor: WidgetStateProperty.all(
-                            Theme.of(context).canvasColor),
-                      ),
+                              menuHeight: 500,
+                              menuStyle: MenuStyle(
+                                backgroundColor: WidgetStateProperty.all(
+                                    Theme.of(context).canvasColor),
+                              ),
 
-                      onSelected: (StringLabel? trial) {
-                        setState(() {
-                          if (trial != null) {
-                            _selected_trial_id = trial.id;
-                          } else {
-                            _selected_trial_id = null;
-                          }
-                        });
+                              onSelected: (StringLabel? trial) {
+                                setState(() {
+                                  if (trial != null) {
+                                    _selected_trial_id = trial.id;
+                                  } else {
+                                    _selected_trial_id = null;
+                                  }
+                                });
+                                field.didChange(_selected_trial_id);
+                              },
+                            ),
+                            if (field.hasError)
+                              Padding(
+                                padding: const EdgeInsets.only(left: 12.0, top: 6.0),
+                                child: Text(
+                                  field.errorText!,
+                                  style: TextStyle(
+                                    color: Theme.of(context).colorScheme.error,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        );
                       },
                     ),
 
                     const SizedBox(height: 10),
 
                     // Locations menu
-                    DropdownMenu(
-                      expandedInsets: EdgeInsets.zero, // full width
-                      requestFocusOnTap: true,
-                      dropdownMenuEntries: GetLocationsAsList(),
-                      controller: _locations_controller,
-                      enableFilter: true,
-                      label:
-                          const Text("Choose the Location for this study..."),
-                      helperText: "Select a Location",
-                      trailingIcon: Icon(
-                        Icons.arrow_drop_down,
-                        color: Theme.of(context).primaryColor,
-                      ),
-                      textStyle:
-                          TextStyle(color: Theme.of(context).primaryColor),
-                      inputDecorationTheme: InputDecorationTheme(
-                        labelStyle:
-                            TextStyle(color: Theme.of(context).primaryColor),
-                        helperStyle:
-                            TextStyle(color: Theme.of(context).primaryColor),
-                      ),
+                    FormField<String>(
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      validator: (_) =>
+                          UtilsService.validateDropdownField(_selected_location_id),
+                      builder: (FormFieldState<String> field) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            DropdownMenu<StringLabel>(
+                              expandedInsets: EdgeInsets.zero, // full width
+                              requestFocusOnTap: true,
+                              dropdownMenuEntries: GetLocationsAsList(),
+                              controller: _locations_controller,
+                              enableFilter: true,
+                              label:
+                                  const Text("Choose the Location for this study..."),
+                              helperText: "Select a Location",
+                              trailingIcon: Icon(
+                                Icons.arrow_drop_down,
+                                color: Theme.of(context).primaryColor,
+                              ),
+                              textStyle:
+                                  TextStyle(color: Theme.of(context).primaryColor),
+                              inputDecorationTheme: InputDecorationTheme(
+                                labelStyle:
+                                    TextStyle(color: Theme.of(context).primaryColor),
+                                helperStyle:
+                                    TextStyle(color: Theme.of(context).primaryColor),
+                              ),
 
-                      /*
-                        inputDecorationTheme: InputDecorationTheme(
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                          constraints: BoxConstraints.tight(const
-                          Size.fromHeight(40)),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        */
+                              /*
+                                inputDecorationTheme: InputDecorationTheme(
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                                  constraints: BoxConstraints.tight(const
+                                  Size.fromHeight(40)),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                */
 
-                      menuHeight: 500,
-                      menuStyle: MenuStyle(
-                        backgroundColor: WidgetStateProperty.all(
-                            Theme.of(context).canvasColor),
-                      ),
+                              menuHeight: 500,
+                              menuStyle: MenuStyle(
+                                backgroundColor: WidgetStateProperty.all(
+                                    Theme.of(context).canvasColor),
+                              ),
 
-                      onSelected: (StringLabel? location) {
-                        setState(() {
-                          if (location != null) {
-                            _selected_location_id = location.id;
-                          } else {
-                            _selected_location_id = null;
-                          }
-                        });
+                              onSelected: (StringLabel? location) {
+                                setState(() {
+                                  if (location != null) {
+                                    _selected_location_id = location.id;
+                                  } else {
+                                    _selected_location_id = null;
+                                  }
+                                });
+                                field.didChange(_selected_location_id);
+                              },
+                            ),
+                            if (field.hasError)
+                              Padding(
+                                padding: const EdgeInsets.only(left: 12.0, top: 6.0),
+                                child: Text(
+                                  field.errorText!,
+                                  style: TextStyle(
+                                    color: Theme.of(context).colorScheme.error,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        );
                       },
                     ),
 
@@ -274,6 +322,7 @@ class _NewStudyPageState extends State<NewStudyPage> {
                       style: TextStyle(color: Theme.of(context).primaryColor),
                       decoration: const InputDecoration(
                           labelText: "Number of rows of plots"),
+                      initialValue: _num_rows.toString(),
                       keyboardType: TextInputType.number,
                       inputFormatters: <TextInputFormatter>[
                         FilteringTextInputFormatter.digitsOnly
@@ -291,7 +340,7 @@ class _NewStudyPageState extends State<NewStudyPage> {
                           }
                         }
                       },
-                      // validator: _ValidateNumberField,
+                      validator: UtilsService.validateNumberField,
                     ),
 
                     const SizedBox(height: 10),
@@ -301,6 +350,7 @@ class _NewStudyPageState extends State<NewStudyPage> {
                       style: TextStyle(color: Theme.of(context).primaryColor),
                       decoration: const InputDecoration(
                           labelText: "Number of columns of plots"),
+                      initialValue: _num_columns.toString(),
                       keyboardType: TextInputType.number,
                       inputFormatters: <TextInputFormatter>[
                         FilteringTextInputFormatter.digitsOnly
@@ -318,6 +368,7 @@ class _NewStudyPageState extends State<NewStudyPage> {
                           }
                         }
                       },
+                      validator: UtilsService.validateNumberField,
                     ),
 
                     const SizedBox(height: 10),
@@ -378,121 +429,93 @@ class _NewStudyPageState extends State<NewStudyPage> {
                         onPressed: () async {
                           // Validate will return true if the form is valid, or false if
                           // the form is invalid.
-                          //  if (_form_key.currentState!.validate ()) {
-                          // Process data.
-                          String userName = "user name";
-                          //String? user_email = await GlobusAuthService.getEmail();
-                          String? userEmail;
-                          List<MeasuredVariable> phenotypes =
-                              phenotypesWidget.getSelectedVariables();
-                          final String? name = _name;
-                          final String? trialId = _selected_trial_id;
-                          final String? locationId = _selected_location_id;
+                          if (_form_key.currentState!.validate()) {
+                            // Process data.
+                            String userName = "user name";
+                            //String? user_email = await GlobusAuthService.getEmail();
+                            String? userEmail;
+                            List<MeasuredVariable> phenotypes =
+                                phenotypesWidget.getSelectedVariables();
+                            final String? name = _name;
+                            final String? trialId = _selected_trial_id;
+                            final String? locationId = _selected_location_id;
 
-                          if (GrassrootsConfig.log_level >= LOG_INFO) {
-                            print("name $name");
-                            print("trial_id $trialId");
-                            print("location_id $locationId");
-                            print("phenotypes ${phenotypes.length}");
-                            print("rows $_num_rows");
-                            print("columns $_num_columns");
-                          }
+                            if (GrassrootsConfig.log_level >= LOG_INFO) {
+                              print("name $name");
+                              print("trial_id $trialId");
+                              print("location_id $locationId");
+                              print("phenotypes ${phenotypes.length}");
+                              print("rows $_num_rows");
+                              print("columns $_num_columns");
+                            }
 
-                          if (name != null) {
-                            if (trialId != null) {
-                              if (locationId != null) {
-                                print("submitting");
-                                bool successFlag = await submitStudy(
-                                    name,
-                                    _description ?? '',
-                                    trialId,
-                                    locationId,
-                                    userEmail,
-                                    userName,
-                                    _num_rows,
-                                    _num_columns,
-                                    phenotypes);
-                                Icon icon;
-                                String message;
+                            if (name != null) {
+                              if (trialId != null) {
+                                if (locationId != null) {
+                                  print("submitting");
+                                  bool successFlag = await submitStudy(
+                                      name,
+                                      _description ?? '',
+                                      trialId,
+                                      locationId,
+                                      userEmail,
+                                      userName,
+                                      _num_rows,
+                                      _num_columns,
+                                      phenotypes);
+                                  Icon icon;
+                                  String message;
 
-                                if (successFlag) {
-                                  icon = const Icon(Icons.check_circle_outline,
-                                      color: Colors.green);
-                                  message =
-                                      "Study $name created successfully";
-                                } else {
-                                  icon = const Icon(Icons.error_outline,
-                                      color: Colors.red);
-                                  message = "Failed to create Study $name";
-                                }
+                                  if (successFlag) {
+                                    icon = const Icon(Icons.check_circle_outline,
+                                        color: Colors.green);
+                                    message =
+                                        "Study $name created successfully";
+                                  } else {
+                                    icon = const Icon(Icons.error_outline,
+                                        color: Colors.red);
+                                    message = "Failed to create Study $name";
+                                  }
 
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Row(
-                                      children: [
-                                        icon,
-                                        const SizedBox(width: 10),
-                                        Expanded(
-                                          child: Text(
-                                            message,
-                                            style: const TextStyle(fontSize: 16.0),
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Row(
+                                        children: [
+                                          icon,
+                                          const SizedBox(width: 10),
+                                          Expanded(
+                                            child: Text(
+                                              message,
+                                              style:
+                                                  const TextStyle(fontSize: 16.0),
+                                            ),
                                           ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                );
+                                  );
+                                } else {
+                                  print("no location id");
+                                }
                               } else {
-                                print("no location id");
+                                print("no trial id");
                               }
                             } else {
-                              print("no trial id");
+                              print("no study name");
                             }
                           } else {
-                            print("no study name");
+                            print("failed to validate");
                           }
-                          //  } else {
-                          //    print ("failed to validate");
-                          //  }
                         },
                         child: const Text('Submit'),
                       ),
                     ),
                   ]
                           // )
-                          )));
+                          ))));
             }));
   }
 
-  String? _ValidateStringField(String? value) {
-    String? res;
-
-    print("Value \"$value\"");
-
-    if ((value == null) || (value.trim().isEmpty)) {
-      res = "This is required";
-    }
-
-    return res;
-  }
-
-  String? _ValidateNumberField(String? value) {
-    if (value != null) {
-      int? c = int.tryParse(value);
-
-      if (c != null) {
-        if (c > 0) {
-          return null;
-        } else {
-          return "Value must be a number greater than 0";
-        }
-      } else {
-        return "Value must be a number";
-      }
-    } else {
-      return "This is required";
-    }
-  }
 
   void fetchTrials() async {
     setState(() {

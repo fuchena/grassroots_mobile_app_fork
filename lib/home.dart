@@ -161,6 +161,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     bool isServerHealthy = _model.isOnline;
+    String? webPortalUrl = '${GrassrootsConfig.GetHost()}fieldtrial/';
 
     return Scaffold(
       //backgroundColor: Colors.grey[50],
@@ -188,11 +189,11 @@ class _HomePageState extends State<HomePage> {
             tooltip: 'Refresh Server Status',
             onPressed: checkHealthStatus,
           ),
-          IconButton(
+/*          IconButton(
             icon: const Icon(Icons.logout),
             tooltip: 'Logout',
             onPressed: () => routeToLoginLogout(),
-          ),
+          ),*/
         ],
       ),
       body: RefreshIndicator(
@@ -212,9 +213,10 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       const SizedBox(height: 20),
 
-                      Text(
-                        "Welcome to the Grassroots App, $userFirstName",
-                        style: const TextStyle(
+                      const Text(
+                        //"Welcome to the Grassroots App, $userFirstName",
+                        "Welcome to the Grassroots App",
+                        style: TextStyle(
                             fontSize: 22, fontWeight: FontWeight.bold),
                         textAlign: TextAlign.center,
                       ),
@@ -263,7 +265,7 @@ class _HomePageState extends State<HomePage> {
                             _buildButton(
                               label: 'Access Web Portal',
                               icon: Icons.open_in_browser,
-                              onPressed: () async => launchUrl(Uri.parse("https://grassroots.tools/fieldtrial/")),
+                              onPressed: () async => launchUrl(Uri.parse(webPortalUrl)),
                             ),
                           ],
                         ),

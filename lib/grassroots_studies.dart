@@ -527,7 +527,7 @@ class GrassrootsPageState extends State<GrassrootsStudies> {
 
       if (id != null) {
         StringLabel sl = StringLabel(study['name'] ?? 'Unknown Study', id);
-        Icon icon = GrassrootsConfig.IsStudyEditable(id)
+        Icon icon = (GrassrootsConfig.IsStudyEditable(id))
             ? Icon(
           Icons.edit,
           color: Theme.of(context).primaryColor,

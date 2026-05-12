@@ -2,6 +2,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:grassroots_field_trials/speech_text_box.dart';
+import 'package:grassroots_field_trials/utils_service.dart';
 import 'package:grassroots_field_trials/widget_util.dart';
 import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
@@ -592,40 +593,66 @@ class _NewObservationPageState extends State<NewObservationPage> {
   }
 
   Widget _buildTraitDropdown() {
-    return DropdownMenu<String>(
-      initialSelection:
-      selectedTraitKey, // This value is now maintained between plots
-      helperText: "Select a trait...",
-      textStyle: TextStyle(color: Theme.of(context).primaryColor),
-      label: const Text("Select a trait..."),
+    return FormField<String>(
+      initialValue: selectedTraitKey,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      validator: (_) => UtilsService.validateDropdownField(selectedTraitKey),
+      builder: (FormFieldState<String> field) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            DropdownMenu<String>(
+              initialSelection:
+              selectedTraitKey, // This value is now maintained between plots
+              expandedInsets: EdgeInsets.zero,
+              helperText: "Select a trait...",
+              textStyle: TextStyle(color: Theme.of(context).primaryColor),
+              label: const Text("Select a trait..."),
 
-      onSelected: _onTraitChanged,
-      trailingIcon: Icon(
-        Icons.arrow_drop_down,
-        color: Theme.of(context).primaryColor,
-      ),
-      inputDecorationTheme: InputDecorationTheme(
-        labelStyle: TextStyle(color: Theme.of(context).primaryColor),
-        helperStyle: TextStyle(color: Theme.of(context).primaryColor),
-      ),
+              onSelected: (String? value) {
+                _onTraitChanged(value);
+                field.didChange(value);
+              },
+              trailingIcon: Icon(
+                Icons.arrow_drop_down,
+                color: Theme.of(context).primaryColor,
+              ),
+              inputDecorationTheme: InputDecorationTheme(
+                labelStyle: TextStyle(color: Theme.of(context).primaryColor),
+                helperStyle: TextStyle(color: Theme.of(context).primaryColor),
+              ),
 
-      dropdownMenuEntries: traits.keys.map((entry) {
-        return DropdownMenuEntry<String>(
-          value: entry, // The variable name as the value
-          label:
-          traits[entry] ?? 'Unknown', // The trait name as the display text
-          style: MenuItemButton.styleFrom(
-              foregroundColor: Theme.of(context).primaryColor),
+              dropdownMenuEntries: traits.keys.map((entry) {
+                return DropdownMenuEntry<String>(
+                  value: entry, // The variable name as the value
+                  label:
+                  traits[entry] ?? 'Unknown', // The trait name as the display text
+                  style: MenuItemButton.styleFrom(
+                      foregroundColor: Theme.of(context).primaryColor),
+                );
+              }).toList(),
+
+              enableFilter: true,
+
+              menuHeight: 500,
+              menuStyle: MenuStyle(
+                backgroundColor: WidgetStateProperty.all(Theme.of(context).canvasColor),
+              ),
+            ),
+            if (field.hasError)
+              Padding(
+                padding: const EdgeInsets.only(left: 12.0, top: 6.0),
+                child: Text(
+                  field.errorText!,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.error,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+          ],
         );
-      }).toList(),
-
-      enableFilter: true,
-
-      menuHeight: 500,
-      menuStyle: MenuStyle(
-        backgroundColor: WidgetStateProperty.all(Theme.of(context).canvasColor),
-      ),
-      //validator: (value) => value == null ? 'Please select a trait' : null,
+      },
     );
   }
 
@@ -837,22 +864,25 @@ class _NewObservationPageState extends State<NewObservationPage> {
                         style: TextStyle(color: Theme.of(context).primaryColor),
 
                         validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter a value';
+                          final requiredError =
+                              UtilsService.validateStringField(value);
+                          if (requiredError != null) {
+                            return requiredError;
                           }
+                          final text = value!.trim();
 
                           // Handling 'yyyymmdd' as a special case
                           if (units[selectedTraitKey] == 'yyyymmdd') {
                             try {
                               DateFormat('yyyy-MM-dd').parse(
-                                  value); // Check if value is in 'yyyy-MM-dd' format
+                                  text); // Check if value is in 'yyyy-MM-dd' format
                             } catch (e) {
                               return 'Please enter a date in the format YYYY-MM-DD';
                             }
                             return null; // No validation error for date
                           }
                           // For other units, validate as number
-                          final num? numberValue = num.tryParse(value);
+                          final num? numberValue = num.tryParse(text);
                           if (numberValue == null) {
                             return 'Please enter a valid number';
                           }
@@ -876,9 +906,10 @@ class _NewObservationPageState extends State<NewObservationPage> {
                             }
                           }
                           if (units[selectedTraitKey] == 'day') {
-                            final int? intValue = int.tryParse(value);
-                            if (intValue == null || intValue <= 0) {
-                              return 'Please enter a positive integer';
+                            final numberError =
+                                UtilsService.validateNumberField(text);
+                            if (numberError != null) {
+                              return numberError;
                             }
                           }
                           // Additional validation based on selected trait...

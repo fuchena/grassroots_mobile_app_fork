@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:grassroots_field_trials/home.dart';
 import 'package:grassroots_field_trials/login_page.dart';
-import 'globus_auth_service.dart';
+import 'package:grassroots_field_trials/utils_service.dart';
 
 class StartDecider extends StatefulWidget {
   const StartDecider({super.key});
@@ -20,7 +20,7 @@ class _StartDeciderState extends State<StartDecider> {
   }
 
   Future<void> _checkLogin() async {
-    bool credentialExist = await GlobusAuthService.isCredentialExist();
+    bool credentialExist = await UtilsService.isCredentialExist();
     //print('Credential exist: $credentialExist');
     setState(() {
       _credentialExist = credentialExist;
@@ -43,7 +43,7 @@ class _StartDeciderState extends State<StartDecider> {
       );
     }
 
-    return _credentialExist ? const HomePage() : const LoginScreen();   //uncomment later
-    //return HomePage();
+    //return _credentialExist ? const HomePage() : const LoginScreen();   //uncomment later
+    return const HomePage();
   }
 }
