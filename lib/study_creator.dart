@@ -101,7 +101,12 @@ class _NewStudyPageState extends State<NewStudyPage> {
   @override
   Widget build(BuildContext context) {
     MeasuredVariablesListWidget phenotypesWidget =
-        MeasuredVariablesListWidget("Selected Phenotypes List", _model);
+        MeasuredVariablesListWidget(
+      "Selected Phenotypes List",
+      _model,
+      const NeverScrollableScrollPhysics(),
+      EdgeInsets.zero,
+    );
 
     return Scaffold(
         appBar: AppBar(

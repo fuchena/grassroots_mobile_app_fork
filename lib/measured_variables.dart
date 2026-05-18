@@ -136,10 +136,15 @@ class MeasuredVariablesModel with ChangeNotifier {
 class MeasuredVariablesListWidget extends StatefulWidget {
   final MeasuredVariablesModel model;
   final String name;
+  final ScrollPhysics? physics;
+  final EdgeInsetsGeometry? padding;
 
-  MeasuredVariablesListWidget(this.name,
-      [MeasuredVariablesModel?
-      model]) //[] means the parameter is optional positional.
+  MeasuredVariablesListWidget(
+    this.name, [
+    MeasuredVariablesModel? model,
+    this.physics,
+    this.padding,
+  ]) //[] means the parameter is optional positional.
       : model = model ?? MeasuredVariablesModel(name);
 
   @override
@@ -167,6 +172,8 @@ class _MeasuredVariablesListWidgetState
 
     return ListView.builder(
       shrinkWrap: true,
+      physics: widget.physics,
+      padding: widget.padding,
       itemCount: values.length,
       itemBuilder: (context, index) {
         final mv = values[index];
