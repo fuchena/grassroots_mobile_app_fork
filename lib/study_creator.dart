@@ -113,7 +113,7 @@ class _NewStudyPageState extends State<NewStudyPage> {
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () {
-              // Reset the image state
+              // Reset the image state  //??
               setState(() {});
 
               // Pop the current route

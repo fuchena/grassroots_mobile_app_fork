@@ -47,7 +47,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void dispose() {
-    _model.removeListener(_handleModelUpdate);
+    _model.dispose(); // _model.removeListener(_handleModelUpdate);
     super.dispose();
   }
 
@@ -192,7 +192,7 @@ class _HomePageState extends State<HomePage> {
 /*          IconButton(
             icon: const Icon(Icons.logout),
             tooltip: 'Logout',
-            onPressed: () => routeToLoginLogout(),
+            onPressed: () => _logoutOnHomePage(),
           ),*/
         ],
       ),
@@ -317,7 +317,7 @@ class _HomePageState extends State<HomePage> {
     await Hive.deleteBoxFromDisk(name);
   }
 
-  void routeToLoginLogout() async {
+  void _logoutOnHomePage() async {
     await _secureStorage.deleteAll();
     await cookieManager.deleteAllCookies();
     if (mounted) {

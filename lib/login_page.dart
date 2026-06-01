@@ -231,8 +231,10 @@ class _GlobusWebViewLoginState extends State<GlobusWebViewLogin> {
     );
   }
 
-  Future<void> _logoutAndReload() async {
+  Future<void> _logoutAndReload() async {  //why not pass in the viewController?
     try {
+
+      //destroys the setcookie
       await webViewController?.loadUrl(
         urlRequest: URLRequest(
           url: WebUri(
@@ -247,6 +249,7 @@ class _GlobusWebViewLoginState extends State<GlobusWebViewLogin> {
         await webViewController?.clearHistory();
       }
 
+      //opens the Globus login page
       await webViewController?.loadUrl(
         urlRequest: URLRequest(
           url: WebUri(UtilsService.GRASSROOTS_PAGE_URL),
