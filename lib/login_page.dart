@@ -22,7 +22,8 @@ class _LoginScreenState extends State<LoginScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => GlobusWebViewLogin(key: UniqueKey()),  //do we need a key here?
+        builder: (_) =>
+            GlobusWebViewLogin(key: UniqueKey()), //do we need a key here?
       ),
     );
   }
@@ -61,7 +62,7 @@ class _LoginScreenState extends State<LoginScreen> {
 }
 
 class GlobusWebViewLogin extends StatefulWidget {
-  final String url = UtilsService.GRASSROOTS_PAGE_URL;
+  final String url = UtilsService.GRASSROOTS_REDIRECT_URL;
 
   const GlobusWebViewLogin({super.key});
 
@@ -80,8 +81,6 @@ class _GlobusWebViewLoginState extends State<GlobusWebViewLogin> {
   final _secureStorage = const FlutterSecureStorage();
 
   bool _disposed = false;
-  bool _didNavigate = false;
-  bool _logoutTriggered = false;
 
   void safeSetState(VoidCallback fn) {
     if (_disposed || !mounted) return;
@@ -95,8 +94,8 @@ class _GlobusWebViewLoginState extends State<GlobusWebViewLogin> {
   }
 
   Future<void> _navigateHome() async {
-    if (_didNavigate || _disposed || !mounted) return;
-    _didNavigate = true;
+
+    if (_disposed || !mounted) return;
 
     Navigator.pushAndRemoveUntil(
       context,
@@ -108,6 +107,7 @@ class _GlobusWebViewLoginState extends State<GlobusWebViewLogin> {
   Future<void> _handleLogin(String cookie) async {
     try {
       final userInfo = await fetchUserInfo(cookie);
+      //print('Cookies: $cookie');
       final user = userInfo["user"];
 
       final email = user["so:email"];
@@ -120,6 +120,9 @@ class _GlobusWebViewLoginState extends State<GlobusWebViewLogin> {
       await _navigateHome();
     } catch (e) {
       print("Login error: $e");
+      //ScaffoldMessenger.of(context).showSnackBar(
+      //const SnackBar(content: Text('Login Failed: $e')),
+      //);
     }
   }
 
@@ -140,7 +143,7 @@ class _GlobusWebViewLoginState extends State<GlobusWebViewLogin> {
               children: [
                 InAppWebView(
                   initialUrlRequest: URLRequest(
-                    url: WebUri(UtilsService.GRASSROOTS_PAGE_URL),
+                    url: WebUri(UtilsService.GRASSROOTS_REDIRECT_URL),
                   ),
                   initialSettings: InAppWebViewSettings(
                     transparentBackground: true,
@@ -151,9 +154,7 @@ class _GlobusWebViewLoginState extends State<GlobusWebViewLogin> {
                   onWebViewCreated: (controller) async {
                     webViewController = controller;
 
-                    if (_logoutTriggered) return;
                     if (_disposed || url == null) return;
-                    _logoutTriggered = true; //check _logoutTriggered, _disposed and _didNavigate??
 
                     await _logoutAndReload();
                   },
@@ -168,14 +169,15 @@ class _GlobusWebViewLoginState extends State<GlobusWebViewLogin> {
                   },
 
                   onLoadStop: (controller, url) async {
-                    if (_disposed || url == null || _didNavigate) return;
+                    //_didNavigate
+                    if (_disposed || url == null) return;
 
                     safeSetState(() {
                       this.url = url.toString();
                     });
 
                     if (!this.url.startsWith(
-                        UtilsService.GRASSROOTS_PAGE_URL)) {
+                        UtilsService.GRASSROOTS_REDIRECT_URL)) {
                       return;
                     }
 
@@ -211,7 +213,9 @@ class _GlobusWebViewLoginState extends State<GlobusWebViewLogin> {
                   shouldOverrideUrlLoading: (controller, action) async {
                     final url = action.request.url;
 
-                    if (url != null && !["http", "https", "file", "data", "javascript"].contains(url.scheme)) {
+                    if (url != null &&
+                        !["http", "https", "file", "data", "javascript"]
+                            .contains(url.scheme)) {
                       if (await canLaunchUrl(url)) {
                         launchUrl(url);
                         return NavigationActionPolicy.CANCEL;
@@ -231,19 +235,20 @@ class _GlobusWebViewLoginState extends State<GlobusWebViewLogin> {
     );
   }
 
-  Future<void> _logoutAndReload() async {  //why not pass in the viewController?
+  Future<void> _logoutAndReload() async {
+    //why not pass in the viewController?
     try {
-
       //destroys the setcookie
-      await webViewController?.loadUrl(
-        urlRequest: URLRequest(
+      /** await webViewController?.loadUrl(
+          urlRequest: URLRequest(
           url: WebUri(
-            '${UtilsService.GRASSROOTS_REDIRECT_URL}?logout=${UtilsService.GRASSROOTS_PAGE_URL}',
+          '${UtilsService.GRASSROOTS_PRIVATE_URL}?logout=${UtilsService.GRASSROOTS_REDIRECT_URL}',
           ),
-        ),
-      );
+          ),
+          ); **/
 
-      //await webViewController?.clearCache();
+
+      await webViewController?.clearCache();
 
       if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
         await webViewController?.clearHistory();
@@ -252,7 +257,7 @@ class _GlobusWebViewLoginState extends State<GlobusWebViewLogin> {
       //opens the Globus login page
       await webViewController?.loadUrl(
         urlRequest: URLRequest(
-          url: WebUri(UtilsService.GRASSROOTS_PAGE_URL),
+          url: WebUri(UtilsService.GRASSROOTS_REDIRECT_URL),
         ),
       );
     } catch (e) {
@@ -265,7 +270,8 @@ class _GlobusWebViewLoginState extends State<GlobusWebViewLogin> {
   }
 
   static bool isLocal(Uri url) {
-    return ["file", "chrome", "data", "javascript", "about"].contains(url.scheme);
+    return ["file", "chrome", "data", "javascript", "about"].contains(
+        url.scheme);
   }
 
   Future<dynamic> fetchUserInfo(String? cookie) async {
@@ -292,7 +298,7 @@ class _GlobusWebViewLoginState extends State<GlobusWebViewLogin> {
     final cookieManager = CookieManager.instance();
 
     final cookie = await cookieManager.getCookie(
-      url: WebUri(UtilsService.GRASSROOTS_PAGE_URL),
+      url: WebUri(UtilsService.GRASSROOTS_REDIRECT_URL),
       name: "mod_auth_openidc_session",
     );
 

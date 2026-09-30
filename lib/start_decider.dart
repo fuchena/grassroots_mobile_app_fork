@@ -43,7 +43,7 @@ class _StartDeciderState extends State<StartDecider> {
       );
     }
 
-    //return _credentialExist ? const HomePage() : const LoginScreen();   //uncomment later
-    return const HomePage();
+    return _credentialExist ? const HomePage() : const LoginScreen();
+    //return const HomePage();
   }
 }

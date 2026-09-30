@@ -72,7 +72,7 @@ class _NewStudyPageState extends State<NewStudyPage> {
   }
 
   Future<MeasuredVariablesModel?> _navigateAndDisplaySelection(
-      BuildContext context) async {
+      BuildContext context) async {  // method not in use
     // Navigator.push returns a Future that completes after calling
     // Navigator.pop on the Selection Screen.
     final MeasuredVariablesModel? result = await Navigator.push(
@@ -436,9 +436,9 @@ class _NewStudyPageState extends State<NewStudyPage> {
                           // the form is invalid.
                           if (_form_key.currentState!.validate()) {
                             // Process data.
-                            String userName = "user name";
-                            //String? user_email = await GlobusAuthService.getEmail();
-                            String? userEmail;
+                            String userName = "";
+                            String? userEmail = await UtilsService.getEmail();
+                            //String? userEmail;
                             List<MeasuredVariable> phenotypes =
                                 phenotypesWidget.getSelectedVariables();
                             final String? name = _name;

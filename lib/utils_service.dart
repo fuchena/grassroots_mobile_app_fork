@@ -3,10 +3,10 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 /// Utility Service class
 class UtilsService {
-  static const GRASSROOTS_PAGE_URL = "https://grassroots.tools/private/redirect.html";
-  static const String GRASSROOTS_REDIRECT_URL = "https://grassroots.tools/private/redirect_uri";
+  static const GRASSROOTS_REDIRECT_URL = "https://grassroots.tools/private/redirect.html";
   static const String USER_INFO_URL = "https://grassroots.tools/dev/grassroots/private/backend/operation/get_all_services";
-  static const bool DEBUG = true;
+  static const String GRASSROOTS_PRIVATE_URL = "https://grassroots.tools/private/redirect_uri";
+  //static const bool DEBUG = true;
 
   static const _secureStorage = FlutterSecureStorage();
 

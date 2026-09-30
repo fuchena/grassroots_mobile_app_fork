@@ -189,11 +189,11 @@ class _HomePageState extends State<HomePage> {
             tooltip: 'Refresh Server Status',
             onPressed: checkHealthStatus,
           ),
-/*          IconButton(
+          IconButton(
             icon: const Icon(Icons.logout),
             tooltip: 'Logout',
             onPressed: () => _logoutOnHomePage(),
-          ),*/
+          ),
         ],
       ),
       body: RefreshIndicator(
