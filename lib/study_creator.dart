@@ -436,9 +436,9 @@ class _NewStudyPageState extends State<NewStudyPage> {
                           // the form is invalid.
                           if (_form_key.currentState!.validate()) {
                             // Process data.
-                            String userName = "";
+                            String? userName = await UtilsService.getUserName();
                             String? userEmail = await UtilsService.getEmail();
-                            //String? userEmail;
+
                             List<MeasuredVariable> phenotypes =
                                 phenotypesWidget.getSelectedVariables();
                             final String? name = _name;
@@ -656,7 +656,7 @@ class _NewStudyPageState extends State<NewStudyPage> {
       final String trialId,
       final String locationId,
       final String? userEmail,
-      final String userName,
+      final String? userName,
       final int numRows,
       final int numCols,
       final List<MeasuredVariable> phenotypes) async {

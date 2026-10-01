@@ -16,6 +16,11 @@ class UtilsService {
     return email?? email;
   }
 
+  static Future<String?> getUserName() async {
+    final userName = await _secureStorage.read(key: 'USER_NAME');
+    return userName?? userName;
+  }
+
   static String capitalize(String s) => s.isNotEmpty ? '${s[0].toUpperCase()}${s.substring(1)}' : s;
 
   static Future<bool> isCredentialExist() async {

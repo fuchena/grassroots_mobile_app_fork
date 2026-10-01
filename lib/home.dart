@@ -29,6 +29,7 @@ class _HomePageState extends State<HomePage> {
   final ServerModel _model = ServerModel();
   final _secureStorage = const FlutterSecureStorage();
   final cookieManager = CookieManager.instance();
+
   @override
   void initState() {
     super.initState();
@@ -54,9 +55,9 @@ class _HomePageState extends State<HomePage> {
   Future<void> _printLocalPhotoSubmissions() async {
     try {
       var box =
-          Hive.box<PhotoSubmission>('photo_submissions'); // Open the Hive box
+      Hive.box<PhotoSubmission>('photo_submissions'); // Open the Hive box
       List<PhotoSubmission> photoSubmissions =
-          box.values.toList(); // Get all photo submissions
+      box.values.toList(); // Get all photo submissions
       print('Local Photo Submissions:');
       for (var photo in photoSubmissions) {
         print(photo.toJson()); // Print each photo submission as JSON
@@ -71,7 +72,7 @@ class _HomePageState extends State<HomePage> {
     try {
       var box = Hive.box<Observation>('observations'); // Open the Hive box
       List<Observation> observations =
-          box.values.toList(); // Get all observations
+      box.values.toList(); // Get all observations
       print('Local Observations:');
       for (var observation in observations) {
         print(observation.toJson()); // Print each observation as JSON
@@ -111,7 +112,8 @@ class _HomePageState extends State<HomePage> {
 
         if (appUrl != null) {
           errorMessage =
-              "Warning: There is a problem with the server connection to $appUrl. Error ${ApiRequests.latest_error}";
+          "Warning: There is a problem with the server connection to $appUrl. Error ${ApiRequests
+              .latest_error}";
         } else {}
 
         if (!mounted) return;
@@ -154,7 +156,8 @@ class _HomePageState extends State<HomePage> {
     firstName = firstName?.split(' ')[0];
     if (!mounted) return;
     setState(() {
-      userFirstName = (firstName== null ? "" : '$firstName!'); //concat firstname with !
+      userFirstName =
+      (firstName == null ? "" : '$firstName!'); //concat firstname with !
     });
   }
 
@@ -207,78 +210,81 @@ class _HomePageState extends State<HomePage> {
                   minHeight: constraints.maxHeight,
                 ),
                 child: Center(
-                child: Padding( padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const SizedBox(height: 20),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const SizedBox(height: 20),
 
-                      const Text(
-                        //"Welcome to the Grassroots App, $userFirstName",
-                        "Welcome to the Grassroots App",
-                        style: TextStyle(
-                            fontSize: 22, fontWeight: FontWeight.bold),
-                        textAlign: TextAlign.center,
-                      ),
-
-                      const SizedBox(height: 16),
-
-                      const Text(
-                        "Empowering agricultural research through technology",
-                        style: TextStyle(fontSize: 16),
-                        textAlign: TextAlign.center,
-                      ),
-
-                      const SizedBox(height: 40),
-
-                      // 👇 Centered Buttons Container
-                      ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 400),
-                        child: Column(
-                          children: [
-                            _buildButton(
-                              label: 'Browse All Studies',
-                              icon: Icons.folder_open,
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (_) => const GrassrootsStudies()),
-                                );
-                              },
-                            ),
-                            const SizedBox(height: 16),
-
-                            _buildButton(
-                              label: 'Create Study',
-                              icon: Icons.add_circle_outline,
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (_) => NewStudyPage()),
-                                );
-                              },
-                            ),
-                            const SizedBox(height: 16),
-
-                            _buildButton(
-                              label: 'Access Web Portal',
-                              icon: Icons.open_in_browser,
-                              onPressed: () async => launchUrl(Uri.parse(webPortalUrl)),
-                            ),
-                          ],
+                         Text(
+                          "Welcome to the Grassroots App, $userFirstName",
+                          //"Welcome to the Grassroots App",
+                          style: TextStyle(
+                              fontSize: 22, fontWeight: FontWeight.bold),
+                          textAlign: TextAlign.center,
                         ),
-                      ),
 
-                      const SizedBox(height: 40),
+                        const SizedBox(height: 16),
 
-                       WelcomeMessageWidget(),
-                    ],
+                        const Text(
+                          "Empowering agricultural research through technology",
+                          style: TextStyle(fontSize: 16),
+                          textAlign: TextAlign.center,
+                        ),
+
+                        const SizedBox(height: 40),
+
+                        // 👇 Centered Buttons Container
+                        ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 400),
+                          child: Column(
+                            children: [
+                              _buildButton(
+                                label: 'Browse All Studies',
+                                icon: Icons.folder_open,
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (
+                                            _) => const GrassrootsStudies()),
+                                  );
+                                },
+                              ),
+                              const SizedBox(height: 16),
+
+                              _buildButton(
+                                label: 'Create Study',
+                                icon: Icons.add_circle_outline,
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (_) => NewStudyPage()),
+                                  );
+                                },
+                              ),
+                              const SizedBox(height: 16),
+
+                              _buildButton(
+                                label: 'Access Web Portal',
+                                icon: Icons.open_in_browser,
+                                onPressed: () async =>
+                                    launchUrl(Uri.parse(webPortalUrl)),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        const SizedBox(height: 40),
+
+                        WelcomeMessageWidget(),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
             );
           },
         ),
@@ -324,10 +330,8 @@ class _HomePageState extends State<HomePage> {
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (_) => const LoginScreen()),
-        (route) => false,
+            (route) => false,
       );
-
-
     }
   }
 }
